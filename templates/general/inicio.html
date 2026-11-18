@@ -1,0 +1,87 @@
+{% extends "principal.html" %}
+{% load static %}
+
+{% block title %}Lotengo | Objetos perdidos y encontrados{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/general/inicio.css' %}">{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-card">
+            <div class="hero-copy">
+                <span class="eyebrow"><span class="eyebrow-dot"></span> Una comunidad que ayuda</span>
+                <h1>Lo que se pierde,<br><span>puede volver.</span></h1>
+                <p class="hero-description">Estamos preparando un espacio seguro para conectar a quienes buscan un objeto con quienes lo encontraron.</p>
+                <a class="btn btn-primary-soft" href="#como-funciona">Conoce el proyecto <span aria-hidden="true">→</span></a>
+                <div class="trust-note"><span class="trust-icon" aria-hidden="true">✓</span> Diseñado para cuidar tu privacidad</div>
+            </div>
+            <div class="hero-art" aria-hidden="true">
+                <div class="orbit orbit-one"></div>
+                <div class="orbit orbit-two"></div>
+                <div class="hero-illustration">
+                    <div class="illustration-spark spark-one">✦</div>
+                    <div class="illustration-spark spark-two">✦</div>
+                    <div class="illustration-pin"><span></span></div>
+                    <div class="illustration-card">
+                        <div class="illustration-image"><span class="bag-handle"></span><span class="bag-body"></span></div>
+                        <div class="illustration-lines"><i></i><i></i><i></i></div>
+                        <span class="illustration-check">✓</span>
+                    </div>
+                    <div class="illustration-caption">Un encuentro puede cambiarlo todo</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="steps-section" id="como-funciona">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Simple y cercano</span>
+            <h2>Un camino para reencontrarse</h2>
+            <p>La plataforma está pensada para hacer más sencillo cada paso, desde publicar hasta confirmar una devolución.</p>
+        </div>
+        <div class="row g-3 g-lg-4">
+            <div class="col-md-4">
+                <article class="step-card">
+                    <span class="step-number">01</span>
+                    <div class="step-icon step-icon-blue" aria-hidden="true">⌕</div>
+                    <h3>Publica o busca</h3>
+                    <p>Comparte información general de un objeto perdido o encontrado.</p>
+                </article>
+            </div>
+            <div class="col-md-4">
+                <article class="step-card">
+                    <span class="step-number">02</span>
+                    <div class="step-icon step-icon-violet" aria-hidden="true">↗</div>
+                    <h3>Conecta con cuidado</h3>
+                    <p>Revisa posibles coincidencias y conversa de forma privada.</p>
+                </article>
+            </div>
+            <div class="col-md-4">
+                <article class="step-card">
+                    <span class="step-number">03</span>
+                    <div class="step-icon step-icon-green" aria-hidden="true">♡</div>
+                    <h3>Confirma la devolución</h3>
+                    <p>Coordina una entrega segura y confirma el resultado con la otra persona.</p>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="platform-section" id="modulos">
+    <div class="container">
+        <div class="platform-banner">
+            <div>
+                <span class="eyebrow">Construyendo Lotengo</span>
+                <h2>Una base preparada para crecer.</h2>
+                <p>El proyecto ya cuenta con una arquitectura modular. Estamos preparando cada parte para ofrecer una experiencia clara, adaptable y confiable.</p>
+            </div>
+            <div class="platform-status"><span></span> Desarrollo en curso</div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block page_js %}<script src="{% static 'js/general/inicio.js' %}"></script>{% endblock %}

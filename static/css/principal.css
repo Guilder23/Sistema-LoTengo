@@ -1,0 +1,22 @@
+:root {
+    color-scheme: light;
+    --ink: #17243b;
+    --muted: #6d7890;
+    --line: #e9edf4;
+    --brand: #4567e8;
+    --brand-dark: #3452c5;
+    --surface: #ffffff;
+    --page: #f7f8fc;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    min-width: 320px;
+    background: var(--page);
+    color: var(--ink);
+    font-family: "DM Sans", sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .navbar-brand { font-family: "Manrope", sans-serif; }
