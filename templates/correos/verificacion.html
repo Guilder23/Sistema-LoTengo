@@ -1,0 +1,16 @@
+{% extends "correos/plantilla_correo.html" %}
+
+{% block titulo %}Confirma tu correo | Lotengo{% endblock %}
+{% block preencabezado %}Confirma tu dirección de correo para activar tu cuenta de Lotengo.{% endblock %}
+{% block etiqueta %}Verificación de cuenta{% endblock %}
+{% block encabezado %}Confirma tu correo electrónico{% endblock %}
+{% block contenido %}
+<p style="margin:0;color:#4f3b44;font-size:15px;line-height:1.65;">
+    Confirma que esta dirección de correo te pertenece para activar tu cuenta de Lotengo.
+</p>
+{% endblock %}
+{% block texto_boton %}Confirmar mi correo{% endblock %}
+{% block aviso_seguridad %}
+    Este enlace es personal y permite verificar la dirección asociada a tu cuenta. Si no creaste una cuenta en Lotengo, ignora este mensaje.
+{% endblock %}
+{% block pie %}Te enviamos este mensaje porque se registró una cuenta con esta dirección de correo.{% endblock %}

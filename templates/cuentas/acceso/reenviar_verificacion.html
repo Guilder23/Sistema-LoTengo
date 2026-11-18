@@ -1,0 +1,21 @@
+{% extends "cuentas/base_cuentas.html" %}
+{% load static %}
+
+{% block title %}Verificar correo | Lotengo{% endblock %}
+{% block css_cuenta %}<link rel="stylesheet" href="{% static 'css/cuentas/acceso/reenviar_verificacion.css' %}">{% endblock %}
+
+{% block contenido_cuenta %}
+<header class="cuenta-encabezado">
+    <span class="cuenta-etiqueta">Confirma tu cuenta</span>
+    <h1>Solicita otro enlace</h1>
+    <p>Escribe el correo usado al registrarte y enviaremos un nuevo enlace si la cuenta está pendiente.</p>
+</header>
+<form method="post" action="{% url 'cuentas:reenviar_verificacion' %}" data-bloquear-envio>
+    {% csrf_token %}
+    <label class="form-label" for="id_email">Correo electrónico</label>
+    <input class="form-control" id="id_email" name="email" type="email" autocomplete="email" required autofocus>
+    <button class="btn btn-primary w-100 cuenta-boton mt-4" type="submit">Enviar enlace</button>
+</form>
+{% endblock %}
+
+{% block js_cuenta %}<script src="{% static 'js/cuentas/acceso/reenviar_verificacion.js' %}"></script>{% endblock %}

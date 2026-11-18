@@ -1,0 +1,22 @@
+{% extends "cuentas/base_cuentas.html" %}
+{% load static %}
+
+{% block title %}Recuperar contraseña | Lotengo{% endblock %}
+{% block css_cuenta %}<link rel="stylesheet" href="{% static 'css/cuentas/recuperacion/solicitar_restauracion.css' %}">{% endblock %}
+
+{% block contenido_cuenta %}
+<header class="cuenta-encabezado">
+    <span class="cuenta-etiqueta">Recupera el acceso</span>
+    <h1>Restablece tu contraseña</h1>
+    <p>Te enviaremos un enlace si encontramos una cuenta verificada con ese correo.</p>
+</header>
+<form method="post" action="{% url 'cuentas:solicitar_restauracion' %}" data-bloquear-envio>
+    {% csrf_token %}
+    <label class="form-label" for="id_email">Correo electrónico</label>
+    <input class="form-control" id="id_email" name="email" type="email" autocomplete="email" required autofocus>
+    <button class="btn btn-primary w-100 cuenta-boton mt-4" type="submit">Enviar enlace</button>
+</form>
+<p class="cuenta-alternativa"><a href="{% url 'cuentas:iniciar_sesion' %}">Volver a iniciar sesión</a></p>
+{% endblock %}
+
+{% block js_cuenta %}<script src="{% static 'js/cuentas/recuperacion/solicitar_restauracion.js' %}"></script>{% endblock %}

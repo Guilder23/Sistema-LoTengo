@@ -1,14 +1,17 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "insecure-development-key-change-me")
-DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() == "true"
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-cambia-esto")
+DEBUG = os.getenv("DEBUG", "False").lower() in {"true", "1", "yes", "on"}
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
     if host.strip()
 ]
 
@@ -19,7 +22,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "app.cuentas",
+    "app.cuentas.apps.CuentasConfig",
     "app.perfiles",
     "app.publicaciones",
     "app.categorias",
@@ -94,6 +97,26 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+
+AUTH_USER_MODEL = "cuentas.Usuario"
+AUTHENTICATION_BACKENDS = ["app.cuentas.backends.CorreoVerificadoBackend"]
+LOGIN_URL = "cuentas:iniciar_sesion"
+LOGIN_REDIRECT_URL = "cuentas:panel"
+LOGOUT_REDIRECT_URL = "general:inicio"
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 24
+
+TERMINOS_VERSION = "1.0"
+PRIVACIDAD_VERSION = "1.0"
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.getenv("EMAIL_HOST", "localhost")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "25"))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "False").lower() in {"true", "1", "yes", "on"}
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_TIMEOUT = 15
+PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "").strip().rstrip("/")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "webmaster@localhost")
 
 LANGUAGE_CODE = "es-bo"
 TIME_ZONE = "America/La_Paz"

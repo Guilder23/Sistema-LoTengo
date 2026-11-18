@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Política de privacidad | Lotengo{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/cuentas/legales/documentos_legales.css' %}">{% endblock %}
+{% block content %}
+<article class="container documento-legal">
+    <span class="cuenta-etiqueta">Versión {{ version }}</span>
+    <h1>Política de privacidad</h1>
+    <p class="documento-aviso">Borrador de trabajo: completar los datos del responsable y revisar legalmente antes de habilitar el servicio al público.</p>
+    <h2>Datos que se utilizan</h2>
+    <p>Para crear una cuenta, Lotengo solicita nombre, apellido, correo electrónico y número de celular. El correo se utiliza para verificar la cuenta y gestionar el acceso.</p>
+    <h2>Visibilidad y seguridad</h2>
+    <p>El correo y el número de celular no se muestran en publicaciones públicas. Las contraseñas se almacenan mediante los mecanismos de hash de Django y no se guardan en texto legible.</p>
+    <h2>Control de la cuenta</h2>
+    <p>La persona usuaria puede solicitar la corrección o eliminación de sus datos mediante los canales de soporte que el responsable de Lotengo habilite antes del lanzamiento.</p>
+    <h2>Conservación</h2>
+    <p>Los datos se conservarán durante el tiempo necesario para operar la cuenta y atender obligaciones legales aplicables. Los plazos definitivos deben establecerse antes de publicar esta política.</p>
+</article>
+{% endblock %}

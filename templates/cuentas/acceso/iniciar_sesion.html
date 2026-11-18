@@ -1,0 +1,41 @@
+{% extends "cuentas/base_cuentas.html" %}
+{% load static %}
+
+{% block title %}Iniciar sesión | Lotengo{% endblock %}
+{% block css_cuenta %}<link rel="stylesheet" href="{% static 'css/cuentas/acceso/iniciar_sesion.css' %}">{% endblock %}
+
+{% block contenido_cuenta %}
+<header class="cuenta-encabezado">
+    <span class="cuenta-etiqueta">Qué bueno verte</span>
+    <h1>Inicia sesión</h1>
+    <p>Entra para revisar tus publicaciones y conversaciones.</p>
+</header>
+
+{% if error %}
+    <div class="alert alert-warning" role="alert">
+        {{ error }}
+        {% if "Verifica tu correo" in error %}
+            <a href="{% url 'cuentas:reenviar_verificacion' %}">Solicita otro enlace</a>
+        {% endif %}
+    </div>
+{% endif %}
+
+<form method="post" action="{% url 'cuentas:iniciar_sesion' %}" data-bloquear-envio>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ siguiente }}">
+    <div class="mb-3">
+        <label class="form-label" for="id_email">Correo electrónico</label>
+        <input class="form-control" id="id_email" name="email" type="email" autocomplete="email" value="{{ correo }}" required autofocus>
+    </div>
+    <div class="mb-2">
+        <label class="form-label" for="id_password">Contraseña</label>
+        <input class="form-control" id="id_password" name="password" type="password" autocomplete="current-password" required>
+    </div>
+    <p class="cuenta-enlace-auxiliar"><a href="{% url 'cuentas:solicitar_restauracion' %}">¿Olvidaste tu contraseña?</a></p>
+    <button class="btn btn-primary w-100 cuenta-boton" type="submit">Iniciar sesión</button>
+</form>
+
+<p class="cuenta-alternativa">¿Aún no tienes cuenta? <a href="{% url 'cuentas:registro' %}">Regístrate</a></p>
+{% endblock %}
+
+{% block js_cuenta %}<script src="{% static 'js/cuentas/acceso/iniciar_sesion.js' %}"></script>{% endblock %}

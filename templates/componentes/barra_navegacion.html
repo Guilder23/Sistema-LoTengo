@@ -2,8 +2,8 @@
 <nav class="navbar navbar-expand-lg app-navbar">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'general:inicio' %}" aria-label="Lotengo, inicio">
-            <span class="brand-mark" aria-hidden="true">e</span>
-            <span>Encontr<span class="brand-accent">App</span></span>
+            <span class="brand-mark" aria-hidden="true">L</span>
+            <span>Lotengo</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navegacionPrincipal" aria-controls="navegacionPrincipal" aria-expanded="false" aria-label="Abrir navegación">
             <span class="navbar-toggler-icon"></span>
@@ -12,7 +12,23 @@
             <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2 py-3 py-lg-0">
                 <li class="nav-item"><a class="nav-link" href="{% url 'general:inicio' %}#como-funciona">Cómo funciona</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'general:inicio' %}#modulos">La plataforma</a></li>
-                <li class="nav-item"><span class="nav-link nav-link-muted">Próximamente</span></li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center" href="{% url 'cuentas:panel' %}">
+                            <span class="nav-account-mark" aria-hidden="true">{{ user.first_name|default:user.email|first|upper }}</span>
+                            Mi espacio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form method="post" action="{% url 'cuentas:cerrar_sesion' %}">
+                            {% csrf_token %}
+                            <button class="btn btn-outline-primary btn-sm ms-lg-2" type="submit">Cerrar sesión</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'cuentas:iniciar_sesion' %}">Iniciar sesión</a></li>
+                    <li class="nav-item"><a class="btn btn-primary btn-sm ms-lg-2" href="{% url 'cuentas:registro' %}">Crear cuenta</a></li>
+                {% endif %}
             </ul>
         </div>
     </div>

@@ -1,0 +1,70 @@
+{% extends "cuentas/base_cuentas.html" %}
+{% load static %}
+
+{% block title %}Crear cuenta | Lotengo{% endblock %}
+{% block css_cuenta %}<link rel="stylesheet" href="{% static 'css/cuentas/acceso/registro.css' %}">{% endblock %}
+
+{% block contenido_cuenta %}
+<header class="cuenta-encabezado">
+    <span class="cuenta-etiqueta">Únete a Lotengo</span>
+    <h1>Crea tu cuenta</h1>
+    <p>Con una sola cuenta puedes buscar objetos y ayudar a otras personas.</p>
+</header>
+
+{% if errores %}
+    <div class="alert alert-danger" role="alert">
+        <ul class="mb-0">
+            {% for campo, mensajes_campo in errores.items %}
+                {% for mensaje in mensajes_campo %}<li>{{ mensaje }}</li>{% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<form method="post" action="{% url 'cuentas:registro' %}" data-bloquear-envio>
+    {% csrf_token %}
+    <div class="row g-3">
+        <div class="col-sm-6">
+            <label class="form-label" for="id_first_name">Nombre</label>
+            <input class="form-control" id="id_first_name" name="first_name" type="text" maxlength="150" autocomplete="given-name" value="{{ valores.first_name|default:'' }}" required>
+        </div>
+        <div class="col-sm-6">
+            <label class="form-label" for="id_last_name">Apellido</label>
+            <input class="form-control" id="id_last_name" name="last_name" type="text" maxlength="150" autocomplete="family-name" value="{{ valores.last_name|default:'' }}" required>
+        </div>
+        <div class="col-12">
+            <label class="form-label" for="id_email">Correo electrónico</label>
+            <input class="form-control" id="id_email" name="email" type="email" maxlength="254" autocomplete="email" value="{{ valores.email|default:'' }}" required>
+        </div>
+        <div class="col-12">
+            <label class="form-label" for="id_telefono">Número de celular</label>
+            <input class="form-control" id="id_telefono" name="telefono" type="tel" maxlength="30" autocomplete="tel" value="{{ valores.telefono|default:'' }}" required>
+        </div>
+        <div class="col-sm-6">
+            <label class="form-label" for="id_password">Contraseña</label>
+            <input class="form-control" id="id_password" name="password" type="password" autocomplete="new-password" required>
+        </div>
+        <div class="col-sm-6">
+            <label class="form-label" for="id_password_confirm">Confirmar contraseña</label>
+            <input class="form-control" id="id_password_confirm" name="password_confirm" type="password" autocomplete="new-password" required>
+        </div>
+    </div>
+
+    <div class="cuenta-consentimientos">
+        <div class="form-check">
+            <input class="form-check-input" id="id_acepta_terminos" name="acepta_terminos" type="checkbox" {% if valores.acepta_terminos %}checked{% endif %} required>
+            <label class="form-check-label" for="id_acepta_terminos">Acepto los <a href="{% url 'cuentas:terminos' %}" target="_blank" rel="noopener">términos y condiciones</a>.</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" id="id_acepta_privacidad" name="acepta_privacidad" type="checkbox" {% if valores.acepta_privacidad %}checked{% endif %} required>
+            <label class="form-check-label" for="id_acepta_privacidad">Acepto la <a href="{% url 'cuentas:privacidad' %}" target="_blank" rel="noopener">política de privacidad</a>.</label>
+        </div>
+    </div>
+
+    <button class="btn btn-primary w-100 cuenta-boton" type="submit">Crear cuenta</button>
+</form>
+
+<p class="cuenta-alternativa">¿Ya tienes una cuenta? <a href="{% url 'cuentas:iniciar_sesion' %}">Inicia sesión</a></p>
+{% endblock %}
+
+{% block js_cuenta %}<script src="{% static 'js/cuentas/acceso/registro.js' %}"></script>{% endblock %}

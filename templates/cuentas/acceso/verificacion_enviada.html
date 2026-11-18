@@ -1,0 +1,23 @@
+{% extends "cuentas/base_cuentas.html" %}
+{% load static %}
+
+{% block title %}Verifica tu correo | Lotengo{% endblock %}
+{% block css_cuenta %}<link rel="stylesheet" href="{% static 'css/cuentas/acceso/verificacion_enviada.css' %}">{% endblock %}
+
+{% block contenido_cuenta %}
+<div class="cuenta-estado-icono" aria-hidden="true">{% if envio_fallido %}!{% else %}✉{% endif %}</div>
+<header class="cuenta-encabezado text-center">
+    {% if envio_fallido %}
+        <span class="cuenta-etiqueta">Correo no enviado</span>
+        <h1>Tu cuenta está creada</h1>
+        <p>No pudimos enviar el mensaje ahora. Inténtalo de nuevo más tarde o solicita otro enlace.</p>
+        <a class="btn btn-primary cuenta-boton" href="{% url 'cuentas:reenviar_verificacion' %}">Reenviar verificación</a>
+    {% else %}
+        <span class="cuenta-etiqueta">Revisa tu bandeja de entrada</span>
+        <h1>Confirma tu correo</h1>
+        <p>Enviamos un enlace de verificación. Cuando confirmes tu correo podrás iniciar sesión.</p>
+        <a href="{% url 'cuentas:reenviar_verificacion' %}">¿No recibiste el correo? Solicita otro enlace</a>
+    {% endif %}
+</header>
+{% endblock %}
+

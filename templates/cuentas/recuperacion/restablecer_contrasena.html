@@ -1,0 +1,32 @@
+{% extends "cuentas/base_cuentas.html" %}
+{% load static %}
+
+{% block title %}Elige una contraseña | Lotengo{% endblock %}
+{% block css_cuenta %}<link rel="stylesheet" href="{% static 'css/cuentas/recuperacion/restablecer_contrasena.css' %}">{% endblock %}
+
+{% block contenido_cuenta %}
+<header class="cuenta-encabezado">
+    <span class="cuenta-etiqueta">Un último paso</span>
+    <h1>Elige una contraseña nueva</h1>
+    <p>Usa una contraseña segura que no hayas utilizado en otro sitio.</p>
+</header>
+{% if errores %}
+    <div class="alert alert-danger" role="alert">
+        <ul class="mb-0">{% for mensaje in errores %}<li>{{ mensaje }}</li>{% endfor %}</ul>
+    </div>
+{% endif %}
+<form method="post" action="{% url 'cuentas:restablecer_contrasena' uidb64=uidb64 token=token %}" data-bloquear-envio>
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label" for="id_password">Nueva contraseña</label>
+        <input class="form-control" id="id_password" name="password" type="password" autocomplete="new-password" required>
+    </div>
+    <div>
+        <label class="form-label" for="id_password_confirm">Confirma la contraseña</label>
+        <input class="form-control" id="id_password_confirm" name="password_confirm" type="password" autocomplete="new-password" required>
+    </div>
+    <button class="btn btn-primary w-100 cuenta-boton mt-4" type="submit">Guardar contraseña</button>
+</form>
+{% endblock %}
+
+{% block js_cuenta %}<script src="{% static 'js/cuentas/recuperacion/restablecer_contrasena.js' %}"></script>{% endblock %}

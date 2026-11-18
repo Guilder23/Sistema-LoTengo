@@ -1,0 +1,13 @@
+<footer class="footer-cuenta">
+    <div class="footer-cuenta-contenido">
+        <span>© {% now "Y" %} <strong>Lotengo</strong> <span class="footer-cuenta-separador">·</span> Mi espacio personal</span>
+        <nav aria-label="Enlaces legales">
+            <a href="{% url 'cuentas:terminos' %}">Términos</a>
+            <a href="{% url 'cuentas:privacidad' %}">Privacidad</a>
+        </nav>
+        <button class="footer-cuenta-arriba" type="button" aria-label="Volver al inicio de la página">
+            Volver arriba
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 12 5-5 5 5"/></svg>
+        </button>
+    </div>
+</footer>

@@ -1,0 +1,16 @@
+{% extends "cuentas/base_cuentas.html" %}
+{% load static %}
+
+{% block title %}Correo verificado | Lotengo{% endblock %}
+{% block css_cuenta %}<link rel="stylesheet" href="{% static 'css/cuentas/acceso/correo_verificado.css' %}">{% endblock %}
+
+{% block contenido_cuenta %}
+<div class="cuenta-estado-icono" aria-hidden="true">✓</div>
+<header class="cuenta-encabezado text-center">
+    <span class="cuenta-etiqueta">Cuenta confirmada</span>
+    <h1>Tu correo está verificado</h1>
+    <p>Ya puedes iniciar sesión y continuar en Lotengo.</p>
+    <a class="btn btn-primary cuenta-boton" href="{% url 'cuentas:iniciar_sesion' %}">Iniciar sesión</a>
+</header>
+{% endblock %}
+

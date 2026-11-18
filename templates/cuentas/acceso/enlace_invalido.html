@@ -1,0 +1,16 @@
+{% extends "cuentas/base_cuentas.html" %}
+{% load static %}
+
+{% block title %}Enlace no válido | Lotengo{% endblock %}
+{% block css_cuenta %}<link rel="stylesheet" href="{% static 'css/cuentas/acceso/enlace_invalido.css' %}">{% endblock %}
+
+{% block contenido_cuenta %}
+<div class="cuenta-estado-icono cuenta-estado-error" aria-hidden="true">!</div>
+<header class="cuenta-encabezado text-center">
+    <span class="cuenta-etiqueta">Enlace no disponible</span>
+    <h1>El enlace venció o ya no es válido</h1>
+    <p>Solicita uno nuevo para verificar tu correo o recuperar el acceso a tu cuenta.</p>
+    <a class="btn btn-primary cuenta-boton" href="{% url 'cuentas:reenviar_verificacion' %}">Solicitar otro enlace</a>
+</header>
+{% endblock %}
+

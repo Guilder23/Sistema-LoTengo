@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/cuentas/cuentas.css' %}">
+    {% block css_cuenta %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<section class="cuenta-seccion">
+    <div class="container">
+        <div class="cuenta-tarjeta">
+            {% block contenido_cuenta %}{% endblock %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block page_js %}
+    <script src="{% static 'js/cuentas/cuentas.js' %}"></script>
+    {% block js_cuenta %}{% endblock %}
+{% endblock %}

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>{% block titulo %}Lotengo{% endblock %}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f5f3f5;color:#351521;font-family:Arial,Helvetica,sans-serif;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+        {% block preencabezado %}{% endblock %}
+    </div>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#f5f3f5;">
+        <tr>
+            <td align="center" style="padding:32px 14px;">
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;border:1px solid #eadfe4;border-radius:16px;background-color:#ffffff;">
+                    <tr>
+                        <td style="padding:24px 30px;border-bottom:1px solid #f1e8ec;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td align="left" valign="middle">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                            <tr>
+                                                <td align="center" valign="middle" width="38" height="38" style="width:38px;height:38px;border-radius:11px;background-color:#c93270;color:#ffffff;font-size:21px;font-weight:bold;">L</td>
+                                                <td style="padding-left:10px;color:#351521;font-size:19px;font-weight:bold;letter-spacing:-.4px;">Lotengo</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td align="right" valign="middle" style="color:#715c66;font-size:10px;font-weight:bold;letter-spacing:1px;">AVISO DE CUENTA</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:34px 30px 30px;">
+                            <p style="margin:0 0 10px;color:#a22652;font-size:11px;font-weight:bold;letter-spacing:1.2px;text-transform:uppercase;">{% block etiqueta %}{% endblock %}</p>
+                            <h1 style="margin:0 0 20px;color:#351521;font-size:27px;line-height:1.25;letter-spacing:-.6px;">{% block encabezado %}{% endblock %}</h1>
+                            <p style="margin:0 0 14px;color:#4f3b44;font-size:15px;line-height:1.65;">
+                                {% if nombre %}Hola, {{ nombre }}.{% else %}Hola.{% endif %}
+                            </p>
+                            {% block contenido %}{% endblock %}
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:24px 0 22px;">
+                                <tr>
+                                    <td align="center" style="border-radius:9px;background-color:#a22652;">
+                                        <a href="{{ enlace }}" style="display:inline-block;padding:13px 22px;border:1px solid #a22652;border-radius:9px;color:#ffffff;font-size:14px;font-weight:bold;text-decoration:none;">{% block texto_boton %}{% endblock %}</a>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 20px;border:1px solid #f0e2e8;border-radius:10px;background-color:#fffafd;">
+                                <tr>
+                                    <td style="padding:14px 15px;color:#715c66;font-size:12px;line-height:1.6;">
+                                        {% block aviso_seguridad %}{% endblock %}
+                                    </td>
+                                </tr>
+                            </table>
+                            <p style="margin:0 0 7px;color:#715c66;font-size:12px;line-height:1.6;">Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
+                            <p style="margin:0;overflow-wrap:anywhere;word-break:break-all;font-size:12px;line-height:1.6;">
+                                <a href="{{ enlace }}" style="color:#a22652;text-decoration:underline;">{{ enlace }}</a>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:19px 30px;border-top:1px solid #f1e8ec;background-color:#fcfafb;color:#806c75;font-size:11px;line-height:1.6;">
+                            {% block pie %}{% endblock %}
+                            <br>Este es un mensaje automático de Lotengo. No respondas a este correo.
+                        </td>
+                    </tr>
+                </table>
+                <p style="max-width:600px;margin:17px auto 0;color:#927d87;font-size:11px;line-height:1.5;text-align:center;">
+                    Lotengo · Notificación relacionada con tu cuenta.
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

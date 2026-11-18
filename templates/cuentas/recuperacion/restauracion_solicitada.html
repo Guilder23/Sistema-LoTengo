@@ -1,0 +1,16 @@
+{% extends "cuentas/base_cuentas.html" %}
+{% load static %}
+
+{% block title %}Revisa tu correo | Lotengo{% endblock %}
+{% block css_cuenta %}<link rel="stylesheet" href="{% static 'css/cuentas/recuperacion/restauracion_solicitada.css' %}">{% endblock %}
+
+{% block contenido_cuenta %}
+<div class="cuenta-estado-icono" aria-hidden="true">✉</div>
+<header class="cuenta-encabezado text-center">
+    <span class="cuenta-etiqueta">Solicitud recibida</span>
+    <h1>Revisa tu correo</h1>
+    <p>Si existe una cuenta verificada con ese correo, recibirás instrucciones para restablecer la contraseña.</p>
+    <a href="{% url 'cuentas:iniciar_sesion' %}">Volver a iniciar sesión</a>
+</header>
+{% endblock %}
+

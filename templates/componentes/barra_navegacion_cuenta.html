@@ -1,0 +1,31 @@
+<header class="navbar-cuenta">
+    <div class="navbar-cuenta-contenido">
+        <a class="navbar-cuenta-marca" href="{% url 'cuentas:panel' %}" aria-label="Lotengo, panel de cuenta">
+            <span class="navbar-cuenta-logo" aria-hidden="true">L</span>
+            <span>Lotengo</span>
+            <span class="navbar-cuenta-etiqueta">MI ESPACIO</span>
+        </a>
+        <div class="navbar-cuenta-acciones">
+            <a class="navbar-cuenta-sitio" href="{% url 'general:inicio' %}">Volver al sitio</a>
+            <div class="cuenta-menu">
+                <button class="cuenta-menu-boton" type="button" aria-expanded="false" aria-controls="menuCuenta" aria-label="Abrir menú de cuenta">
+                    <span class="cuenta-menu-avatar" aria-hidden="true">{{ user.first_name|default:"L"|first|upper }}</span>
+                    <span class="cuenta-menu-nombre">{{ user.first_name|default:"Mi cuenta" }}</span>
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 7.5 5 5 5-5"/></svg>
+                </button>
+                <div class="cuenta-menu-panel" id="menuCuenta" hidden>
+                    <div class="cuenta-menu-identidad">
+                        <strong>{{ user.get_full_name|default:user.email }}</strong>
+                        <span>{{ user.email }}</span>
+                    </div>
+                    <a href="#perfil">Mi perfil</a>
+                    <a href="{% url 'cuentas:privacidad' %}">Privacidad</a>
+                    <form method="post" action="{% url 'cuentas:cerrar_sesion' %}">
+                        {% csrf_token %}
+                        <button type="submit">Cerrar sesión</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

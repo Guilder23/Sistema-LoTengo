@@ -1,0 +1,1 @@
+.cuenta-tarjeta, .cuenta-tarjeta:has(.cuenta-encabezado.text-center) { max-width: 520px; }

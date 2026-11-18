@@ -1,7 +1,12 @@
 .app-navbar {
-    min-height: 76px;
-    background: rgba(255, 255, 255, .92);
-    border-bottom: 1px solid rgba(231, 235, 244, .85);
+    position: sticky;
+    z-index: 1020;
+    top: 0;
+    min-height: 72px;
+    background: rgba(255, 255, 255, .96);
+    border-bottom: 1px solid rgba(241, 223, 231, .8);
+    box-shadow: 0 8px 26px rgba(53, 21, 33, .055);
+    backdrop-filter: blur(18px);
 }
 
 .navbar-brand {
@@ -18,25 +23,62 @@
     width: 34px;
     height: 34px;
     place-items: center;
-    border-radius: 12px;
-    background: var(--brand);
+    border-radius: 11px;
+    background: linear-gradient(145deg, var(--brand-vivid), var(--brand-dark));
     color: #fff;
     font-size: 1.2rem;
     font-weight: 800;
+    box-shadow: 0 5px 12px rgba(201, 50, 112, .23);
 }
 
 .app-navbar .nav-link {
-    padding: .65rem .9rem;
-    color: #536078;
+    padding: .62rem .9rem;
+    border-radius: 10px;
+    color: var(--muted);
     font-size: .91rem;
     font-weight: 600;
+    transition: color .18s ease, background-color .18s ease;
 }
 
-.app-navbar .nav-link:hover { color: var(--brand); }
-.app-navbar .nav-link-muted { color: #9aa3b4; }
-.navbar-toggler { border-color: var(--line); }
-.navbar-toggler:focus { box-shadow: 0 0 0 .2rem rgba(69, 103, 232, .18); }
+.app-navbar .nav-link:hover,
+.app-navbar .nav-link:focus-visible {
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+}
 
-@media (max-width: 575.98px) {
-    .app-navbar { min-height: 66px; }
+.app-navbar .nav-link-muted { color: #a39199; }
+.navbar-toggler {
+    padding: .4rem .55rem;
+    border-color: var(--line);
+    border-radius: 11px;
+}
+
+.navbar-toggler:focus { box-shadow: 0 0 0 .2rem rgba(201, 50, 112, .18); }
+.app-navbar .btn { min-height: 38px; border-radius: 10px; font-weight: 700; }
+.nav-account-mark {
+    display: inline-grid;
+    width: 28px;
+    height: 28px;
+    margin-right: .4rem;
+    place-items: center;
+    border-radius: 9px;
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+    font-size: .76rem;
+    font-weight: 800;
+}
+
+@media (max-width: 991.98px) {
+    .app-navbar { min-height: 64px; }
+    .app-navbar .navbar-collapse {
+        margin: 0 -1rem;
+        padding: .45rem 1rem 1rem;
+        border-top: 1px solid var(--line);
+        background: #fff;
+    }
+
+    .app-navbar .navbar-nav { align-items: stretch !important; }
+    .app-navbar .nav-item > .btn,
+    .app-navbar .nav-item form { display: block; width: 100%; }
+    .app-navbar .nav-item form .btn { margin: .25rem 0 0 !important; }
 }

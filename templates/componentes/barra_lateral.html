@@ -1,6 +1,20 @@
-<aside class="app-sidebar" aria-label="Navegación del panel">
-    <a class="sidebar-link" href="#">Resumen</a>
-    <a class="sidebar-link" href="#">Mis publicaciones</a>
-    <a class="sidebar-link" href="#">Conversaciones</a>
-    <a class="sidebar-link" href="#">Mi perfil</a>
-</aside>
+<nav class="app-sidebar" id="navegacionPanel" aria-label="Navegación de Mi espacio">
+    <a class="sidebar-link is-active" href="#resumen" aria-current="page" aria-label="Resumen" title="Resumen">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></svg>
+        <span class="sidebar-label">Resumen</span>
+    </a>
+    <span class="sidebar-link is-disabled" aria-disabled="true" aria-label="Publicaciones, próximamente" title="Publicaciones, próximamente">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5m8-4.5-8 4.5m0 9v-9"/></svg>
+        <span class="sidebar-label">Publicaciones</span>
+        <small>Pronto</small>
+    </span>
+    <span class="sidebar-link is-disabled" aria-disabled="true" aria-label="Conversaciones, próximamente" title="Conversaciones, próximamente">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
+        <span class="sidebar-label">Conversaciones</span>
+        <small>Pronto</small>
+    </span>
+    <a class="sidebar-link" href="#perfil" aria-label="Mi perfil" title="Mi perfil">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        <span class="sidebar-label">Mi perfil</span>
+    </a>
+</nav>

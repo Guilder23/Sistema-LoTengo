@@ -1,0 +1,95 @@
+:root {
+    color-scheme: light;
+    --ink: #351521;
+    --muted: #715c66;
+    --line: #f1dfe7;
+    --brand: #c93270;
+    --brand-dark: #a22652;
+    --brand-deep: #771b35;
+    --brand-soft: #faeff2;
+    --brand-pale: #f6cbe6;
+    --brand-light: #ec9ecb;
+    --brand-bright: #ea6fac;
+    --brand-vivid: #df4b91;
+    --accent: #7344c9;
+    --accent-soft: #edeffb;
+    --surface: #ffffff;
+    --page: #fdfcfb;
+    --shadow-soft: 0 12px 32px rgba(119, 27, 53, .07);
+    --shadow-card: 0 22px 58px rgba(119, 27, 53, .10);
+    --bs-primary: #c93270;
+    --bs-primary-rgb: 201, 50, 112;
+    --bs-link-color: #a22652;
+    --bs-link-color-rgb: 162, 38, 82;
+    --bs-link-hover-color: #771b35;
+    --bs-focus-ring-color: rgba(201, 50, 112, .22);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    min-width: 320px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--page);
+    color: var(--ink);
+    font-family: "DM Sans", sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+#contenido { flex: 1 0 auto; }
+
+h1, h2, h3, .navbar-brand { font-family: "Manrope", sans-serif; }
+a { text-underline-offset: .18em; }
+
+.btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--brand);
+    --bs-btn-border-color: var(--brand);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--brand-dark);
+    --bs-btn-hover-border-color: var(--brand-dark);
+    --bs-btn-active-bg: var(--brand-deep);
+    --bs-btn-active-border-color: var(--brand-deep);
+    --bs-btn-disabled-bg: var(--brand);
+    --bs-btn-disabled-border-color: var(--brand);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--brand-dark);
+    --bs-btn-border-color: var(--brand);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--brand);
+    --bs-btn-hover-border-color: var(--brand);
+    --bs-btn-active-bg: var(--brand-dark);
+}
+
+.form-check-input:checked {
+    background-color: var(--brand);
+    border-color: var(--brand);
+}
+
+.form-check-input:focus {
+    border-color: var(--brand-light);
+    box-shadow: 0 0 0 .2rem rgba(201, 50, 112, .18);
+}
+
+.btn:focus-visible, .nav-link:focus-visible, a:focus-visible {
+    outline: 3px solid rgba(201, 50, 112, .4);
+    outline-offset: 3px;
+}
+
+.alert {
+    border: 1px solid rgba(119, 27, 53, .08);
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(53, 21, 33, .035);
+}
+
+@media (min-width: 1200px) {
+    .container { max-width: 1480px; }
+}
+
+@media (min-width: 1600px) {
+    .container { max-width: 1560px; }
+}

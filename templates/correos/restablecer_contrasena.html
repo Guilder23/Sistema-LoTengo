@@ -1,0 +1,16 @@
+{% extends "correos/plantilla_correo.html" %}
+
+{% block titulo %}Recupera el acceso a tu cuenta | Lotengo{% endblock %}
+{% block preencabezado %}Usa el enlace seguro para elegir una contraseña nueva para tu cuenta de Lotengo.{% endblock %}
+{% block etiqueta %}Recuperación de acceso{% endblock %}
+{% block encabezado %}Solicitaste cambiar tu contraseña{% endblock %}
+{% block contenido %}
+<p style="margin:0;color:#4f3b44;font-size:15px;line-height:1.65;">
+    Recibimos una solicitud para cambiar la contraseña de tu cuenta de Lotengo. Usa el botón de abajo para elegir una contraseña nueva.
+</p>
+{% endblock %}
+{% block texto_boton %}Crear una contraseña nueva{% endblock %}
+{% block aviso_seguridad %}
+    Si no solicitaste este cambio, puedes ignorar este mensaje. Tu contraseña actual no cambiará.
+{% endblock %}
+{% block pie %}El enlace se generó a partir de una solicitud de recuperación de acceso a tu cuenta.{% endblock %}

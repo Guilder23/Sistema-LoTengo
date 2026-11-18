@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mi cuenta | Lotengo{% endblock %}
+{% block component_css %}
+    <link rel="stylesheet" href="{% static 'css/componentes/barra_lateral.css' %}">
+    <link rel="stylesheet" href="{% static 'css/componentes/barra_navegacion_cuenta.css' %}">
+    <link rel="stylesheet" href="{% static 'css/componentes/pie_pagina_cuenta.css' %}">
+{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/cuentas/panel/panel.css' %}">{% endblock %}
+{% block navbar %}{% include "componentes/barra_navegacion_cuenta.html" %}{% endblock %}
+{% block footer %}{% include "componentes/pie_pagina_cuenta.html" %}{% endblock %}
+{% block content %}
+<section class="cuenta-panel" aria-label="Resumen de tu cuenta">
+    <div class="cuenta-panel-layout">
+        <aside class="cuenta-panel-sidebar">
+            <div class="sidebar-identidad">
+                <span class="cuenta-panel-avatar" aria-hidden="true">{{ user.first_name|default:"L"|first|upper }}</span>
+                <div>
+                    <strong>{{ user.get_full_name|default:user.email }}</strong>
+                    <span>Cuenta personal</span>
+                </div>
+                <button class="sidebar-toggle" type="button" aria-label="Contraer menú lateral" aria-expanded="true" aria-controls="navegacionPanel" title="Contraer menú lateral">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16m5-11 3 3-3 3"/></svg>
+                </button>
+            </div>
+            {% include "componentes/barra_lateral.html" %}
+            <div class="sidebar-nota">
+                <span aria-hidden="true">✦</span>
+                <p>Un pequeño gesto puede ayudar a que algo importante vuelva a casa.</p>
+            </div>
+        </aside>
+        <div class="cuenta-panel-contenido" id="resumen">
+            <header class="cuenta-panel-encabezado">
+                <div>
+                    <span class="cuenta-etiqueta">MI ESPACIO</span>
+                    <h1>Hola, <span>{{ user.first_name|default:"bienvenido/a" }}</span></h1>
+                    <p>Este es el resumen de tu cuenta en Lotengo.</p>
+                </div>
+                <span class="cuenta-estado"><span aria-hidden="true"></span> Cuenta activa</span>
+            </header>
+            <div class="cuenta-panel-tarjetas">
+                <article class="cuenta-panel-tarjeta cuenta-panel-perfil" id="perfil">
+                    <div class="tarjeta-encabezado">
+                        <div>
+                            <span class="tarjeta-etiqueta">TUS DATOS</span>
+                            <h2>Información de perfil</h2>
+                        </div>
+                        <span class="perfil-icono" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+                        </span>
+                    </div>
+                    <dl class="perfil-datos">
+                        <div><dt>Nombre completo</dt><dd>{{ user.get_full_name|default:"Sin nombre" }}</dd></div>
+                        <div><dt>Correo electrónico</dt><dd>{{ user.email }}</dd></div>
+                        <div><dt>Teléfono</dt><dd>{{ user.telefono }}</dd></div>
+                    </dl>
+                </article>
+                <article class="cuenta-panel-tarjeta cuenta-panel-seguridad">
+                    <span class="seguridad-icono" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 7.8 7.5 9.5 4.3-1.7 7.5-4.9 7.5-9.5V6z"/><path d="m8.5 12 2.3 2.3 4.8-5"/></svg>
+                    </span>
+                    <span class="tarjeta-etiqueta">SEGURIDAD</span>
+                    <h2>Tu cuenta está protegida</h2>
+                    <p>Tu correo está verificado y tu espacio está listo para participar en la comunidad.</p>
+                    <span class="correo-verificado"><span aria-hidden="true">✓</span> Correo verificado</span>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block component_js %}
+    <script src="{% static 'js/componentes/barra_navegacion_cuenta.js' %}"></script>
+    <script src="{% static 'js/componentes/barra_lateral.js' %}"></script>
+    <script src="{% static 'js/componentes/pie_pagina_cuenta.js' %}"></script>
+{% endblock %}
+{% block page_js %}<script src="{% static 'js/cuentas/panel/panel.js' %}"></script>{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Términos y condiciones | Lotengo{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/cuentas/legales/documentos_legales.css' %}">{% endblock %}
+{% block content %}
+<article class="container documento-legal">
+    <span class="cuenta-etiqueta">Versión {{ version }}</span>
+    <h1>Términos y condiciones</h1>
+    <p class="documento-aviso">Borrador de trabajo: debe revisarse legalmente antes de habilitar el servicio al público.</p>
+    <h2>Uso de Lotengo</h2>
+    <p>Lotengo facilita la publicación de objetos perdidos o encontrados y la comunicación entre personas para coordinar una posible devolución.</p>
+    <h2>Responsabilidad de las personas usuarias</h2>
+    <p>La información publicada debe ser veraz y no debe incluir datos personales, documentos completos ni ubicaciones exactas que puedan poner a alguien en riesgo. Antes de entregar un objeto, las partes deben verificar la propiedad y acordar una entrega segura.</p>
+    <h2>Alcance del servicio</h2>
+    <p>Lotengo conecta a las personas, pero no garantiza la autenticidad de una publicación, la propiedad de un objeto ni que la devolución llegue a concretarse. Las funciones esenciales de publicación y comunicación no dependen de un pago.</p>
+    <h2>Contenido no permitido</h2>
+    <p>No se permite publicar contenido ilegal, fraudulento, que facilite la apropiación de objetos ajenos o que exponga información privada de terceros. Las publicaciones pueden ser revisadas y retiradas conforme a las reglas de la plataforma.</p>
+</article>
+{% endblock %}
