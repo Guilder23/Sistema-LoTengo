@@ -49,6 +49,34 @@ static/js/cuentas/acceso/reenviar_verificacion.js
 La plantilla compartida `base_cuentas.html` y sus recursos comunes permanecen directamente
 en la carpeta `cuentas`.
 
+## Módulo de publicaciones
+
+`/publicaciones/` permite explorar avisos activos y filtrar por texto, tipo, categoría,
+departamento y municipio. Las cuentas con correo verificado pueden crear avisos, adjuntar
+fotografías, editar sus propios avisos, pausarlos y marcarlos como resueltos. Los datos
+privados de verificación y las referencias exactas de ubicación solo se muestran a quien
+creó el aviso.
+
+Las categorías iniciales se cargan mediante migración. Las fotografías admiten JPG, PNG y
+WEBP, con un máximo de cinco archivos de 5 MB cada uno; se renombran de forma aleatoria y
+se guardan sin metadatos EXIF. La pantalla principal usa una tabla con acciones CRUD y
+las páginas de crear, ver, editar y retirar están en `crud/`; retirar oculta el aviso
+sin borrar el registro.
+
+```text
+templates/publicaciones/publicaciones.html
+templates/publicaciones/crud/crear.html
+templates/publicaciones/crud/detalle.html
+templates/publicaciones/crud/editar.html
+templates/publicaciones/crud/eliminar.html
+static/css/publicaciones/publicaciones.css
+static/css/publicaciones/crud/crear.css
+static/js/publicaciones/publicaciones.js
+static/js/publicaciones/crud/crear.js
+```
+
+CSS y JavaScript mantienen la misma estructura y nombres que sus plantillas.
+
 ## Configuración local
 
 Requiere Python 3.11 o superior. `.env.example` contiene nombres de variables y

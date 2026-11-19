@@ -59,6 +59,9 @@ class PruebasCuentas(TestCase):
         self.client.force_login(usuario)
         response = self.client.get(reverse("cuentas:panel"), HTTP_HOST="localhost")
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="cuenta-sidebar"', html=False)
+        self.assertContains(response, "app-navbar-autenticada", html=False)
+        self.assertContains(response, 'class="navbar-notificaciones-boton"', html=False)
 
     @override_settings(DEBUG=False, PUBLIC_BASE_URL="")
     def test_produccion_no_usa_el_host_de_solicitud_para_enlaces(self):

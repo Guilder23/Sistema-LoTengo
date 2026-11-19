@@ -13,17 +13,34 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% block component_css %}
-    <link rel="stylesheet" href="{% static 'css/componentes/barra_navegacion.css' %}">
-    <link rel="stylesheet" href="{% static 'css/componentes/barra_lateral.css' %}">
-    <link rel="stylesheet" href="{% static 'css/componentes/pie_pagina.css' %}">
+        <link rel="stylesheet" href="{% static 'css/componentes/barra_navegacion.css' %}">
+        {% if user.is_authenticated %}
+            <link rel="stylesheet" href="{% static 'css/componentes/barra_navegacion_autenticada.css' %}">
+        {% endif %}
+        <link rel="stylesheet" href="{% static 'css/componentes/barra_lateral.css' %}">
+        {% if mostrar_sidebar_cuenta %}
+            <link rel="stylesheet" href="{% static 'css/componentes/pie_pagina_cuenta.css' %}">
+        {% else %}
+            <link rel="stylesheet" href="{% static 'css/componentes/pie_pagina.css' %}">
+        {% endif %}
     {% endblock %}
+    {% if mostrar_sidebar_cuenta %}<link rel="stylesheet" href="{% static 'css/cuentas/espacio.css' %}">{% endif %}
     {% block page_css %}{% endblock %}
 </head>
 <body>
     {% block navbar %}
-        {% include "componentes/barra_navegacion.html" %}
+        {% if user.is_authenticated %}
+            {% include "componentes/barra_navegacion_autenticada.html" %}
+        {% else %}
+            {% include "componentes/barra_navegacion.html" %}
+        {% endif %}
     {% endblock %}
-    <main id="contenido">
+    <main id="contenido"{% if mostrar_sidebar_cuenta %} class="cuenta-con-sidebar"{% endif %}>
+        {% if mostrar_sidebar_cuenta %}
+            <div class="cuenta-espacio">
+                {% include "componentes/barra_lateral.html" %}
+                <div class="cuenta-espacio-contenido">
+        {% endif %}
         {% if messages %}
             <div class="container pt-3" aria-live="polite">
                 {% for message in messages %}
@@ -35,15 +52,29 @@
             </div>
         {% endif %}
         {% block content %}{% endblock %}
+        {% if mostrar_sidebar_cuenta %}
+                    {% include "componentes/pie_pagina_cuenta.html" %}
+                </div>
+            </div>
+        {% endif %}
     </main>
     {% block footer %}
-        {% include "componentes/pie_pagina.html" %}
+        {% if not mostrar_sidebar_cuenta %}
+            {% include "componentes/pie_pagina.html" %}
+        {% endif %}
     {% endblock %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     {% block component_js %}
-    <script src="{% static 'js/componentes/barra_navegacion.js' %}"></script>
-    <script src="{% static 'js/componentes/barra_lateral.js' %}"></script>
-    <script src="{% static 'js/componentes/pie_pagina.js' %}"></script>
+        <script src="{% static 'js/componentes/barra_navegacion.js' %}"></script>
+        {% if user.is_authenticated %}
+            <script src="{% static 'js/componentes/barra_navegacion_autenticada.js' %}"></script>
+        {% endif %}
+        <script src="{% static 'js/componentes/barra_lateral.js' %}"></script>
+        {% if mostrar_sidebar_cuenta %}
+            <script src="{% static 'js/componentes/pie_pagina_cuenta.js' %}"></script>
+        {% else %}
+            <script src="{% static 'js/componentes/pie_pagina.js' %}"></script>
+        {% endif %}
     {% endblock %}
     {% block page_js %}{% endblock %}
 </body>

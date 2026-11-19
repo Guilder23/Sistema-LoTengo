@@ -1,4 +1,12 @@
 .hero-section { padding: 34px 0 55px; }
+.publicaciones-recientes-section { padding: 8px 0 62px; }
+.publicaciones-recientes-encabezado { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+.publicaciones-recientes-encabezado .section-heading { margin: 0; text-align: left; }
+.publicaciones-recientes-enlace { flex: 0 0 auto; margin-bottom: 4px; color: var(--brand-dark); font-size: .82rem; font-weight: 800; text-decoration: none; }
+.publicaciones-recientes-enlace:hover { color: var(--brand); text-decoration: underline; }
+.publicaciones-recientes-vacias { padding: 28px; border: 1px dashed var(--line); border-radius: 16px; background: #fffafd; text-align: center; }
+.publicaciones-recientes-vacias p { margin: 0 0 14px; color: var(--muted); }
+.publicaciones-recientes-vacias .btn { border-radius: 10px; font-weight: 700; }
 
 .hero-card {
     position: relative;
@@ -67,6 +75,8 @@
     color: #fff;
 }
 .btn-primary-soft span { margin-left: 10px; font-size: 1.2rem; }
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.hero-publish { margin-top: 10px; border-radius: 11px; font-weight: 700; }
 .trust-note { display: flex; align-items: center; gap: 9px; margin-top: 22px; color: var(--muted); font-size: .82rem; }
 .trust-icon {
     display: grid;
@@ -163,6 +173,8 @@
 
 @media (max-width: 767.98px) {
     .hero-section { padding: 18px 0 40px; }
+    .publicaciones-recientes-section { padding: 5px 0 43px; }
+    .publicaciones-recientes-encabezado { align-items: flex-start; flex-direction: column; gap: 12px; }
     .hero-card { grid-template-columns: 1fr; border-radius: 21px; }
     .hero-copy { padding: 31px 25px 0; }
     .hero-copy h1 { margin-top: 15px; font-size: clamp(2.45rem, 10.5vw, 3.3rem); }

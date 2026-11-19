@@ -2,7 +2,10 @@
 {% load static %}
 
 {% block title %}Lotengo | Objetos perdidos y encontrados{% endblock %}
-{% block page_css %}<link rel="stylesheet" href="{% static 'css/general/inicio.css' %}">{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/componentes/tarjeta_publicacion.css' %}">
+    <link rel="stylesheet" href="{% static 'css/general/inicio.css' %}">
+{% endblock %}
 
 {% block content %}
 <section class="hero-section">
@@ -11,8 +14,15 @@
             <div class="hero-copy">
                 <span class="eyebrow"><span class="eyebrow-dot"></span> Una comunidad que ayuda</span>
                 <h1>Lo que se pierde,<br><span>puede volver.</span></h1>
-                <p class="hero-description">Estamos preparando un espacio seguro para conectar a quienes buscan un objeto con quienes lo encontraron.</p>
-                <a class="btn btn-primary-soft" href="#como-funciona">Conoce el proyecto <span aria-hidden="true">→</span></a>
+                <p class="hero-description">Explora objetos perdidos y encontrados o publica un aviso para ayudar a que algo importante vuelva a casa.</p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary-soft" href="{% url 'publicaciones:listado' %}">Explorar objetos <span aria-hidden="true">→</span></a>
+                    {% if user.is_authenticated %}
+                        <a class="btn btn-outline-primary hero-publish" href="{% url 'publicaciones:crear' %}">Publicar objeto</a>
+                    {% else %}
+                        <a class="btn btn-outline-primary hero-publish" href="{% url 'cuentas:registro' %}">Crear cuenta</a>
+                    {% endif %}
+                </div>
                 <div class="trust-note"><span class="trust-icon" aria-hidden="true">✓</span> Diseñado para cuidar tu privacidad</div>
             </div>
             <div class="hero-art" aria-hidden="true">
@@ -34,12 +44,37 @@
     </div>
 </section>
 
+<section class="publicaciones-recientes-section" aria-labelledby="publicaciones-recientes-titulo">
+    <div class="container">
+        <div class="publicaciones-recientes-encabezado">
+            <div class="section-heading">
+                <span class="eyebrow">Avisos de la comunidad</span>
+                <h2 id="publicaciones-recientes-titulo">Objetos publicados recientemente</h2>
+                <p>Explora los avisos y abre el detalle para conocer más sobre cada objeto.</p>
+            </div>
+            <a class="publicaciones-recientes-enlace" href="{% url 'publicaciones:listado' %}">Ver todas las publicaciones</a>
+        </div>
+        {% if publicaciones_recientes %}
+            <div class="tarjetas-publicaciones-grid">
+                {% for publicacion in publicaciones_recientes %}
+                    {% include "componentes/tarjeta_publicacion.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="publicaciones-recientes-vacias">
+                <p>Aún no hay avisos publicados. Puedes ser la primera persona en compartir uno.</p>
+                <a class="btn btn-primary" href="{% if user.is_authenticated %}{% url 'publicaciones:crear' %}{% else %}{% url 'cuentas:registro' %}{% endif %}">Publicar un objeto</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
 <section class="steps-section" id="como-funciona">
     <div class="container">
         <div class="section-heading">
             <span class="eyebrow">Simple y cercano</span>
             <h2>Un camino para reencontrarse</h2>
-            <p>La plataforma está pensada para hacer más sencillo cada paso, desde publicar hasta confirmar una devolución.</p>
+            <p>Publica un objeto perdido o encontrado, encuentra avisos relacionados y coordina con cuidado.</p>
         </div>
         <div class="row g-3 g-lg-4">
             <div class="col-md-4">
@@ -76,9 +111,9 @@
             <div>
                 <span class="eyebrow">Construyendo Lotengo</span>
                 <h2>Una base preparada para crecer.</h2>
-                <p>El proyecto ya cuenta con una arquitectura modular. Estamos preparando cada parte para ofrecer una experiencia clara, adaptable y confiable.</p>
+                <p>Ya puedes explorar publicaciones y, desde una cuenta verificada, compartir un objeto perdido o encontrado.</p>
             </div>
-            <div class="platform-status"><span></span> Desarrollo en curso</div>
+            <a class="platform-status" href="{% url 'publicaciones:listado' %}"><span></span> Ver publicaciones</a>
         </div>
     </div>
 </section>

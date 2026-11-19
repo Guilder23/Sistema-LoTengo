@@ -11,24 +11,9 @@
         <div class="collapse navbar-collapse" id="navegacionPrincipal">
             <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2 py-3 py-lg-0">
                 <li class="nav-item"><a class="nav-link" href="{% url 'general:inicio' %}#como-funciona">Cómo funciona</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'general:inicio' %}#modulos">La plataforma</a></li>
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center" href="{% url 'cuentas:panel' %}">
-                            <span class="nav-account-mark" aria-hidden="true">{{ user.first_name|default:user.email|first|upper }}</span>
-                            Mi espacio
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <form method="post" action="{% url 'cuentas:cerrar_sesion' %}">
-                            {% csrf_token %}
-                            <button class="btn btn-outline-primary btn-sm ms-lg-2" type="submit">Cerrar sesión</button>
-                        </form>
-                    </li>
-                {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'cuentas:iniciar_sesion' %}">Iniciar sesión</a></li>
-                    <li class="nav-item"><a class="btn btn-primary btn-sm ms-lg-2" href="{% url 'cuentas:registro' %}">Crear cuenta</a></li>
-                {% endif %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'publicaciones:listado' %}">Explorar objetos</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'cuentas:iniciar_sesion' %}">Iniciar sesión</a></li>
+                <li class="nav-item"><a class="btn btn-primary btn-sm ms-lg-2" href="{% url 'cuentas:registro' %}">Crear cuenta</a></li>
             </ul>
         </div>
     </div>

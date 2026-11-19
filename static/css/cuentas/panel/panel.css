@@ -1,108 +1,14 @@
 .cuenta-panel {
     min-height: 100%;
-    padding: 38px clamp(16px, 2.1vw, 34px) 54px;
+    padding: 22px clamp(16px, 1.8vw, 28px) 38px;
 }
 
-.cuenta-panel-layout {
-    display: grid;
-    max-width: 1540px;
-    grid-template-columns: minmax(230px, 270px) minmax(0, 1fr);
-    align-items: start;
-    gap: clamp(20px, 2.2vw, 34px);
-    margin: 0 auto;
-}
-
-.cuenta-panel-sidebar,
 .cuenta-panel-tarjeta {
     border: 1px solid var(--line);
     border-radius: 20px;
     background: #fff;
     box-shadow: 0 12px 34px rgba(53, 21, 33, .055);
 }
-
-.cuenta-panel-sidebar {
-    position: sticky;
-    top: 94px;
-    padding: 18px 14px 15px;
-}
-
-.sidebar-identidad {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding: 5px 5px 18px;
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 14px;
-}
-
-.sidebar-identidad > div { display: grid; min-width: 0; flex: 1; gap: 3px; }
-.sidebar-toggle {
-    display: grid;
-    width: 36px;
-    height: 36px;
-    flex: 0 0 auto;
-    place-items: center;
-    border: 1px solid var(--line);
-    border-radius: 11px;
-    background: #fff;
-    color: var(--muted);
-    transition: background-color .18s ease, color .18s ease, border-color .18s ease;
-}
-
-.sidebar-toggle:hover,
-.sidebar-toggle:focus-visible {
-    border-color: #efc5d6;
-    background: var(--brand-soft);
-    color: var(--brand-dark);
-}
-
-.sidebar-toggle svg {
-    width: 19px;
-    height: 19px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.7;
-}
-
-.cuenta-panel-avatar {
-    display: grid;
-    width: 44px;
-    height: 44px;
-    flex: 0 0 auto;
-    place-items: center;
-    border: 1px solid #f0cbd9;
-    border-radius: 15px;
-    background: linear-gradient(145deg, #f8d9e6, #faeff2);
-    color: var(--brand-dark);
-    font-family: "Manrope", sans-serif;
-    font-size: 1.1rem;
-    font-weight: 800;
-}
-
-.sidebar-identidad strong {
-    overflow: hidden;
-    color: var(--ink);
-    font-size: .83rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.sidebar-identidad div span { color: var(--muted); font-size: .73rem; }
-.sidebar-nota {
-    display: flex;
-    align-items: flex-start;
-    gap: 9px;
-    margin-top: 18px;
-    padding: 12px;
-    border: 1px solid #f3e5ec;
-    border-radius: 13px;
-    background: #fffafd;
-}
-
-.sidebar-nota > span { color: var(--brand); font-size: 1.05rem; line-height: 1.2; }
-.sidebar-nota p { margin: 0; color: var(--muted); font-size: .73rem; line-height: 1.55; }
 
 .cuenta-panel-contenido { min-width: 0; }
 .cuenta-panel-encabezado {
@@ -226,39 +132,12 @@
 
 .correo-verificado > span { font-size: .9rem; }
 
-.cuenta-panel-layout.is-sidebar-collapsed {
-    grid-template-columns: 82px minmax(0, 1fr);
-}
-
-.is-sidebar-collapsed .cuenta-panel-sidebar { padding: 15px 9px; }
-.is-sidebar-collapsed .sidebar-identidad { justify-content: center; flex-wrap: wrap; padding: 0 0 14px; }
-.is-sidebar-collapsed .sidebar-identidad > div,
-.is-sidebar-collapsed .sidebar-nota,
-.is-sidebar-collapsed .sidebar-label,
-.is-sidebar-collapsed .sidebar-link small { display: none; }
-.is-sidebar-collapsed .sidebar-toggle { width: 100%; }
-.is-sidebar-collapsed .sidebar-toggle svg { transform: rotate(180deg); }
-.is-sidebar-collapsed .sidebar-link { justify-content: center; min-height: 46px; padding: .6rem; }
-.is-sidebar-collapsed .sidebar-link svg { width: 20px; height: 20px; }
-
 @media (max-width: 991.98px) {
-    .cuenta-panel-layout { grid-template-columns: 1fr; }
-    .cuenta-panel-sidebar { position: static; }
-    .sidebar-nota { display: none; }
     .cuenta-panel-tarjetas { grid-template-columns: minmax(0, 1.2fr) minmax(240px, .8fr); }
-
-    .cuenta-panel-layout.is-sidebar-collapsed { grid-template-columns: 1fr; }
-    .is-sidebar-collapsed .app-sidebar { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
-    .cuenta-panel { padding: 24px 16px 38px; }
-    .cuenta-panel-sidebar { padding: 13px; }
-    .sidebar-identidad { padding-bottom: 13px; margin-bottom: 10px; }
-    .app-sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
-    .sidebar-link { min-height: 43px; gap: 8px; padding: .6rem .65rem; font-size: .78rem; }
-    .sidebar-link small { display: none; }
-    .is-sidebar-collapsed .sidebar-link { min-height: 42px; }
+    .cuenta-panel { padding: 18px 13px 30px; }
     .cuenta-panel-encabezado { align-items: flex-start; flex-direction: column; margin: 4px 0 20px; }
     .cuenta-panel-tarjetas { grid-template-columns: 1fr; gap: 13px; }
     .cuenta-panel-tarjeta { padding: 20px; }

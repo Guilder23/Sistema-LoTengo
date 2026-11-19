@@ -1,0 +1,179 @@
+.tarjetas-publicaciones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
+    gap: 18px;
+}
+
+.tarjeta-publicacion {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 17px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(119, 27, 53, .055);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.tarjeta-publicacion:hover {
+    transform: translateY(-3px);
+    border-color: #e9bfd1;
+    box-shadow: var(--shadow-soft);
+}
+
+.tarjeta-publicacion-imagen {
+    position: relative;
+    display: grid;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    place-items: center;
+    background: linear-gradient(145deg, #faeff2, #f3eff8);
+    text-decoration: none;
+}
+
+.tarjeta-publicacion-imagen > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .25s ease;
+}
+
+.tarjeta-publicacion:hover .tarjeta-publicacion-imagen > img { transform: scale(1.035); }
+
+.tarjeta-publicacion-sin-imagen {
+    display: grid;
+    width: 58px;
+    height: 58px;
+    place-items: center;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .76);
+    color: var(--brand-dark);
+}
+
+.tarjeta-publicacion-sin-imagen svg {
+    width: 29px;
+    height: 29px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+}
+
+.tarjeta-publicacion-tipo {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 9px;
+    border: 1px solid rgba(255, 255, 255, .7);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .93);
+    font-size: .68rem;
+    font-weight: 800;
+}
+
+.tarjeta-publicacion-tipo.tipo-perdido { background: #fff0e8; color: #a64b18; }
+.tarjeta-publicacion-tipo.tipo-encontrado { background: #e9f6f0; color: #277451; }
+
+.tarjeta-publicacion-cuerpo {
+    display: flex;
+    min-height: 194px;
+    flex: 1;
+    flex-direction: column;
+    padding: 15px 16px 14px;
+}
+
+.tarjeta-publicacion-categoria {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: var(--muted);
+    font-size: .7rem;
+}
+
+.tarjeta-publicacion-categoria > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tarjeta-publicacion-categoria time { flex: 0 0 auto; }
+
+.tarjeta-publicacion h3 {
+    overflow: hidden;
+    margin: 9px 0 5px;
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tarjeta-publicacion h3 a { color: inherit; text-decoration: none; }
+.tarjeta-publicacion h3 a:hover { color: var(--brand-dark); }
+
+.tarjeta-publicacion-cuerpo > p {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 0;
+    color: var(--muted);
+    font-size: .8rem;
+    line-height: 1.55;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.tarjeta-publicacion-pie {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 13px;
+}
+
+.tarjeta-publicacion-ubicacion {
+    display: inline-flex;
+    min-width: 0;
+    align-items: center;
+    gap: 5px;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: .7rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tarjeta-publicacion-ubicacion svg {
+    width: 15px;
+    height: 15px;
+    flex: 0 0 auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+}
+
+.tarjeta-publicacion-detalle {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 5px;
+    color: var(--brand-dark);
+    font-size: .76rem;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.tarjeta-publicacion-detalle:hover { color: var(--brand); }
+.tarjeta-publicacion-detalle svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+
+@media (prefers-reduced-motion: reduce) {
+    .tarjeta-publicacion,
+    .tarjeta-publicacion-imagen > img { transition: none; }
+}

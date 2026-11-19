@@ -1,20 +1,54 @@
-<nav class="app-sidebar" id="navegacionPanel" aria-label="Navegación de Mi espacio">
-    <a class="sidebar-link is-active" href="#resumen" aria-current="page" aria-label="Resumen" title="Resumen">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></svg>
-        <span class="sidebar-label">Resumen</span>
-    </a>
-    <span class="sidebar-link is-disabled" aria-disabled="true" aria-label="Publicaciones, próximamente" title="Publicaciones, próximamente">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5m8-4.5-8 4.5m0 9v-9"/></svg>
-        <span class="sidebar-label">Publicaciones</span>
-        <small>Pronto</small>
-    </span>
-    <span class="sidebar-link is-disabled" aria-disabled="true" aria-label="Conversaciones, próximamente" title="Conversaciones, próximamente">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
-        <span class="sidebar-label">Conversaciones</span>
-        <small>Pronto</small>
-    </span>
-    <a class="sidebar-link" href="#perfil" aria-label="Mi perfil" title="Mi perfil">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-        <span class="sidebar-label">Mi perfil</span>
-    </a>
-</nav>
+<aside class="cuenta-sidebar" aria-label="Navegación de Mi cuenta">
+    <div class="cuenta-sidebar-encabezado">
+        <a class="cuenta-sidebar-marca" href="{% url 'cuentas:panel' %}" aria-label="Lotengo, panel de cuenta" title="Lotengo">
+            <span class="cuenta-sidebar-logo" aria-hidden="true">L</span>
+            <span class="cuenta-sidebar-marca-texto">Lotengo</span>
+        </a>
+        <button class="sidebar-toggle" type="button" aria-label="Contraer menú lateral" aria-expanded="true" aria-controls="navegacionPanel" title="Contraer menú lateral">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16m5-11 3 3-3 3"/></svg>
+        </button>
+    </div>
+
+    <div class="cuenta-sidebar-identidad">
+        <span class="cuenta-sidebar-avatar" aria-hidden="true">{{ user.first_name|default:"L"|first|upper }}</span>
+        <div>
+            <strong>{{ user.get_full_name|default:user.email }}</strong>
+            <span>Cuenta personal</span>
+        </div>
+    </div>
+
+    <span class="cuenta-sidebar-seccion">Mi espacio</span>
+    <nav class="app-sidebar" id="navegacionPanel" aria-label="Mi espacio">
+        <a class="sidebar-link{% if request.resolver_match.view_name == 'cuentas:panel' %} is-active{% endif %}" href="{% url 'cuentas:panel' %}" aria-label="Resumen" title="Resumen" data-tooltip="Resumen"{% if request.resolver_match.view_name == 'cuentas:panel' %} aria-current="page"{% endif %}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></svg>
+            <span class="sidebar-label">Resumen</span>
+        </a>
+        <a class="sidebar-link{% if request.resolver_match.view_name == 'publicaciones:mis_publicaciones' or request.resolver_match.view_name == 'publicaciones:crear' or request.resolver_match.view_name == 'publicaciones:editar' or request.resolver_match.view_name == 'publicaciones:eliminar' or request.resolver_match.view_name == 'publicaciones:detalle' %} is-active{% endif %}" href="{% url 'publicaciones:mis_publicaciones' %}" aria-label="Mis publicaciones" title="Mis publicaciones" data-tooltip="Mis publicaciones"{% if request.resolver_match.view_name == 'publicaciones:mis_publicaciones' or request.resolver_match.view_name == 'publicaciones:crear' or request.resolver_match.view_name == 'publicaciones:editar' or request.resolver_match.view_name == 'publicaciones:eliminar' or request.resolver_match.view_name == 'publicaciones:detalle' %} aria-current="page"{% endif %}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5m8-4.5-8 4.5m0 9v-9"/></svg>
+            <span class="sidebar-label">Mis publicaciones</span>
+        </a>
+        <span class="sidebar-link is-disabled" aria-disabled="true" aria-label="Conversaciones, próximamente" title="Conversaciones, próximamente" data-tooltip="Conversaciones, próximamente">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
+            <span class="sidebar-label">Conversaciones</span>
+            <small>Pronto</small>
+        </span>
+        <a class="sidebar-link" href="{% url 'cuentas:panel' %}#perfil" aria-label="Mi perfil" title="Mi perfil" data-tooltip="Mi perfil">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+            <span class="sidebar-label">Mi perfil</span>
+        </a>
+    </nav>
+
+    <div class="cuenta-sidebar-pie">
+        <a class="sidebar-link" href="{% url 'general:inicio' %}" aria-label="Volver al sitio" title="Volver al sitio" data-tooltip="Volver al sitio">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6m-10 4L20 4M19 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h6"/></svg>
+            <span class="sidebar-label">Volver al sitio</span>
+        </a>
+        <form method="post" action="{% url 'cuentas:cerrar_sesion' %}">
+            {% csrf_token %}
+            <button class="sidebar-link" type="submit" aria-label="Cerrar sesión" title="Cerrar sesión" data-tooltip="Cerrar sesión">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h5m5-4 4-4-4-4m4 4H9"/></svg>
+                <span class="sidebar-label">Cerrar sesión</span>
+            </button>
+        </form>
+    </div>
+</aside>

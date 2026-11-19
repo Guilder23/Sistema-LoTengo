@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Editar publicación | Lotengo{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/publicaciones/crud/editar.css' %}">{% endblock %}
+
+{% block content %}
+<section class="formulario-pagina">
+    <div class="container formulario-contenedor">
+        <a class="volver-publicaciones" href="{% url 'publicaciones:detalle' publicacion.pk %}">← Volver al detalle</a>
+        <header class="formulario-encabezado">
+            <span class="publicaciones-etiqueta">ACTUALIZA TU AVISO</span>
+            <h1>Editar publicación</h1>
+            <p>Revisa cada sección antes de guardar. Tu información privada seguirá oculta al público.</p>
+        </header>
+
+        <form class="formulario-publicacion" method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            <section class="form-seccion" aria-labelledby="seccion-aviso">
+                <span class="form-seccion-etiqueta" id="seccion-aviso">01 · EL AVISO</span>
+                <div class="form-grid">
+                    <label>
+                        <span>¿Qué ocurrió? <b>*</b></span>
+                        <select name="tipo" required>
+                            <option value="">Selecciona un tipo</option>
+                            <option value="perdido" {% if valores.tipo == "perdido" %}selected{% endif %}>Perdí un objeto</option>
+                            <option value="encontrado" {% if valores.tipo == "encontrado" %}selected{% endif %}>Encontré un objeto</option>
+                        </select>
+                        {% for error in errores.tipo %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                    <label>
+                        <span>Categoría <b>*</b></span>
+                        <select name="categoria" required>
+                            <option value="">Selecciona una categoría</option>
+                            {% for categoria in categorias %}
+                                <option value="{{ categoria.pk }}" {% if valores.categoria == categoria.pk|stringformat:"s" %}selected{% endif %}>{{ categoria.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        {% for error in errores.categoria %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                    <label class="campo-completo">
+                        <span>Título <b>*</b></span>
+                        <input type="text" name="titulo" maxlength="140" value="{{ valores.titulo|default:'' }}" required>
+                        {% for error in errores.titulo %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                    <label class="campo-completo">
+                        <span>Descripción <b>*</b></span>
+                        <textarea name="descripcion" rows="4" maxlength="1600" required>{{ valores.descripcion|default:'' }}</textarea>
+                        {% for error in errores.descripcion %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                    <label>
+                        <span>Marca (opcional)</span>
+                        <input type="text" name="marca" maxlength="80" value="{{ valores.marca|default:'' }}">
+                        {% for error in errores.marca %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                    <label>
+                        <span>Color (opcional)</span>
+                        <input type="text" name="color" maxlength="60" value="{{ valores.color|default:'' }}">
+                        {% for error in errores.color %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                    <label class="campo-completo">
+                        <span>Características públicas</span>
+                        <textarea name="caracteristicas_publicas" rows="2" maxlength="500">{{ valores.caracteristicas_publicas|default:'' }}</textarea>
+                        {% for error in errores.caracteristicas_publicas %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                    <label class="campo-completo">
+                        <span>Dato privado para verificar la propiedad</span>
+                        <textarea name="caracteristica_privada" rows="2" maxlength="500">{{ valores.caracteristica_privada|default:'' }}</textarea>
+                        <small>Este detalle solo lo verás tú.</small>
+                        {% for error in errores.caracteristica_privada %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                    <label>
+                        <span>Fecha aproximada <b>*</b></span>
+                        <input type="date" name="fecha_evento" max="{{ today|date:'Y-m-d' }}" value="{{ valores.fecha_evento|default:'' }}" required>
+                        {% for error in errores.fecha_evento %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                </div>
+            </section>
+
+            <section class="form-seccion" aria-labelledby="seccion-ubicacion">
+                <span class="form-seccion-etiqueta" id="seccion-ubicacion">02 · UBICACIÓN APROXIMADA</span>
+                <p class="form-ayuda">El municipio y la zona pueden mostrarse públicamente. Nunca publicamos tu referencia exacta.</p>
+                <div class="form-grid">
+                    <label>
+                        <span>Departamento <b>*</b></span>
+                        <select name="departamento" required>
+                            <option value="">Selecciona</option>
+                            {% for codigo, nombre in departamentos %}
+                                <option value="{{ codigo }}" {% if valores.departamento == codigo %}selected{% endif %}>{{ nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        {% for error in errores.departamento %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                    <label>
+                        <span>Municipio <b>*</b></span>
+                        <select name="municipio" required>
+                            <option value="">Selecciona primero un departamento</option>
+                            {% for municipio in municipios %}
+                                <option value="{{ municipio }}" {% if valores.municipio == municipio %}selected{% endif %}>{{ municipio }}</option>
+                            {% endfor %}
+                        </select>
+                        {% for error in errores.municipio %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                    <label class="campo-completo">
+                        <span>Zona o lugar aproximado</span>
+                        <input type="text" name="zona" maxlength="120" value="{{ valores.zona|default:'' }}">
+                        {% for error in errores.zona %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                    <label class="form-check campo-completo">
+                        <input type="checkbox" name="conoce_lugar_exacto" value="on" {% if valores.conoce_lugar_exacto %}checked{% endif %}>
+                        <span>Conozco una referencia más exacta y quiero guardarla en privado.</span>
+                    </label>
+                    <label class="campo-completo">
+                        <span>Referencia exacta privada</span>
+                        <input type="text" name="referencia_privada" maxlength="240" value="{{ valores.referencia_privada|default:'' }}">
+                        {% for error in errores.referencia_privada %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                </div>
+            </section>
+
+            <section class="form-seccion" aria-labelledby="seccion-fotografias">
+                <span class="form-seccion-etiqueta" id="seccion-fotografias">03 · FOTOGRAFÍAS</span>
+                <div class="aviso-privacidad">
+                    <strong>Cuida tus datos</strong>
+                    <span>No subas documentos con datos personales. Se eliminan los metadatos de ubicación de las imágenes.</span>
+                </div>
+                {% if publicacion.imagenes.all %}
+                    <div class="imagenes-existentes">
+                        {% for imagen in publicacion.imagenes.all %}
+                            <label class="imagen-existente">
+                                <img src="{{ imagen.archivo.url }}" alt="Fotografía actual de la publicación">
+                                <span><input type="checkbox" name="eliminar_imagenes" value="{{ imagen.pk }}"> Quitar fotografía</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <label class="selector-imagenes">
+                    <span>Agregar fotos JPG, PNG o WEBP (máximo {{ maximo_imagenes }} en total, 5 MB por imagen)</span>
+                    <input id="imagenesPublicacion" type="file" name="imagenes" accept="image/jpeg,image/png,image/webp" multiple>
+                </label>
+                <div id="vistaPreviaImagenes" class="vista-previa-imagenes" aria-live="polite"></div>
+                {% for error in errores.imagenes %}<small class="campo-error">{{ error }}</small>{% endfor %}
+            </section>
+
+            <div class="form-acciones">
+                <a class="btn btn-light" href="{% url 'publicaciones:detalle' publicacion.pk %}">
+                    <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+                    Cancelar
+                </a>
+                <button class="btn btn-primary" type="submit">
+                    <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h12l3 3v13H4V4h1Zm2 0v5h9V4m-9 16v-7h10v7"/></svg>
+                    Guardar cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block page_js %}<script src="{% static 'js/publicaciones/crud/editar.js' %}"></script>{% endblock %}

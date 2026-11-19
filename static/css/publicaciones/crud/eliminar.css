@@ -1,0 +1,10 @@
+@import url("formulario.css");
+.eliminar-publicacion-contenedor { max-width: 720px; }
+.confirmacion-eliminar { display: grid; justify-items: center; gap: 12px; padding: clamp(24px, 5vw, 42px); border: 1px solid #f0e2e8; border-radius: 18px; background: #fff; box-shadow: 0 12px 32px rgba(119, 27, 53, .07); text-align: center; }
+.confirmacion-icono { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 50%; background: #fff1e9; color: #a64b18; font-size: 1.5rem; font-weight: 800; }
+.confirmacion-eliminar h1 { margin: 0; color: #351521; font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800; letter-spacing: -.045em; }
+.confirmacion-eliminar > p { max-width: 540px; margin: 0; color: #715c66; line-height: 1.65; }
+.confirmacion-resumen { display: grid; gap: 4px; width: 100%; margin: 5px 0; padding: 13px; border-radius: 10px; background: #fcf8fa; color: #624453; font-size: .84rem; }
+.confirmacion-acciones { display: flex; justify-content: center; gap: 9px; width: 100%; margin-top: 5px; }
+.confirmacion-acciones .btn { min-height: 42px; border-radius: 9px; font-weight: 700; }
+@media (max-width: 520px) { .confirmacion-acciones { flex-direction: column-reverse; } .confirmacion-acciones .btn { width: 100%; } }

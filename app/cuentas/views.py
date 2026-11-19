@@ -326,7 +326,11 @@ def contrasena_actualizada(request):
 
 @login_required
 def panel(request):
-    return render(request, "cuentas/panel/panel.html")
+    return render(
+        request,
+        "cuentas/panel/panel.html",
+        {"mostrar_sidebar_cuenta": True},
+    )
 
 
 def terminos(request):

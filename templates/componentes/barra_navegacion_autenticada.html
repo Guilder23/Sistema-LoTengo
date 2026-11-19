@@ -1,0 +1,46 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg app-navbar app-navbar-autenticada{% if mostrar_sidebar_cuenta %} navbar-con-sidebar{% endif %}">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'general:inicio' %}" aria-label="Lotengo, inicio">
+            <span class="brand-mark" aria-hidden="true">L</span>
+            <span>Lotengo</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navegacionPrincipal" aria-controls="navegacionPrincipal" aria-expanded="false" aria-label="Abrir navegación">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navegacionPrincipal">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2 py-3 py-lg-0">
+                <li class="nav-item"><a class="nav-link" href="{% url 'general:inicio' %}#como-funciona">Cómo funciona</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'publicaciones:listado' %}">Explorar objetos</a></li>
+                <li class="nav-item"><a class="btn btn-primary btn-sm ms-lg-2" href="{% url 'publicaciones:crear' %}">Publicar objeto</a></li>
+                <li class="nav-item">
+                    <div class="navbar-notificaciones">
+                        <button class="navbar-notificaciones-boton" type="button" aria-expanded="false" aria-controls="panelNotificaciones" aria-label="Abrir notificaciones" title="Notificaciones">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+                        </button>
+                        <section class="navbar-notificaciones-panel" id="panelNotificaciones" aria-label="Notificaciones" hidden>
+                            <div class="navbar-notificaciones-encabezado">
+                                <strong>Notificaciones</strong>
+                                <span>Sin novedades</span>
+                            </div>
+                            <p>Te avisaremos aquí cuando haya novedades sobre tu cuenta o tus publicaciones.</p>
+                            <a href="{% url 'publicaciones:mis_publicaciones' %}">Ver mis publicaciones</a>
+                        </section>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center" href="{% url 'cuentas:panel' %}">
+                        <span class="nav-account-mark" aria-hidden="true">{{ user.first_name|default:user.email|first|upper }}</span>
+                        Mi espacio
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <form method="post" action="{% url 'cuentas:cerrar_sesion' %}">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-primary btn-sm ms-lg-2" type="submit">Cerrar sesión</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

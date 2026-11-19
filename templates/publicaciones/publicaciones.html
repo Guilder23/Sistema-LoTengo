@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if mostrar_propias %}Mis publicaciones{% else %}Publicaciones{% endif %} | Lotengo{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/componentes/tarjeta_publicacion.css' %}">
+    <link rel="stylesheet" href="{% static 'css/publicaciones/publicaciones.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="publicaciones-pagina">
+    <div class="container">
+        <header class="publicaciones-encabezado">
+            <div>
+                <span class="publicaciones-etiqueta">{% if mostrar_propias %}MI ESPACIO{% else %}COMUNIDAD LOTENGO{% endif %}</span>
+                <h1>{% if mostrar_propias %}Mis publicaciones{% else %}Publicaciones{% endif %}</h1>
+                <p>{% if mostrar_propias %}Consulta y administra tus avisos desde un solo lugar.{% else %}Explora objetos perdidos y encontrados. Los datos privados y de contacto no se muestran aquí.{% endif %}</p>
+            </div>
+            {% if user.is_authenticated %}
+                <a class="btn btn-primary publicaciones-accion" href="{% url 'publicaciones:crear' %}">
+                    <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                    Nueva publicación
+                </a>
+            {% else %}
+                <a class="btn btn-primary publicaciones-accion" href="{% url 'cuentas:registro' %}">Crear cuenta para publicar</a>
+            {% endif %}
+        </header>
+
+        {% if not mostrar_propias %}
+            <form class="filtros-publicaciones" method="get" action="{% url 'publicaciones:listado' %}">
+                <label class="filtro-busqueda">
+                    <span>Buscar por objeto o descripción</span>
+                    <input type="search" name="q" value="{{ filtros.q }}" placeholder="Ej. celular negro">
+                </label>
+                <label>
+                    <span>Tipo</span>
+                    <select name="tipo">
+                        <option value="">Todos</option>
+                        <option value="perdido" {% if filtros.tipo == "perdido" %}selected{% endif %}>Perdido</option>
+                        <option value="encontrado" {% if filtros.tipo == "encontrado" %}selected{% endif %}>Encontrado</option>
+                    </select>
+                </label>
+                <label>
+                    <span>Categoría</span>
+                    <select name="categoria">
+                        <option value="">Todas</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.pk }}" {% if filtros.categoria == categoria.pk|stringformat:"s" %}selected{% endif %}>{{ categoria.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    <span>Departamento</span>
+                    <select name="departamento">
+                        <option value="">Todos</option>
+                        {% for codigo, nombre in departamentos %}
+                            <option value="{{ codigo }}" {% if filtros.departamento == codigo %}selected{% endif %}>{{ nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    <span>Municipio</span>
+                    <input type="search" name="municipio" value="{{ filtros.municipio }}" placeholder="Cualquier municipio">
+                </label>
+                <div class="filtros-acciones">
+                    <button class="btn btn-primary" type="submit">Buscar</button>
+                    <button class="btn btn-light" type="button" data-limpiar-filtros>Limpiar</button>
+                </div>
+            </form>
+        {% endif %}
+
+        <div class="resultados-encabezado">
+            <h2>{% if mostrar_propias %}Tus avisos{% else %}Avisos recientes{% endif %}</h2>
+            <span>{{ pagina.paginator.count }} resultado{{ pagina.paginator.count|pluralize:"s" }}</span>
+        </div>
+
+        {% if pagina.object_list %}
+            {% if mostrar_propias %}
+            <div class="tabla-publicaciones-contenedor">
+                <table class="tabla-publicaciones">
+                    <thead>
+                        <tr>
+                            <th scope="col">Publicación</th>
+                            <th scope="col">Tipo</th>
+                            <th scope="col">Categoría</th>
+                            <th scope="col">Ubicación</th>
+                            <th scope="col">Fecha</th>
+                            {% if mostrar_propias %}<th scope="col">Estado</th>{% endif %}
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for publicacion in pagina %}
+                            <tr>
+                                <td>
+                                    <div class="tabla-publicacion-identidad">
+                                        {% with portada=publicacion.imagenes.first %}
+                                            {% if portada %}
+                                                <img src="{{ portada.archivo.url }}" alt="" loading="lazy">
+                                            {% else %}
+                                                <span class="tabla-publicacion-sin-imagen" aria-hidden="true">L</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                        <div>
+                                            <a class="tabla-publicacion-titulo" href="{% url 'publicaciones:detalle' publicacion.pk %}">{{ publicacion.titulo }}</a>
+                                            <span>{{ publicacion.descripcion|truncatechars:72 }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="publicacion-tipo tipo-{{ publicacion.tipo }}">{{ publicacion.get_tipo_display }}</span></td>
+                                <td>{{ publicacion.categoria.nombre }}</td>
+                                <td>{{ publicacion.ubicacion.municipio }}, {{ publicacion.ubicacion.get_departamento_display }}</td>
+                                <td><time datetime="{{ publicacion.creada_en|date:'c' }}">{{ publicacion.creada_en|date:"j M Y" }}</time></td>
+                                {% if mostrar_propias %}
+                                    <td><span class="estado-publicacion estado-{{ publicacion.estado }}">{{ publicacion.get_estado_display }}</span></td>
+                                {% endif %}
+                                <td>
+                                    <div class="tabla-acciones">
+                                        <a class="btn btn-outline-primary btn-sm btn-accion-icono" href="{% url 'publicaciones:detalle' publicacion.pk %}" aria-label="Ver detalle de {{ publicacion.titulo }}" title="Ver detalle">
+                                            <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.2-6 9.5-6 9.5 6 9.5 6-3.2 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                                            <span class="visually-hidden">Detalle</span>
+                                        </a>
+                                        {% if user.is_authenticated and publicacion.usuario_id == user.pk %}
+                                            {% if publicacion.estado != "resuelta" %}
+                                                <a class="btn btn-light btn-sm btn-accion-icono" href="{% url 'publicaciones:editar' publicacion.pk %}" aria-label="Editar {{ publicacion.titulo }}" title="Editar">
+                                                    <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l4.4-.9L19 8.5 15.5 5 4.9 15.6 4 20Z"/></svg>
+                                                    <span class="visually-hidden">Editar</span>
+                                                </a>
+                                            {% endif %}
+                                            {% if publicacion.estado == "publicada" %}
+                                                <form method="post" action="{% url 'publicaciones:cambiar_estado' publicacion.pk %}" data-confirmar="¿Quieres pausar esta publicación?">
+                                                    {% csrf_token %}<input type="hidden" name="accion" value="pausar">
+                                                    <button class="btn btn-light btn-sm btn-accion-icono" type="submit" aria-label="Pausar {{ publicacion.titulo }}" title="Pausar">
+                                                        <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
+                                                        <span class="visually-hidden">Pausar</span>
+                                                    </button>
+                                                </form>
+                                                <form method="post" action="{% url 'publicaciones:cambiar_estado' publicacion.pk %}" data-confirmar="{{ publicacion.etiqueta_resolucion }}. ¿Confirmas?">
+                                                    {% csrf_token %}<input type="hidden" name="accion" value="resolver">
+                                                    <button class="btn btn-primary btn-sm btn-accion-icono" type="submit" aria-label="{{ publicacion.etiqueta_resolucion }}: {{ publicacion.titulo }}" title="{{ publicacion.etiqueta_resolucion }}">
+                                                        <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+                                                        <span class="visually-hidden">{{ publicacion.etiqueta_resolucion }}</span>
+                                                    </button>
+                                                </form>
+                                            {% elif publicacion.estado == "pausada" %}
+                                                <form method="post" action="{% url 'publicaciones:cambiar_estado' publicacion.pk %}">
+                                                    {% csrf_token %}<input type="hidden" name="accion" value="activar">
+                                                    <button class="btn btn-primary btn-sm btn-accion-icono" type="submit" aria-label="Activar {{ publicacion.titulo }}" title="Activar">
+                                                        <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>
+                                                        <span class="visually-hidden">Activar</span>
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                            {% if publicacion.estado != "eliminada" %}
+                                                <a class="btn btn-outline-danger btn-sm btn-accion-icono" href="{% url 'publicaciones:eliminar' publicacion.pk %}" aria-label="Eliminar {{ publicacion.titulo }}" title="Eliminar">
+                                                    <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16m-10 4v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg>
+                                                    <span class="visually-hidden">Eliminar</span>
+                                                </a>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <div class="tarjetas-publicaciones-grid">
+                    {% for publicacion in pagina %}
+                        {% include "componentes/tarjeta_publicacion.html" %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if pagina.has_other_pages %}
+                <nav class="paginacion-publicaciones" aria-label="Páginas de publicaciones">
+                    {% if pagina.has_previous %}
+                        <a href="?pagina={{ pagina.previous_page_number }}{% if filtros.q %}&q={{ filtros.q|urlencode }}{% endif %}{% if filtros.tipo %}&tipo={{ filtros.tipo|urlencode }}{% endif %}{% if filtros.categoria %}&categoria={{ filtros.categoria|urlencode }}{% endif %}{% if filtros.departamento %}&departamento={{ filtros.departamento|urlencode }}{% endif %}{% if filtros.municipio %}&municipio={{ filtros.municipio|urlencode }}{% endif %}">Anterior</a>
+                    {% endif %}
+                    <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+                    {% if pagina.has_next %}
+                        <a href="?pagina={{ pagina.next_page_number }}{% if filtros.q %}&q={{ filtros.q|urlencode }}{% endif %}{% if filtros.tipo %}&tipo={{ filtros.tipo|urlencode }}{% endif %}{% if filtros.categoria %}&categoria={{ filtros.categoria|urlencode }}{% endif %}{% if filtros.departamento %}&departamento={{ filtros.departamento|urlencode }}{% endif %}{% if filtros.municipio %}&municipio={{ filtros.municipio|urlencode }}{% endif %}">Siguiente</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="publicaciones-vacio">
+                <span aria-hidden="true">⌕</span>
+                <h2>{% if mostrar_propias %}Aún no tienes avisos{% else %}No encontramos publicaciones{% endif %}</h2>
+                <p>{% if mostrar_propias %}Cuando publiques un objeto, podrás gestionarlo desde esta tabla.{% else %}Prueba con otros filtros o publica un aviso para ayudar a la comunidad.{% endif %}</p>
+                {% if user.is_authenticated %}
+                    <a class="btn btn-primary" href="{% url 'publicaciones:crear' %}">
+                        <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                        Publicar un objeto
+                    </a>
+                {% else %}
+                    <a class="btn btn-primary" href="{% url 'cuentas:registro' %}">Crear cuenta</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block page_js %}<script src="{% static 'js/publicaciones/publicaciones.js' %}"></script>{% endblock %}
