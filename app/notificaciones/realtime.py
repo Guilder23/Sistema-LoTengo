@@ -29,6 +29,7 @@ def obtener_contadores_usuario(usuario_id):
     mensajes_sin_leer = sum(mensajes_por_conversacion.values())
     notificaciones_sin_leer = Notificacion.objects.filter(
         usuario_id=usuario_id,
+        tipo=Notificacion.Tipo.NUEVA_PUBLICACION,
         leida_en__isnull=True,
     ).count()
     return {

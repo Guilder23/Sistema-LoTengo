@@ -185,12 +185,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const actualizarContadorNotificaciones = (cantidad) => {
         const total = Number(cantidad) || 0;
         if (contadorNotificaciones) {
-            contadorNotificaciones.textContent = `${total} sin leer`;
+            contadorNotificaciones.textContent = `${total} publicaciones sin leer`;
         }
         if (botonNotificaciones) {
             botonNotificaciones.setAttribute(
                 "aria-label",
-                total ? `Abrir notificaciones, ${total} sin leer` : "Abrir notificaciones",
+                total
+                    ? `Abrir novedades de publicaciones, ${total} sin leer`
+                    : "Abrir novedades de publicaciones",
             );
         }
         if (insigniaNotificaciones) {
@@ -220,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!datos.notificaciones.length) {
                 const vacio = document.createElement("li");
                 vacio.className = "navbar-notificaciones-vacia";
-                vacio.textContent = "Todavía no tienes notificaciones.";
+                vacio.textContent = "Todavía no tienes novedades de publicaciones.";
                 listaNotificaciones.append(vacio);
                 return;
             }

@@ -44,7 +44,10 @@ def lista(request):
     preferencia, _ = PreferenciaNotificaciones.objects.get_or_create(
         usuario=request.user
     )
-    notificaciones = Notificacion.objects.filter(usuario=request.user)
+    notificaciones = Notificacion.objects.filter(
+        usuario=request.user,
+        tipo=Notificacion.Tipo.NUEVA_PUBLICACION,
+    )
     pagina = Paginator(notificaciones, 20).get_page(request.GET.get("pagina"))
     return render(
         request,
@@ -74,7 +77,10 @@ def preferencias(request):
 @login_required
 @require_GET
 def resumen(request):
-    notificaciones = Notificacion.objects.filter(usuario=request.user)
+    notificaciones = Notificacion.objects.filter(
+        usuario=request.user,
+        tipo=Notificacion.Tipo.NUEVA_PUBLICACION,
+    )
     recientes = notificaciones[:8]
     contadores = obtener_contadores_usuario(request.user.pk)
     return JsonResponse(
@@ -105,6 +111,7 @@ def resumen(request):
 def marcar_todas_leidas(request):
     actualizadas = Notificacion.objects.filter(
         usuario=request.user,
+        tipo=Notificacion.Tipo.NUEVA_PUBLICACION,
         leida_en__isnull=True,
     ).update(leida_en=timezone.now())
     if actualizadas:

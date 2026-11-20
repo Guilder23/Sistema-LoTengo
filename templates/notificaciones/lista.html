@@ -20,7 +20,7 @@
             <div>
                 <span class="notificaciones-etiqueta">Tu actividad</span>
                 <h1>Notificaciones</h1>
-                <p>Revisa tus mensajes y las novedades de publicaciones que elegiste recibir.</p>
+                <p>Revisa las novedades de publicaciones que elegiste recibir.</p>
             </div>
             {% if pagina.object_list %}
                 <form method="post" action="{% url 'notificaciones:marcar_todas_leidas' %}">
@@ -80,7 +80,7 @@
             <div class="notificaciones-seccion-titulo">
                 <div>
                     <h2 id="actividadTitulo">Actividad reciente</h2>
-                    <p>Los avisos se marcan como leídos al abrirlos.</p>
+                    <p>Las novedades se marcan como leídas al abrirlas.</p>
                 </div>
             </div>
             {% if pagina.object_list %}
@@ -108,7 +108,7 @@
                 <div class="notificaciones-vacio">
                     <span aria-hidden="true">✓</span>
                     <h3>Todo al día</h3>
-                    <p>Cuando recibas un mensaje o una novedad, aparecerá aquí.</p>
+                    <p>Cuando haya nuevas publicaciones que elegiste recibir, aparecerán aquí.</p>
                 </div>
             {% endif %}
 

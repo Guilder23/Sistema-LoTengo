@@ -28,8 +28,15 @@ class PruebasNotificaciones(TestCase):
             correo_verificado=True,
         )
 
-    def test_bandeja_y_resumen_solo_muestran_notificaciones_propias(self):
+    def test_campana_solo_muestra_nuevas_publicaciones(self):
         propia = Notificacion.objects.create(
+            usuario=self.persona,
+            tipo=Notificacion.Tipo.NUEVA_PUBLICACION,
+            titulo="Nueva publicación",
+            mensaje="Mochila roja · Cochabamba",
+            url="/publicaciones/1/",
+        )
+        mensaje_propio = Notificacion.objects.create(
             usuario=self.persona,
             tipo=Notificacion.Tipo.MENSAJE,
             titulo="Nuevo mensaje",
@@ -54,7 +61,10 @@ class PruebasNotificaciones(TestCase):
             respuesta.json()["notificaciones"][0]["url"],
             reverse("notificaciones:abrir", args=(propia.pk,)),
         )
-        self.assertEqual(self.client.get(reverse("notificaciones:lista")).status_code, 200)
+        bandeja = self.client.get(reverse("notificaciones:lista"))
+        self.assertEqual(bandeja.status_code, 200)
+        self.assertContains(bandeja, propia.titulo)
+        self.assertNotContains(bandeja, mensaje_propio.titulo)
 
     def test_abrir_marca_leida_y_no_permite_acceso_a_otra_cuenta(self):
         notificacion = Notificacion.objects.create(

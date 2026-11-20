@@ -5,6 +5,7 @@ from channels.layers import get_channel_layer
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, OuterRef, Q, Subquery
+from django.db.models.functions import Coalesce
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -42,6 +43,7 @@ def _listar_conversaciones(usuario):
         )
         .annotate(
             ultimo_mensaje=Subquery(ultimo_mensaje.values("contenido")[:1]),
+            ultimo_mensaje_en=Subquery(ultimo_mensaje.values("enviada_en")[:1]),
             ultimo_adjunto=Subquery(ultimo_mensaje.values("tipo_adjunto")[:1]),
             ultimo_remitente_id=Subquery(
                 ultimo_mensaje.values("remitente_id")[:1]
@@ -51,6 +53,10 @@ def _listar_conversaciones(usuario):
                 filter=Q(mensajes__leida_en__isnull=True)
                 & ~Q(mensajes__remitente=usuario),
             ),
+        )
+        .order_by(
+            Coalesce("ultimo_mensaje_en", "actualizada_en").desc(),
+            "-pk",
         )
     )
     for conversacion in conversaciones:

@@ -120,6 +120,50 @@ class PruebasConversaciones(DatosConversaciones, TestCase):
             3,
         )
 
+    def test_lista_ordena_chats_por_el_mensaje_mas_reciente(self):
+        conversacion_antigua = Conversacion.objects.create(
+            publicacion=self.publicacion,
+            interesado=self.interesado,
+        )
+        conversacion_reciente = Conversacion.objects.create(
+            publicacion=self.publicacion,
+            interesado=self.ajeno,
+        )
+        mensaje_antiguo = Mensaje.objects.create(
+            conversacion=conversacion_antigua,
+            remitente=self.interesado,
+            contenido="Mensaje anterior",
+        )
+        mensaje_reciente = Mensaje.objects.create(
+            conversacion=conversacion_reciente,
+            remitente=self.ajeno,
+            contenido="Mensaje reciente",
+        )
+        ahora = timezone.now()
+        fecha_antigua = ahora - timedelta(days=2)
+        fecha_reciente = ahora - timedelta(hours=1)
+        Mensaje.objects.filter(pk=mensaje_antiguo.pk).update(
+            enviada_en=fecha_antigua,
+        )
+        Mensaje.objects.filter(pk=mensaje_reciente.pk).update(
+            enviada_en=fecha_reciente,
+        )
+        Conversacion.objects.filter(pk=conversacion_antigua.pk).update(
+            actualizada_en=fecha_reciente,
+        )
+        Conversacion.objects.filter(pk=conversacion_reciente.pk).update(
+            actualizada_en=fecha_antigua,
+        )
+        self.client.force_login(self.publicador)
+
+        respuesta = self.client.get(reverse("conversaciones:lista"))
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(
+            [conversacion.pk for conversacion in respuesta.context["conversaciones"]],
+            [conversacion_reciente.pk, conversacion_antigua.pk],
+        )
+
     def test_interesado_inicia_reutiliza_y_envia_mensaje_privado(self):
         self.client.force_login(self.interesado)
         detalle_publicacion = self.client.get(
@@ -485,7 +529,7 @@ class PruebasWebSocketContadores(TransactionTestCase):
             recibidos["mensajes_por_conversacion"],
             {str(conversacion_id): 1},
         )
-        self.assertEqual(recibidos["notificaciones_sin_leer"], 1)
+        self.assertEqual(recibidos["notificaciones_sin_leer"], 0)
 
         await database_sync_to_async(marcar_mensajes_leidos)(
             conversacion_id,
