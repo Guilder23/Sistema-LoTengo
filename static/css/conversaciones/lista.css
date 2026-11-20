@@ -227,6 +227,7 @@
 
 .messenger-avatar {
     display: grid;
+    overflow: hidden;
     width: 48px;
     height: 48px;
     flex: 0 0 auto;
@@ -237,6 +238,13 @@
     color: #fff;
     font-size: 1rem;
     font-weight: 800;
+}
+
+.messenger-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    object-fit: cover;
 }
 
 .messenger-presencia-punto {

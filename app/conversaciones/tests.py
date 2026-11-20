@@ -18,6 +18,7 @@ from unittest.mock import AsyncMock, patch
 from app.categorias.models import Categoria
 from app.geografia.models import Departamento, Municipio
 from app.notificaciones.models import Notificacion, SuscripcionPush
+from app.perfiles.models import Perfil
 from app.notificaciones.routing import websocket_urlpatterns as notificaciones_websocket_urlpatterns
 from app.publicaciones.models import Publicacion
 from app.ubicaciones.models import Ubicacion
@@ -99,6 +100,25 @@ class PruebasConversaciones(DatosConversaciones, TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn("next=", response["Location"])
         self.assertFalse(Conversacion.objects.exists())
+
+    def test_chat_muestra_foto_del_contacto_en_sus_avatares(self):
+        conversacion = Conversacion.objects.create(
+            publicacion=self.publicacion,
+            interesado=self.interesado,
+        )
+        Perfil.objects.create(
+            usuario=self.publicador,
+            foto="perfiles/fotos/perfil.jpg",
+        )
+        self.client.force_login(self.interesado)
+
+        respuesta = self.client.get(self.detalle_url(conversacion))
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(
+            respuesta.content.count(b"media/perfiles/fotos/perfil.jpg"),
+            3,
+        )
 
     def test_interesado_inicia_reutiliza_y_envia_mensaje_privado(self):
         self.client.force_login(self.interesado)

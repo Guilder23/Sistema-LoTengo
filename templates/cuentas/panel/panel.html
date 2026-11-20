@@ -25,6 +25,12 @@
                         <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
                     </span>
                 </div>
+                <div class="perfil-resumen-foto">
+                    <span class="perfil-resumen-avatar" aria-hidden="true">
+                        {% if perfil.foto %}<img src="{{ perfil.foto.url }}" alt="">{% else %}{{ user.first_name|default:user.email|first|upper }}{% endif %}
+                    </span>
+                    <a class="perfil-editar-enlace" href="{% url 'perfiles:editar' %}">Editar perfil</a>
+                </div>
                 <dl class="perfil-datos">
                     <div><dt>Nombre completo</dt><dd>{{ user.get_full_name|default:"Sin nombre" }}</dd></div>
                     <div><dt>Correo electrónico</dt><dd>{{ user.email }}</dd></div>

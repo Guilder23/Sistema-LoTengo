@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Editar perfil | Lotengo{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/perfiles/editar.css' %}">{% endblock %}
+{% block content %}
+<section class="perfil-edicion" aria-labelledby="perfil-edicion-titulo">
+    <header class="perfil-edicion-encabezado">
+        <div>
+            <span class="perfil-edicion-etiqueta">MI PERFIL</span>
+            <h1 id="perfil-edicion-titulo">Tu información, a tu manera</h1>
+            <p>Actualiza tus datos y elige una foto para que te reconozcan.</p>
+        </div>
+        <a class="perfil-volver" href="{% url 'cuentas:panel' %}">Volver a mi cuenta</a>
+    </header>
+
+    <section class="perfil-portada" aria-label="Vista previa del perfil">
+        <div class="perfil-portada-fondo"></div>
+        <div class="perfil-portada-contenido">
+            <div class="perfil-avatar" aria-hidden="true">
+                <img
+                    data-foto-preview
+                    alt=""
+                    {% if perfil.foto %}
+                        src="{{ perfil.foto.url }}"
+                        data-foto-original="{{ perfil.foto.url }}"
+                    {% else %}
+                        hidden
+                    {% endif %}
+                >
+                <span data-avatar-inicial{% if perfil.foto %} hidden{% endif %}>{{ user.first_name|default:user.email|first|upper }}</span>
+            </div>
+            <div class="perfil-portada-identidad">
+                <h2>{{ user.get_full_name|default:"Tu perfil" }}</h2>
+                <p>{{ user.email }}</p>
+            </div>
+            <span class="perfil-portada-privacidad">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 7.8 7.5 9.5 4.3-1.7 7.5-4.9 7.5-9.5V6z"/><path d="m8.5 12 2.3 2.3 4.8-5"/></svg>
+                Solo tú puedes editar estos datos
+            </span>
+        </div>
+    </section>
+
+    <div class="perfil-edicion-columnas">
+        <form class="perfil-formulario" method="post" enctype="multipart/form-data" data-perfil-formulario>
+            {% csrf_token %}
+            {% if formulario.non_field_errors %}
+                <div class="perfil-error-general" role="alert">
+                    {% for error in formulario.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+            {% endif %}
+
+            <section class="perfil-tarjeta">
+                <div class="perfil-tarjeta-encabezado">
+                    <div>
+                        <span class="perfil-edicion-etiqueta">FOTO DE PERFIL</span>
+                        <h2>Una imagen que te represente</h2>
+                    </div>
+                    <span class="perfil-edicion-icono" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M4 7h3l1.5-2h7L17 7h3v12H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+                    </span>
+                </div>
+
+                <div class="perfil-foto-campos">
+                    <label for="{{ formulario.foto.id_for_label }}">Sube una foto JPG, PNG o WEBP (máximo 5 MB)</label>
+                    {{ formulario.foto }}
+                    {% for error in formulario.foto.errors %}<span class="perfil-campo-error">{{ error }}</span>{% endfor %}
+                    <span class="perfil-ayuda" data-foto-nombre role="status">La vista previa se actualizará al elegir una imagen.</span>
+                    {% if perfil.foto %}
+                        <label class="perfil-quitar-foto" for="{{ formulario.eliminar_foto.id_for_label }}">
+                            {{ formulario.eliminar_foto }}
+                            <span>Quitar mi foto actual</span>
+                        </label>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="perfil-tarjeta">
+                <div class="perfil-tarjeta-encabezado">
+                    <div>
+                        <span class="perfil-edicion-etiqueta">INFORMACIÓN PERSONAL</span>
+                        <h2>Datos de tu cuenta</h2>
+                    </div>
+                    <span class="perfil-edicion-icono" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+                    </span>
+                </div>
+
+                <div class="perfil-campos-grid">
+                    <div class="perfil-campo">
+                        <label for="{{ formulario.first_name.id_for_label }}">{{ formulario.first_name.label }}</label>
+                        {{ formulario.first_name }}
+                        {% for error in formulario.first_name.errors %}<span class="perfil-campo-error">{{ error }}</span>{% endfor %}
+                    </div>
+                    <div class="perfil-campo">
+                        <label for="{{ formulario.last_name.id_for_label }}">{{ formulario.last_name.label }}</label>
+                        {{ formulario.last_name }}
+                        {% for error in formulario.last_name.errors %}<span class="perfil-campo-error">{{ error }}</span>{% endfor %}
+                    </div>
+                    <div class="perfil-campo perfil-campo-completo">
+                        <label for="{{ formulario.email.id_for_label }}">{{ formulario.email.label }}</label>
+                        {{ formulario.email }}
+                        <span class="perfil-ayuda">Si cambias el correo, tendrás que verificarlo antes de volver a iniciar sesión.</span>
+                        {% for error in formulario.email.errors %}<span class="perfil-campo-error">{{ error }}</span>{% endfor %}
+                    </div>
+                    <div class="perfil-campo perfil-campo-completo">
+                        <label for="{{ formulario.telefono.id_for_label }}">{{ formulario.telefono.label }}</label>
+                        {{ formulario.telefono }}
+                        {% for error in formulario.telefono.errors %}<span class="perfil-campo-error">{{ error }}</span>{% endfor %}
+                    </div>
+                </div>
+
+                <div class="perfil-formulario-acciones">
+                    <a class="perfil-boton-secundario" href="{% url 'cuentas:panel' %}">Cancelar</a>
+                    <button class="perfil-boton-guardar" type="submit" data-perfil-guardar>Guardar cambios</button>
+                </div>
+            </section>
+        </form>
+
+        <aside class="perfil-ayuda-tarjeta">
+            <span class="perfil-ayuda-icono" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 7.8 7.5 9.5 4.3-1.7 7.5-4.9 7.5-9.5V6z"/><path d="m8.5 12 2.3 2.3 4.8-5"/></svg>
+            </span>
+            <span class="perfil-edicion-etiqueta">TU PRIVACIDAD</span>
+            <h2>Tú tienes el control</h2>
+            <p>Tu foto se mostrará en tu cuenta. Tus datos de contacto solo se comparten cuando tú decides contactar a otra persona.</p>
+            <a href="{% url 'cuentas:privacidad' %}">Leer política de privacidad</a>
+        </aside>
+    </div>
+</section>
+{% endblock %}
+{% block page_js %}<script src="{% static 'js/perfiles/editar.js' %}"></script>{% endblock %}

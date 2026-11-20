@@ -16,6 +16,7 @@ from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_de
 from django.views.decorators.http import require_http_methods, require_POST
 
 from app.notificaciones.models import SuscripcionPush
+from app.perfiles.models import Perfil
 
 from .correos import (
     ErrorEnvioCorreo,
@@ -334,10 +335,11 @@ def contrasena_actualizada(request):
 
 @login_required
 def panel(request):
+    perfil, _ = Perfil.objects.get_or_create(usuario=request.user)
     return render(
         request,
         "cuentas/panel/panel.html",
-        {"mostrar_sidebar_cuenta": True},
+        {"mostrar_sidebar_cuenta": True, "perfil": perfil},
     )
 
 

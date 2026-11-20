@@ -58,15 +58,15 @@
             </div>
             <div class="navbar-cuenta-menu">
                 <button class="navbar-cuenta-boton" type="button" data-navbar-cuenta-boton aria-expanded="false" aria-controls="panelCuentaUsuario" aria-label="Abrir menú de usuario" title="Menú de usuario">
-                    <span class="navbar-cuenta-avatar" aria-hidden="true">{{ user.first_name|default:user.email|first|upper }}</span>
+                    <span class="navbar-cuenta-avatar" aria-hidden="true">{% if user.perfil.foto %}<img src="{{ user.perfil.foto.url }}" alt="">{% else %}{{ user.first_name|default:user.email|first|upper }}{% endif %}</span>
                     <svg class="navbar-cuenta-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
                 </button>
                 <section class="navbar-cuenta-panel" id="panelCuentaUsuario" aria-label="Menú de usuario" hidden>
-                    <a class="navbar-cuenta-perfil" href="{% url 'cuentas:panel' %}">
-                        <span class="navbar-cuenta-avatar navbar-cuenta-avatar-grande" aria-hidden="true">{{ user.first_name|default:user.email|first|upper }}</span>
+                    <a class="navbar-cuenta-perfil" href="{% url 'perfiles:editar' %}">
+                        <span class="navbar-cuenta-avatar navbar-cuenta-avatar-grande" aria-hidden="true">{% if user.perfil.foto %}<img src="{{ user.perfil.foto.url }}" alt="">{% else %}{{ user.first_name|default:user.email|first|upper }}{% endif %}</span>
                         <span class="navbar-cuenta-perfil-texto">
                             <strong>{{ user.get_full_name|default:"Mi cuenta" }}</strong>
-                            <small>Ver tu espacio personal</small>
+                            <small>Editar perfil</small>
                         </span>
                         <svg class="navbar-cuenta-flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
                     </a>

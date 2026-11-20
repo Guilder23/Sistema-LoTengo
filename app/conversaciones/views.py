@@ -36,6 +36,10 @@ def _listar_conversaciones(usuario):
             Q(interesado=usuario) | Q(publicacion__usuario=usuario)
         )
         .select_related("publicacion", "publicacion__usuario", "interesado")
+        .select_related(
+            "publicacion__usuario__perfil",
+            "interesado__perfil",
+        )
         .annotate(
             ultimo_mensaje=Subquery(ultimo_mensaje.values("contenido")[:1]),
             ultimo_adjunto=Subquery(ultimo_mensaje.values("tipo_adjunto")[:1]),
@@ -125,7 +129,9 @@ def detalle(request, pk):
         Conversacion.objects.select_related(
             "publicacion",
             "publicacion__usuario",
+            "publicacion__usuario__perfil",
             "interesado",
+            "interesado__perfil",
         ),
         pk=pk,
     )

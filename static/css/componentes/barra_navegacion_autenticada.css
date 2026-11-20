@@ -251,6 +251,13 @@
     font-weight: 800;
 }
 
+.navbar-cuenta-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    object-fit: cover;
+}
+
 .navbar-cuenta-chevron,
 .navbar-cuenta-flecha {
     width: 15px;

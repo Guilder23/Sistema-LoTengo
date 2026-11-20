@@ -9,6 +9,7 @@ from app.notificaciones import views as notificaciones_views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("cuentas/", include("app.cuentas.urls")),
+    path("perfil/", include("app.perfiles.urls")),
     path("publicaciones/", include("app.publicaciones.urls")),
     path("conversaciones/", include("app.conversaciones.urls")),
     path(

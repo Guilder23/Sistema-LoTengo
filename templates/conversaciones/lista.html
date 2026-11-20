@@ -33,7 +33,9 @@
                 {% for conversacion in conversaciones %}
                     <a class="messenger-conversacion" href="{% url 'conversaciones:detalle' conversacion.pk %}" data-conversacion data-conversacion-id="{{ conversacion.pk }}" data-no-leidos="{% if conversacion.mensajes_no_leidos %}true{% else %}false{% endif %}" data-busqueda="{{ conversacion.persona_contacto.get_full_name|default:'Persona usuaria' }} {{ conversacion.publicacion.titulo }}">
                         <span class="messenger-avatar-contenedor">
-                            <span class="messenger-avatar" aria-hidden="true">{{ conversacion.persona_contacto.first_name|default:"L"|first|upper }}</span>
+                            <span class="messenger-avatar" aria-hidden="true">
+                                {% if conversacion.persona_contacto.perfil.foto %}<img src="{{ conversacion.persona_contacto.perfil.foto.url }}" alt="">{% else %}{{ conversacion.persona_contacto.first_name|default:"L"|first|upper }}{% endif %}
+                            </span>
                             <span class="messenger-presencia-punto" data-presencia-punto-usuario-id="{{ conversacion.persona_contacto.pk }}" aria-hidden="true" hidden></span>
                         </span>
                         <span class="messenger-conversacion-cuerpo">

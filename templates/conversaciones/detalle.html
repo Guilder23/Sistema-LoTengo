@@ -33,7 +33,9 @@
                 {% for item in conversaciones %}
                     <a class="messenger-conversacion{% if item.pk == conversacion.pk %} is-activa{% endif %}" href="{% url 'conversaciones:detalle' item.pk %}" data-conversacion data-conversacion-id="{{ item.pk }}" data-no-leidos="{% if item.mensajes_no_leidos %}true{% else %}false{% endif %}" data-busqueda="{{ item.persona_contacto.get_full_name|default:'Persona usuaria' }} {{ item.publicacion.titulo }}" {% if item.pk == conversacion.pk %}aria-current="page"{% endif %}>
                         <span class="messenger-avatar-contenedor">
-                            <span class="messenger-avatar" aria-hidden="true">{{ item.persona_contacto.first_name|default:"L"|first|upper }}</span>
+                            <span class="messenger-avatar" aria-hidden="true">
+                                {% if item.persona_contacto.perfil.foto %}<img src="{{ item.persona_contacto.perfil.foto.url }}" alt="">{% else %}{{ item.persona_contacto.first_name|default:"L"|first|upper }}{% endif %}
+                            </span>
                             <span class="messenger-presencia-punto" data-presencia-punto-usuario-id="{{ item.persona_contacto.pk }}" aria-hidden="true" hidden></span>
                         </span>
                         <span class="messenger-conversacion-cuerpo">
@@ -79,7 +81,9 @@
                 <a class="messenger-volver" href="{% url 'conversaciones:lista' %}" aria-label="Volver a todos los chats">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6M9 12h11"/></svg>
                 </a>
-                <span class="messenger-avatar messenger-avatar-grande" aria-hidden="true">{{ persona_contacto.first_name|default:"L"|first|upper }}</span>
+                <span class="messenger-avatar messenger-avatar-grande" aria-hidden="true">
+                    {% if persona_contacto.perfil.foto %}<img src="{{ persona_contacto.perfil.foto.url }}" alt="">{% else %}{{ persona_contacto.first_name|default:"L"|first|upper }}{% endif %}
+                </span>
                 <div class="messenger-identidad">
                     <div class="messenger-identidad-linea">
                         <h1>{{ persona_contacto.get_full_name|default:"Persona usuaria" }}</h1>
@@ -130,7 +134,9 @@
                     </article>
                 {% empty %}
                     <div class="messenger-sin-mensajes" data-chat-vacio>
-                        <span class="messenger-avatar messenger-avatar-grande" aria-hidden="true">{{ persona_contacto.first_name|default:"L"|first|upper }}</span>
+                        <span class="messenger-avatar messenger-avatar-grande" aria-hidden="true">
+                            {% if persona_contacto.perfil.foto %}<img src="{{ persona_contacto.perfil.foto.url }}" alt="">{% else %}{{ persona_contacto.first_name|default:"L"|first|upper }}{% endif %}
+                        </span>
                         <h3>{{ persona_contacto.get_full_name|default:"Persona usuaria" }}</h3>
                         <p>Inicia la conversación con respeto. Puedes escribir, adjuntar una foto o enviar un audio.</p>
                     </div>

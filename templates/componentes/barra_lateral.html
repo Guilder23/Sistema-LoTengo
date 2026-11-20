@@ -10,7 +10,7 @@
     </div>
 
     <div class="cuenta-sidebar-identidad">
-        <span class="cuenta-sidebar-avatar" aria-hidden="true">{{ user.first_name|default:"L"|first|upper }}</span>
+        <span class="cuenta-sidebar-avatar" aria-hidden="true">{% if user.perfil.foto %}<img src="{{ user.perfil.foto.url }}" alt="">{% else %}{{ user.first_name|default:"L"|first|upper }}{% endif %}</span>
         <div>
             <strong>{{ user.get_full_name|default:user.email }}</strong>
             <span>Cuenta personal</span>
@@ -31,7 +31,7 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
             <span class="sidebar-label">Conversaciones</span>
         </a>
-        <a class="sidebar-link" href="{% url 'cuentas:panel' %}#perfil" aria-label="Mi perfil" title="Mi perfil" data-tooltip="Mi perfil">
+        <a class="sidebar-link{% if request.resolver_match.view_name == 'perfiles:editar' %} is-active{% endif %}" href="{% url 'perfiles:editar' %}" aria-label="Mi perfil" title="Mi perfil" data-tooltip="Mi perfil"{% if request.resolver_match.view_name == 'perfiles:editar' %} aria-current="page"{% endif %}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
             <span class="sidebar-label">Mi perfil</span>
         </a>
