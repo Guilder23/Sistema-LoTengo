@@ -31,6 +31,7 @@ def _publicaciones_activas():
             "ubicacion__departamento",
             "ubicacion__municipio",
             "usuario",
+            "usuario__perfil",
         )
         .prefetch_related("imagenes")
     )
@@ -77,7 +78,7 @@ def listado(request):
     pagina = Paginator(publicaciones, 12).get_page(request.GET.get("pagina"))
     return render(
         request,
-        "publicaciones/publicaciones.html",
+        "general/publicaciones.html",
         {
             "pagina": pagina,
             "categorias": Categoria.objects.filter(activa=True),
@@ -95,6 +96,7 @@ def detalle(request, pk):
         "ubicacion__departamento",
         "ubicacion__municipio",
         "usuario",
+        "usuario__perfil",
     ).prefetch_related("imagenes")
     if request.user.is_authenticated:
         publicaciones = publicaciones.filter(
@@ -104,13 +106,40 @@ def detalle(request, pk):
         publicaciones = publicaciones.filter(estado=Publicacion.Estado.PUBLICADA)
     publicacion = get_object_or_404(publicaciones, pk=pk)
     es_propietario = request.user.is_authenticated and publicacion.usuario_id == request.user.pk
+    if es_propietario:
+        return render(
+            request,
+            "publicaciones/crud/detalle.html",
+            {
+                "publicacion": publicacion,
+                "es_propietario": True,
+                "mostrar_sidebar_cuenta": True,
+            },
+        )
+
+    publicaciones_relacionadas = (
+        _publicaciones_activas()
+        .filter(categoria_id=publicacion.categoria_id)
+        .exclude(pk=publicacion.pk)
+        .order_by("-creada_en")[:4]
+    )
     return render(
         request,
-        "publicaciones/crud/detalle.html",
+        "general/detalle_publicacion.html",
         {
             "publicacion": publicacion,
-            "es_propietario": es_propietario,
-            "mostrar_sidebar_cuenta": es_propietario,
+            "es_propietario": False,
+            "mostrar_sidebar_cuenta": False,
+            "categorias": Categoria.objects.filter(activa=True),
+            "departamentos": Departamento.objects.all(),
+            "filtros": {
+                "q": "",
+                "tipo": "",
+                "categoria": "",
+                "departamento": "",
+                "municipio": "",
+            },
+            "publicaciones_relacionadas": publicaciones_relacionadas,
         },
     )
 
@@ -398,6 +427,8 @@ def editar(request, pk):
         return redireccion
     publicacion = get_object_or_404(
         Publicacion.objects.select_related(
+            "usuario",
+            "usuario__perfil",
             "ubicacion",
             "ubicacion__departamento",
             "ubicacion__municipio",

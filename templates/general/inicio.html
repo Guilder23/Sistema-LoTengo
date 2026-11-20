@@ -1,165 +1,78 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Lotengo | Objetos perdidos y encontrados{% endblock %}
+{% block title %}Explorar avisos | Lotengo{% endblock %}
+{% block footer %}{% endblock %}
 {% block page_css %}
-    <link rel="stylesheet" href="{% static 'css/componentes/tarjeta_publicacion.css' %}">
+    <link rel="stylesheet" href="{% static 'css/componentes/marketplace.css' %}">
     <link rel="stylesheet" href="{% static 'css/general/inicio.css' %}">
 {% endblock %}
 
 {% block content %}
-<section class="hero-section">
-    <div class="container">
-        <div class="hero-card">
-            <div class="hero-copy">
-                <span class="eyebrow"><span class="eyebrow-dot"></span> Una comunidad que ayuda</span>
-                <h1>Lo que se pierde,<br><span>puede volver.</span></h1>
-                <p class="hero-description">Explora objetos perdidos y encontrados o publica un aviso para ayudar a que algo importante vuelva a casa.</p>
-                <div class="hero-actions">
-                    <a class="btn btn-primary-soft" href="{% url 'publicaciones:listado' %}">Explorar objetos <span aria-hidden="true">→</span></a>
-                    {% if user.is_authenticated %}
-                        <a class="btn btn-outline-primary hero-publish" href="{% url 'publicaciones:crear' %}">Publicar objeto</a>
-                    {% else %}
-                        <a class="btn btn-outline-primary hero-publish" href="{% url 'cuentas:registro' %}">Crear cuenta</a>
-                    {% endif %}
-                </div>
-                <div class="trust-note"><span class="trust-icon" aria-hidden="true">✓</span> Diseñado para cuidar tu privacidad</div>
-            </div>
-            <div class="hero-art" aria-hidden="true">
-                <div class="orbit orbit-one"></div>
-                <div class="orbit orbit-two"></div>
-                <div class="hero-illustration">
-                    <div class="illustration-spark spark-one">✦</div>
-                    <div class="illustration-spark spark-two">✦</div>
-                    <div class="illustration-pin"><span></span></div>
-                    <div class="illustration-card">
-                        <div class="illustration-image"><span class="bag-handle"></span><span class="bag-body"></span></div>
-                        <div class="illustration-lines"><i></i><i></i><i></i></div>
-                        <span class="illustration-check">✓</span>
-                    </div>
-                    <div class="illustration-caption">Un encuentro puede cambiarlo todo</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+<div class="marketplace-page marketplace-home">
+    {% include "componentes/marketplace_sidebar.html" %}
 
-<section class="publicaciones-recientes-section" aria-labelledby="publicaciones-recientes-titulo">
-    <div class="container">
-        <div class="publicaciones-recientes-encabezado">
-            <div class="section-heading">
-                <span class="eyebrow">Avisos de la comunidad</span>
-                <h2 id="publicaciones-recientes-titulo">Objetos publicados recientemente</h2>
-                <p>Explora los avisos y abre el detalle para conocer más sobre cada objeto.</p>
+    <section class="marketplace-content" aria-labelledby="marketplace-title">
+        <div class="marketplace-content-header">
+            <div>
+                <span class="marketplace-kicker">Comunidad Lotengo</span>
+                <h1 id="marketplace-title">Sugerencias de hoy</h1>
             </div>
-            <a class="publicaciones-recientes-enlace" href="{% url 'publicaciones:listado' %}">Ver todas las publicaciones</a>
+            <a class="marketplace-location-summary" href="{% url 'publicaciones:listado' %}">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                Explora avisos de todo el país
+            </a>
         </div>
+
+        <button class="marketplace-mobile-filter" type="button" aria-expanded="false" aria-controls="marketplace-sidebar" data-marketplace-filter>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10m-7 6h4"/></svg>
+            Buscar y filtrar
+        </button>
+
+        <div class="marketplace-tabs" aria-label="Filtrar avisos">
+            <a class="is-selected" href="{% url 'general:inicio' %}" aria-current="page">Todos</a>
+            <a href="{% url 'publicaciones:listado' %}?tipo=perdido">Perdidos</a>
+            <a href="{% url 'publicaciones:listado' %}?tipo=encontrado">Encontrados</a>
+        </div>
+
         {% if publicaciones_recientes %}
-            <div class="tarjetas-publicaciones-grid">
+            <div class="marketplace-grid">
                 {% for publicacion in publicaciones_recientes %}
-                    <article class="tarjeta-publicacion">
+                    <article class="marketplace-card">
                         {% with portada=publicacion.imagenes.first %}
-                            <a class="tarjeta-publicacion-imagen" href="{% url 'publicaciones:detalle' publicacion.pk %}" aria-label="Ver detalle de {{ publicacion.titulo }}">
+                            <a class="marketplace-card-image" href="{% url 'publicaciones:detalle' publicacion.pk %}" aria-label="Ver {{ publicacion.titulo }}">
                                 {% if portada %}
                                     <img src="{{ portada.archivo.url }}" alt="Fotografía de {{ publicacion.titulo }}" loading="lazy">
                                 {% else %}
-                                    <span class="tarjeta-publicacion-sin-imagen" aria-hidden="true">
+                                    <span class="marketplace-image-placeholder" aria-hidden="true">
                                         <svg viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5m8-4.5-8 4.5m0 9v-9"/></svg>
                                     </span>
                                 {% endif %}
-                                <span class="tarjeta-publicacion-tipo tipo-{{ publicacion.tipo }}">{{ publicacion.get_tipo_display }}</span>
+                                <span class="marketplace-card-badge tipo-{{ publicacion.tipo }}">{{ publicacion.get_tipo_display }}</span>
                             </a>
                         {% endwith %}
-                        <div class="tarjeta-publicacion-cuerpo">
-                            <div class="tarjeta-publicacion-categoria">
-                                <span>{{ publicacion.categoria.nombre }}</span>
-                                <time datetime="{{ publicacion.creada_en|date:'c' }}">{{ publicacion.creada_en|date:"j M Y" }}</time>
-                            </div>
-                            <h3><a href="{% url 'publicaciones:detalle' publicacion.pk %}">{{ publicacion.titulo }}</a></h3>
-                            <p>{{ publicacion.descripcion|truncatechars:105 }}</p>
-                            <dl class="tarjeta-publicacion-detalles" aria-label="Detalles del objeto">
-                                {% if publicacion.marca %}
-                                    <div><dt>Marca</dt><dd>{{ publicacion.marca }}</dd></div>
-                                {% endif %}
-                                {% if publicacion.color %}
-                                    <div><dt>Color</dt><dd>{{ publicacion.color }}</dd></div>
-                                {% endif %}
-                                <div><dt>Fecha aproximada</dt><dd>{{ publicacion.fecha_evento|date:"j M Y" }}</dd></div>
-                            </dl>
-                            {% if publicacion.caracteristicas_publicas %}
-                                <p class="tarjeta-publicacion-caracteristicas"><strong>Características:</strong> {{ publicacion.caracteristicas_publicas|truncatechars:90 }}</p>
-                            {% endif %}
-                            <div class="tarjeta-publicacion-pie">
-                                <span class="tarjeta-publicacion-ubicacion">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-                                    {{ publicacion.ubicacion.municipio.nombre }}, {{ publicacion.ubicacion.get_departamento_display }}
-                                </span>
-                                <a class="tarjeta-publicacion-detalle" href="{% url 'publicaciones:detalle' publicacion.pk %}">
-                                    Ver detalle
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
-                                </a>
-                            </div>
+                        <div class="marketplace-card-copy">
+                            <span class="marketplace-card-category">{{ publicacion.categoria.nombre }}</span>
+                            <h2><a href="{% url 'publicaciones:detalle' publicacion.pk %}">{{ publicacion.titulo }}</a></h2>
+                            <p>{{ publicacion.ubicacion.municipio.nombre }}, {{ publicacion.ubicacion.departamento.nombre }}</p>
                         </div>
                     </article>
                 {% endfor %}
             </div>
+            <a class="marketplace-more-link" href="{% url 'publicaciones:listado' %}">Ver todas las publicaciones <span aria-hidden="true">→</span></a>
         {% else %}
-            <div class="publicaciones-recientes-vacias">
-                <p>Aún no hay avisos publicados. Puedes ser la primera persona en compartir uno.</p>
-                <a class="btn btn-primary" href="{% if user.is_authenticated %}{% url 'publicaciones:crear' %}{% else %}{% url 'cuentas:registro' %}{% endif %}">Publicar un objeto</a>
+            <div class="marketplace-empty">
+                <span aria-hidden="true">⌕</span>
+                <h2>Aún no hay avisos publicados</h2>
+                <p>Cuando alguien comparta un objeto perdido o encontrado, aparecerá aquí.</p>
+                <a href="{% if user.is_authenticated %}{% url 'publicaciones:crear' %}{% else %}{% url 'cuentas:iniciar_sesion' %}{% endif %}">Crear una publicación</a>
             </div>
         {% endif %}
-    </div>
-</section>
-
-<section class="steps-section" id="como-funciona">
-    <div class="container">
-        <div class="section-heading">
-            <span class="eyebrow">Simple y cercano</span>
-            <h2>Un camino para reencontrarse</h2>
-            <p>Publica un objeto perdido o encontrado, encuentra avisos relacionados y coordina con cuidado.</p>
-        </div>
-        <div class="row g-3 g-lg-4">
-            <div class="col-md-4">
-                <article class="step-card">
-                    <span class="step-number">01</span>
-                    <div class="step-icon step-icon-blue" aria-hidden="true">⌕</div>
-                    <h3>Publica o busca</h3>
-                    <p>Comparte información general de un objeto perdido o encontrado.</p>
-                </article>
-            </div>
-            <div class="col-md-4">
-                <article class="step-card">
-                    <span class="step-number">02</span>
-                    <div class="step-icon step-icon-violet" aria-hidden="true">↗</div>
-                    <h3>Conecta con cuidado</h3>
-                    <p>Revisa posibles coincidencias y conversa de forma privada.</p>
-                </article>
-            </div>
-            <div class="col-md-4">
-                <article class="step-card">
-                    <span class="step-number">03</span>
-                    <div class="step-icon step-icon-green" aria-hidden="true">♡</div>
-                    <h3>Confirma la devolución</h3>
-                    <p>Coordina una entrega segura y confirma el resultado con la otra persona.</p>
-                </article>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="platform-section" id="modulos">
-    <div class="container">
-        <div class="platform-banner">
-            <div>
-                <span class="eyebrow">Construyendo Lotengo</span>
-                <h2>Una base preparada para crecer.</h2>
-                <p>Ya puedes explorar publicaciones y, desde una cuenta verificada, compartir un objeto perdido o encontrado.</p>
-            </div>
-            <a class="platform-status" href="{% url 'publicaciones:listado' %}"><span></span> Ver publicaciones</a>
-        </div>
-    </div>
-</section>
+    </section>
+</div>
 {% endblock %}
 
-{% block page_js %}<script src="{% static 'js/general/inicio.js' %}"></script>{% endblock %}
+{% block page_js %}
+    <script src="{% static 'js/componentes/marketplace_sidebar.js' %}"></script>
+    <script src="{% static 'js/general/inicio.js' %}"></script>
+{% endblock %}

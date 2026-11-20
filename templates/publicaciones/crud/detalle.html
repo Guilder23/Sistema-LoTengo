@@ -17,7 +17,8 @@
                                 <div class="detalle-galeria-principal">
                                     <img src="{{ imagen.archivo.url }}" alt="Fotografía de {{ publicacion.titulo }}" data-galeria-imagen-principal>
                                     <span class="detalle-galeria-contador" data-galeria-contador>1 / {{ imagenes|length }}</span>
-                                </div>
+                                    <span class="detalle-publicador-flecha" aria-hidden="true">›</span>
+                                </a>
                             {% endif %}
                         {% endfor %}
                         {% if imagenes|length > 1 %}
@@ -40,6 +41,19 @@
                     <span class="publicacion-categoria">{{ publicacion.categoria.nombre }}</span>
                 </div>
                 <h1>{{ publicacion.titulo }}</h1>
+                <div class="detalle-publicador" aria-label="Usuario que publicó">
+                    <span class="detalle-publicador-avatar" aria-hidden="true">
+                        {% if publicacion.usuario.perfil.foto %}
+                            <img src="{{ publicacion.usuario.perfil.foto.url }}" alt="">
+                        {% else %}
+                            {{ publicacion.usuario.first_name|default:publicacion.usuario.email|first|upper }}
+                        {% endif %}
+                    </span>
+                    <div>
+                        <span>Publicado por</span>
+                        <strong>{% if publicacion.usuario.get_full_name %}{{ publicacion.usuario.get_full_name }}{% else %}{{ publicacion.usuario.email }}{% endif %}</strong>
+                    </div>
+                </div>
                 <p class="detalle-descripcion">{{ publicacion.descripcion|linebreaksbr }}</p>
                 {% if publicacion.caracteristicas_publicas %}
                     <div class="detalle-caracteristicas">

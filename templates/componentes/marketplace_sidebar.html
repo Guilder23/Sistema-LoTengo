@@ -1,0 +1,90 @@
+{% load static %}
+<aside class="marketplace-sidebar" id="marketplace-sidebar" aria-label="Explorar avisos">
+    <div class="marketplace-brand-row">
+        <a class="marketplace-brand" href="{% url 'general:inicio' %}" aria-label="Lotengo, inicio">
+            <span class="marketplace-brand-mark" aria-hidden="true">L</span>
+            <span>Lotengo</span>
+        </a>
+        <a class="marketplace-settings" href="{% if user.is_authenticated %}{% url 'perfiles:editar' %}{% else %}{% url 'cuentas:iniciar_sesion' %}{% endif %}" aria-label="Configuración de cuenta" title="Configuración de cuenta">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.6.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.6-.9l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.9l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.6-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.6.9l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.8Z"/></svg>
+        </a>
+    </div>
+
+    <form class="marketplace-search" method="get" action="{% url 'publicaciones:listado' %}" role="search">
+        <label class="visually-hidden" for="marketplace-search-input">Buscar avisos</label>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+        <input id="marketplace-search-input" type="search" name="q" value="{{ filtros.q }}" placeholder="Buscar objetos perdidos..." autocomplete="off">
+    </form>
+
+    <nav class="marketplace-navigation" aria-label="Navegación principal">
+        <a class="marketplace-nav-link{% if request.resolver_match.view_name == 'general:inicio' or request.resolver_match.view_name == 'publicaciones:listado' or request.resolver_match.view_name == 'publicaciones:detalle' %} is-active{% endif %}" href="{% url 'general:inicio' %}"{% if request.resolver_match.view_name == 'general:inicio' or request.resolver_match.view_name == 'publicaciones:listado' or request.resolver_match.view_name == 'publicaciones:detalle' %} aria-current="page"{% endif %}>
+            <span class="marketplace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></svg></span>
+            Explorar todo
+        </a>
+        {% if user.is_authenticated %}
+            <a class="marketplace-nav-link" href="{% url 'notificaciones:lista' %}">
+                <span class="marketplace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span>
+                Notificaciones
+            </a>
+            <a class="marketplace-nav-link" href="{% url 'conversaciones:lista' %}">
+                <span class="marketplace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg></span>
+                Conversaciones
+            </a>
+        {% else %}
+            <a class="marketplace-nav-link" href="{% url 'cuentas:iniciar_sesion' %}">
+                <span class="marketplace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg></span>
+                Iniciar sesión
+            </a>
+        {% endif %}
+        <a class="marketplace-nav-link" href="{% url 'publicaciones:listado' %}?tipo=perdido">
+            <span class="marketplace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.6 2.6 0 1 1 4.5 1.8c-1.2 1.1-2 1.5-2 3.2M12 17.5v.1"/></svg></span>
+            Objetos perdidos
+        </a>
+        <a class="marketplace-nav-link" href="{% url 'publicaciones:listado' %}?tipo=encontrado">
+            <span class="marketplace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span>
+            Objetos encontrados
+        </a>
+        {% if user.is_authenticated %}
+            <a class="marketplace-nav-link" href="{% url 'publicaciones:mis_publicaciones' %}">
+                <span class="marketplace-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5m8-4.5-8 4.5"/></svg></span>
+                Mis publicaciones
+            </a>
+        {% endif %}
+    </nav>
+
+    <a class="marketplace-create-button" href="{% if user.is_authenticated %}{% url 'publicaciones:crear' %}{% else %}{% url 'cuentas:iniciar_sesion' %}{% endif %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Crear publicación
+    </a>
+
+    <div class="marketplace-sidebar-section marketplace-location">
+        <h2>Ubicación</h2>
+        <form method="get" action="{% url 'publicaciones:listado' %}">
+            <label class="visually-hidden" for="marketplace-department">Filtrar por departamento</label>
+            <select id="marketplace-department" name="departamento">
+                <option value="">Todos los departamentos</option>
+                {% for departamento in departamentos %}
+                    <option value="{{ departamento.codigo }}"{% if filtros.departamento == departamento.codigo %} selected{% endif %}>{{ departamento.nombre }}</option>
+                {% endfor %}
+            </select>
+            <div class="marketplace-municipality-picker" data-marketplace-municipality-picker data-municipios-url="{% url 'publicaciones:municipios_por_departamento' %}">
+                <label class="visually-hidden" for="marketplace-municipality">Filtrar por municipio</label>
+                <input id="marketplace-municipality" type="search" name="municipio" value="{{ filtros.municipio }}" placeholder="Cualquier municipio" autocomplete="off" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="marketplace-municipality-options" data-marketplace-municipality-input>
+                <ul class="marketplace-municipality-options" id="marketplace-municipality-options" role="listbox" aria-label="Municipios disponibles" hidden data-marketplace-municipality-options></ul>
+                <span class="visually-hidden" role="status" aria-live="polite" data-marketplace-municipality-status></span>
+            </div>
+            <button type="submit">Ver avisos por ubicación</button>
+        </form>
+    </div>
+
+    <div class="marketplace-sidebar-section marketplace-categories">
+        <h2>Categorías</h2>
+        <ul>
+            {% for categoria in categorias %}
+                <li><a href="{% url 'publicaciones:listado' %}?categoria={{ categoria.pk }}">{{ categoria.nombre }}</a></li>
+            {% empty %}
+                <li class="marketplace-empty-category">Todavía no hay categorías.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</aside>

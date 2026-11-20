@@ -13,6 +13,7 @@ from PIL import Image
 from app.categorias.models import Categoria
 from app.geografia.models import Departamento, Municipio
 from app.notificaciones.models import Notificacion, PreferenciaNotificaciones
+from app.perfiles.models import Perfil
 from app.ubicaciones.models import Ubicacion
 
 from .imagenes import ErrorImagen, TAMANO_MAXIMO_IMAGEN, preparar_imagen
@@ -117,25 +118,36 @@ class PruebasPublicaciones(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "general/publicaciones.html")
         self.assertNotContains(response, 'class="cuenta-sidebar"', html=False)
         self.assertNotContains(response, 'class="navbar-notificaciones-boton"', html=False)
-        self.assertContains(response, 'class="tarjeta-publicacion"', html=False)
+        self.assertContains(response, "marketplace-page", html=False)
+        self.assertContains(response, 'class="marketplace-card"', html=False)
+        self.assertContains(response, 'role="combobox"', html=False)
         self.assertNotContains(response, '<table class="tabla-publicaciones">', html=False)
         self.assertContains(response, encontrada.titulo)
         self.assertNotContains(response, "Celular negro")
 
     def test_publico_no_ve_referencias_ni_dato_privado(self):
         publicacion = self.crear_publicacion()
+        Perfil.objects.create(
+            usuario=self.propietario,
+            foto="perfiles/fotos/ana-publicadora.jpg",
+        )
 
         response = self.client.get(
             reverse("publicaciones:detalle", args=[publicacion.pk])
         )
 
         self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "general/detalle_publicacion.html")
         self.assertNotContains(response, 'class="cuenta-sidebar"', html=False)
+        self.assertContains(response, 'class="marketplace-sidebar"', html=False)
         self.assertNotContains(response, "entrada norte")
         self.assertNotContains(response, "calcomanía debajo")
         self.assertNotContains(response, self.propietario.email)
+        self.assertContains(response, "Ana Ejemplo")
+        self.assertContains(response, "/media/perfiles/fotos/ana-publicadora.jpg")
         self.assertContains(response, "Inicia sesión para contactar")
 
     def test_propietario_ve_sus_datos_privados_y_estado(self):
@@ -225,18 +237,18 @@ class PruebasPublicaciones(TestCase):
             html=False,
         )
 
-    def test_inicio_muestra_avisos_recientes_en_tarjetas_con_acceso_al_detalle(self):
+    def test_inicio_muestra_marketplace_con_avisos_recientes_y_filtros(self):
         publicacion = self.crear_publicacion()
 
         response = self.client.get(reverse("general:inicio"))
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'class="navbar-notificaciones-boton"', html=False)
-        self.assertContains(response, 'class="tarjeta-publicacion"', html=False)
+        self.assertContains(response, "marketplace-page", html=False)
+        self.assertContains(response, 'class="marketplace-card"', html=False)
+        self.assertContains(response, "Categorías")
+        self.assertContains(response, "Todos los departamentos")
         self.assertContains(response, publicacion.titulo)
-        self.assertContains(response, publicacion.marca)
-        self.assertContains(response, publicacion.color)
-        self.assertContains(response, publicacion.caracteristicas_publicas)
         self.assertNotContains(response, publicacion.caracteristica_privada)
         self.assertContains(
             response,

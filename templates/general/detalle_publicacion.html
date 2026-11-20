@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ publicacion.titulo }} | Lotengo{% endblock %}
+{% block footer %}{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/componentes/marketplace.css' %}">
+    <link rel="stylesheet" href="{% static 'css/general/detalle_publicacion.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="marketplace-page marketplace-publicacion-detalle">
+    {% include "componentes/marketplace_sidebar.html" %}
+
+    <section class="publicacion-detalle-main" aria-labelledby="publicacion-detalle-titulo">
+        <a class="publicacion-detalle-volver" href="{% url 'publicaciones:listado' %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6M9 12h12"/></svg>
+            Volver a publicaciones
+        </a>
+
+        <button class="marketplace-mobile-filter" type="button" aria-expanded="false" aria-controls="marketplace-sidebar" data-marketplace-filter>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10m-7 6h4"/></svg>
+            Buscar y filtrar
+        </button>
+
+        <header class="publicacion-detalle-encabezado">
+            <span class="publicacion-detalle-kicker">DETALLE DEL AVISO</span>
+            <div class="publicacion-detalle-titulo-fila">
+                <div>
+                    <h1 id="publicacion-detalle-titulo">{{ publicacion.titulo }}</h1>
+                    <p>{{ publicacion.categoria.nombre }} · {{ publicacion.ubicacion.municipio.nombre }}, {{ publicacion.ubicacion.departamento.nombre }}</p>
+                </div>
+                <span class="publicacion-detalle-tipo tipo-{{ publicacion.tipo }}">{{ publicacion.get_tipo_display }}</span>
+            </div>
+            <div class="publicacion-detalle-publicador" aria-label="Usuario que publicó">
+                <span class="publicacion-detalle-publicador-avatar" aria-hidden="true">
+                    {% if publicacion.usuario.perfil.foto %}
+                        <img src="{{ publicacion.usuario.perfil.foto.url }}" alt="">
+                    {% else %}
+                        {{ publicacion.usuario.first_name|default:publicacion.usuario.email|first|upper }}
+                    {% endif %}
+                </span>
+                <div>
+                    <span>Publicado por</span>
+                    <strong>
+                        {% if publicacion.usuario.get_full_name %}
+                            {{ publicacion.usuario.get_full_name }}
+                        {% else %}
+                            {{ publicacion.usuario.email }}
+                        {% endif %}
+                    </strong>
+                </div>
+            </div>
+        </header>
+
+        <div class="publicacion-detalle-layout">
+            <article class="publicacion-detalle-tarjeta">
+                <div class="publicacion-detalle-galeria" data-galeria-detalle>
+                    {% with imagenes=publicacion.imagenes.all %}
+                        {% if imagenes %}
+                            {% for imagen in imagenes %}
+                                {% if forloop.first %}
+                                    <div class="publicacion-detalle-imagen">
+                                        <img src="{{ imagen.archivo.url }}" alt="Fotografía de {{ publicacion.titulo }}" data-galeria-imagen-principal>
+                                        <span class="publicacion-detalle-contador" data-galeria-contador>1 / {{ imagenes|length }}</span>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                            {% if imagenes|length > 1 %}
+                                <div class="publicacion-detalle-miniaturas" role="group" aria-label="Fotografías de {{ publicacion.titulo }}">
+                                    {% for imagen in imagenes %}
+                                        <button class="publicacion-detalle-miniatura{% if forloop.first %} is-activa{% endif %}" type="button" data-galeria-miniatura data-src="{{ imagen.archivo.url }}" data-alt="Fotografía {{ forloop.counter }} de {{ publicacion.titulo }}" aria-label="Mostrar fotografía {{ forloop.counter }}" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}">
+                                            <img src="{{ imagen.archivo.url }}" alt="" loading="lazy">
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="publicacion-detalle-sin-imagen" role="img" aria-label="Esta publicación no tiene fotografías">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5m8-4.5-8 4.5m0 9v-9"/></svg>
+                                <span>Sin fotografía</span>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+
+                <div class="publicacion-detalle-contenido">
+                    <div class="publicacion-detalle-etiquetas">
+                        <span class="publicacion-detalle-categoria">{{ publicacion.categoria.nombre }}</span>
+                        <span class="publicacion-detalle-fecha">Publicado {{ publicacion.creada_en|date:"j M Y" }}</span>
+                    </div>
+
+                    <h2>Sobre el objeto</h2>
+                    <p class="publicacion-detalle-descripcion">{{ publicacion.descripcion|linebreaksbr }}</p>
+
+                    {% if publicacion.caracteristicas_publicas %}
+                        <section class="publicacion-detalle-caracteristicas" aria-labelledby="publicacion-caracteristicas-titulo">
+                            <h3 id="publicacion-caracteristicas-titulo">Características</h3>
+                            <p>{{ publicacion.caracteristicas_publicas|linebreaksbr }}</p>
+                        </section>
+                    {% endif %}
+
+                    <dl class="publicacion-detalle-datos">
+                        {% if publicacion.marca %}
+                            <div><dt>Marca</dt><dd>{{ publicacion.marca }}</dd></div>
+                        {% endif %}
+                        {% if publicacion.color %}
+                            <div><dt>Color</dt><dd>{{ publicacion.color }}</dd></div>
+                        {% endif %}
+                        <div>
+                            <dt>Fecha aproximada</dt>
+                            <dd>{{ publicacion.fecha_evento|date:"j \d\e F \d\e Y" }}</dd>
+                        </div>
+                        <div>
+                            <dt>Ubicación aproximada</dt>
+                            <dd>{{ publicacion.ubicacion.municipio.nombre }}, {{ publicacion.ubicacion.departamento.nombre }}</dd>
+                        </div>
+                    </dl>
+
+                    <p class="publicacion-detalle-privacidad">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
+                        Por seguridad, no se muestran datos de contacto ni referencias exactas de ubicación.
+                    </p>
+                </div>
+            </article>
+
+            <aside class="publicacion-detalle-lateral" aria-label="Contacto y seguridad">
+                <section class="publicacion-detalle-contacto">
+                    <span class="publicacion-detalle-contacto-icono" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
+                    </span>
+                    <span class="publicacion-detalle-kicker">CONTACTO PRIVADO</span>
+                    <h2>{% if publicacion.tipo == "perdido" %}¿Tienes información sobre este objeto?{% else %}¿Reconoces a quién pertenece?{% endif %}</h2>
+                    <p>Comunícate con quien publicó. Tu correo y teléfono no se mostrarán en el aviso.</p>
+                    {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'conversaciones:iniciar' publicacion.pk %}">
+                            {% csrf_token %}
+                            <button class="publicacion-detalle-boton" type="submit">
+                                Enviar un mensaje
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                            </button>
+                        </form>
+                    {% else %}
+                        <a class="publicacion-detalle-boton" href="{% url 'cuentas:iniciar_sesion' %}?next={% url 'publicaciones:detalle' publicacion.pk %}">
+                            Inicia sesión para contactar
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                        </a>
+                    {% endif %}
+                </section>
+
+                <section class="publicacion-detalle-consejo">
+                    <span aria-hidden="true">✓</span>
+                    <div>
+                        <h2>Cuida tu seguridad</h2>
+                        <p>No compartas claves, códigos ni datos bancarios. Coordina la entrega en un lugar público.</p>
+                    </div>
+                </section>
+            </aside>
+        </div>
+
+        {% if publicaciones_relacionadas %}
+            <section class="publicacion-detalle-relacionadas" aria-labelledby="publicaciones-relacionadas-titulo">
+                <div class="publicacion-detalle-relacionadas-encabezado">
+                    <div>
+                        <span class="publicacion-detalle-kicker">TAMBIÉN EN LOTENGO</span>
+                        <h2 id="publicaciones-relacionadas-titulo">Avisos relacionados</h2>
+                    </div>
+                    <a href="{% url 'publicaciones:listado' %}?categoria={{ publicacion.categoria_id }}">Ver más</a>
+                </div>
+                <div class="marketplace-grid">
+                    {% for relacionada in publicaciones_relacionadas %}
+                        <article class="marketplace-card">
+                            {% with portada=relacionada.imagenes.first %}
+                                <a class="marketplace-card-image" href="{% url 'publicaciones:detalle' relacionada.pk %}" aria-label="Ver {{ relacionada.titulo }}">
+                                    {% if portada %}
+                                        <img src="{{ portada.archivo.url }}" alt="Fotografía de {{ relacionada.titulo }}" loading="lazy">
+                                    {% else %}
+                                        <span class="marketplace-image-placeholder" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5m8-4.5-8 4.5m0 9v-9"/></svg>
+                                        </span>
+                                    {% endif %}
+                                    <span class="marketplace-card-badge tipo-{{ relacionada.tipo }}">{{ relacionada.get_tipo_display }}</span>
+                                </a>
+                            {% endwith %}
+                            <div class="marketplace-card-copy">
+                                <span class="marketplace-card-category">{{ relacionada.categoria.nombre }}</span>
+                                <h2><a href="{% url 'publicaciones:detalle' relacionada.pk %}">{{ relacionada.titulo }}</a></h2>
+                                <p>{{ relacionada.ubicacion.municipio.nombre }}, {{ relacionada.ubicacion.departamento.nombre }}</p>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+
+{% block page_js %}
+    <script src="{% static 'js/componentes/marketplace_sidebar.js' %}"></script>
+    <script src="{% static 'js/general/detalle_publicacion.js' %}"></script>
+{% endblock %}

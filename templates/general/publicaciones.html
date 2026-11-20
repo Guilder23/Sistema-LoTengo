@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Publicaciones | Lotengo{% endblock %}
+{% block footer %}{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/componentes/marketplace.css' %}">
+    <link rel="stylesheet" href="{% static 'css/general/publicaciones.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="marketplace-page marketplace-listado">
+    {% include "componentes/marketplace_sidebar.html" %}
+
+    <section class="marketplace-content" aria-labelledby="marketplace-title">
+        <div class="marketplace-content-header">
+            <div>
+                <span class="marketplace-kicker">Comunidad Lotengo</span>
+                <h1 id="marketplace-title">Sugerencias de hoy</h1>
+                <p class="marketplace-result-count">{{ pagina.paginator.count }} resultado{{ pagina.paginator.count|pluralize:"s" }}</p>
+            </div>
+            <a class="marketplace-location-summary" href="{% url 'publicaciones:listado' %}">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                Explora avisos de todo el país
+            </a>
+        </div>
+
+        <button class="marketplace-mobile-filter" type="button" aria-expanded="false" aria-controls="marketplace-sidebar" data-marketplace-filter>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10m-7 6h4"/></svg>
+            Buscar y filtrar
+        </button>
+
+        <nav class="marketplace-tabs" aria-label="Filtrar avisos">
+            <a class="{% if not filtros.tipo %}is-selected{% endif %}" href="{% url 'publicaciones:listado' %}"{% if not filtros.tipo %} aria-current="page"{% endif %}>Todos</a>
+            <a class="{% if filtros.tipo == 'perdido' %}is-selected{% endif %}" href="{% url 'publicaciones:listado' %}?tipo=perdido"{% if filtros.tipo == 'perdido' %} aria-current="page"{% endif %}>Perdidos</a>
+            <a class="{% if filtros.tipo == 'encontrado' %}is-selected{% endif %}" href="{% url 'publicaciones:listado' %}?tipo=encontrado"{% if filtros.tipo == 'encontrado' %} aria-current="page"{% endif %}>Encontrados</a>
+        </nav>
+
+        {% if pagina.object_list %}
+            <div class="marketplace-grid">
+                {% for publicacion in pagina %}
+                    <article class="marketplace-card">
+                        {% with portada=publicacion.imagenes.first %}
+                            <a class="marketplace-card-image" href="{% url 'publicaciones:detalle' publicacion.pk %}" aria-label="Ver {{ publicacion.titulo }}">
+                                {% if portada %}
+                                    <img src="{{ portada.archivo.url }}" alt="Fotografía de {{ publicacion.titulo }}" loading="lazy">
+                                {% else %}
+                                    <span class="marketplace-image-placeholder" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5m8-4.5-8 4.5m0 9v-9"/></svg>
+                                    </span>
+                                {% endif %}
+                                <span class="marketplace-card-badge tipo-{{ publicacion.tipo }}">{{ publicacion.get_tipo_display }}</span>
+                            </a>
+                        {% endwith %}
+                        <div class="marketplace-card-copy">
+                            <span class="marketplace-card-category">{{ publicacion.categoria.nombre }}</span>
+                            <h2><a href="{% url 'publicaciones:detalle' publicacion.pk %}">{{ publicacion.titulo }}</a></h2>
+                            <p>{{ publicacion.ubicacion.municipio.nombre }}, {{ publicacion.ubicacion.departamento.nombre }}</p>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+            {% if pagina.has_other_pages %}
+                <nav class="marketplace-pagination" aria-label="Páginas de publicaciones">
+                    {% if pagina.has_previous %}
+                        <a href="?pagina={{ pagina.previous_page_number }}{% if filtros.q %}&q={{ filtros.q|urlencode }}{% endif %}{% if filtros.tipo %}&tipo={{ filtros.tipo|urlencode }}{% endif %}{% if filtros.categoria %}&categoria={{ filtros.categoria|urlencode }}{% endif %}{% if filtros.departamento %}&departamento={{ filtros.departamento|urlencode }}{% endif %}{% if filtros.municipio %}&municipio={{ filtros.municipio|urlencode }}{% endif %}">Anterior</a>
+                    {% endif %}
+                    <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+                    {% if pagina.has_next %}
+                        <a href="?pagina={{ pagina.next_page_number }}{% if filtros.q %}&q={{ filtros.q|urlencode }}{% endif %}{% if filtros.tipo %}&tipo={{ filtros.tipo|urlencode }}{% endif %}{% if filtros.categoria %}&categoria={{ filtros.categoria|urlencode }}{% endif %}{% if filtros.departamento %}&departamento={{ filtros.departamento|urlencode }}{% endif %}{% if filtros.municipio %}&municipio={{ filtros.municipio|urlencode }}{% endif %}">Siguiente</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="marketplace-empty">
+                <span aria-hidden="true">⌕</span>
+                <h2>No encontramos publicaciones</h2>
+                <p>Prueba con otros filtros o publica un aviso para ayudar a la comunidad.</p>
+                <a href="{% if user.is_authenticated %}{% url 'publicaciones:crear' %}{% else %}{% url 'cuentas:iniciar_sesion' %}{% endif %}">Crear una publicación</a>
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+
+{% block page_js %}
+    <script src="{% static 'js/componentes/marketplace_sidebar.js' %}"></script>
+    <script src="{% static 'js/general/publicaciones.js' %}"></script>
+{% endblock %}

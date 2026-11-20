@@ -1,10 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll('a[href^="#"]').forEach((link) => {
-        link.addEventListener("click", (event) => {
-            const target = document.querySelector(link.getAttribute("href"));
-            if (!target) return;
-            event.preventDefault();
-            target.scrollIntoView({ behavior: "smooth", block: "start" });
-        });
+    const filterButton = document.querySelector("[data-marketplace-filter]");
+    const sidebar = document.getElementById("marketplace-sidebar");
+
+    if (!filterButton || !sidebar) return;
+
+    filterButton.addEventListener("click", () => {
+        const isExpanded = filterButton.getAttribute("aria-expanded") === "true";
+        filterButton.setAttribute("aria-expanded", String(!isExpanded));
+        sidebar.classList.toggle("is-open", !isExpanded);
     });
 });

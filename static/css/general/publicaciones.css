@@ -1,0 +1,31 @@
+.marketplace-listado .marketplace-result-count {
+    margin: 4px 0 0;
+    color: #b0b3b8;
+    font-size: .79rem;
+}
+
+.marketplace-listado .marketplace-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 24px;
+    color: #b0b3b8;
+    font-size: .86rem;
+}
+
+.marketplace-listado .marketplace-pagination a {
+    color: var(--brand-light);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.marketplace-listado .marketplace-pagination a:hover {
+    text-decoration: underline;
+}
+
+.marketplace-listado .marketplace-pagination a:focus-visible {
+    border-radius: 5px;
+    outline: 2px solid var(--brand-light);
+    outline-offset: 3px;
+}
