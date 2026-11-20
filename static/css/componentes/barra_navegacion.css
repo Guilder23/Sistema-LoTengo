@@ -20,6 +20,10 @@
     color: var(--ink);
 }
 
+.navbar-marketplace-tools {
+    display: none;
+}
+
 .brand-accent {
     color: var(--brand);
 }

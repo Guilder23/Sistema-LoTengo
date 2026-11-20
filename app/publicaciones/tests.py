@@ -143,6 +143,7 @@ class PruebasPublicaciones(TestCase):
         self.assertTemplateUsed(response, "general/detalle_publicacion.html")
         self.assertNotContains(response, 'class="cuenta-sidebar"', html=False)
         self.assertContains(response, 'class="marketplace-sidebar"', html=False)
+        self.assertNotContains(response, 'class="navbar-marketplace-tools"', html=False)
         self.assertNotContains(response, "entrada norte")
         self.assertNotContains(response, "calcomanía debajo")
         self.assertNotContains(response, self.propietario.email)
@@ -188,6 +189,8 @@ class PruebasPublicaciones(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="cuenta-sidebar"', html=False)
+        self.assertNotContains(response, 'class="navbar-marketplace-tools"', html=False)
+        self.assertNotContains(response, "Buscar objetos perdidos")
         self.assertContains(response, "calcomanía debajo")
         self.assertContains(response, "entrada norte")
         self.assertNotContains(response, "Contactar por mensaje")

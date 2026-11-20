@@ -1,5 +1,5 @@
 {% load static %}
-<nav class="navbar navbar-expand-lg app-navbar app-navbar-autenticada{% if request.resolver_match.view_name == 'general:inicio' or request.resolver_match.view_name == 'publicaciones:listado' or request.resolver_match.view_name == 'publicaciones:detalle' or request.resolver_match.view_name == 'perfiles:publico' %} app-navbar-marketplace{% endif %}{% if mostrar_sidebar_cuenta %} navbar-con-sidebar{% endif %}">
+<nav class="navbar navbar-expand-lg app-navbar app-navbar-autenticada{% if not mostrar_sidebar_cuenta %}{% if request.resolver_match.view_name == 'general:inicio' or request.resolver_match.view_name == 'publicaciones:listado' or request.resolver_match.view_name == 'perfiles:publico' %} app-navbar-marketplace{% endif %}{% endif %}{% if mostrar_sidebar_cuenta %} navbar-con-sidebar{% endif %}">
     <div class="container">
         {% if mostrar_sidebar_cuenta %}
             <button class="sidebar-drawer-trigger" type="button" data-sidebar-drawer-trigger aria-expanded="false" aria-controls="barraLateralCuenta" aria-label="Abrir opciones de Mi cuenta" title="Opciones de Mi cuenta">
@@ -13,17 +13,19 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navegacionPrincipal" aria-controls="navegacionPrincipal" aria-expanded="false" aria-label="Abrir navegación">
             <svg class="navbar-toggler-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
-        {% if request.resolver_match.view_name == 'general:inicio' or request.resolver_match.view_name == 'publicaciones:listado' or request.resolver_match.view_name == 'publicaciones:detalle' or request.resolver_match.view_name == 'perfiles:publico' %}
-            <div class="navbar-marketplace-tools">
-                <form class="navbar-marketplace-search" method="get" action="{% url 'publicaciones:listado' %}" role="search">
-                    <label class="visually-hidden" for="navbar-marketplace-search-input">Buscar publicaciones</label>
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
-                    <input id="navbar-marketplace-search-input" type="search" name="q" value="{{ filtros.q|default:'' }}" placeholder="Buscar objetos perdidos..." autocomplete="off">
-                </form>
-                <button class="navbar-marketplace-filter" type="button" data-marketplace-filter aria-expanded="false" aria-controls="marketplace-sidebar" aria-label="Abrir filtros y categorías" title="Filtros y categorías">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10m-7 6h4"/></svg>
-                </button>
-            </div>
+        {% if not mostrar_sidebar_cuenta %}
+            {% if request.resolver_match.view_name == 'general:inicio' or request.resolver_match.view_name == 'publicaciones:listado' or request.resolver_match.view_name == 'perfiles:publico' %}
+                <div class="navbar-marketplace-tools">
+                    <form class="navbar-marketplace-search" method="get" action="{% url 'publicaciones:listado' %}" role="search">
+                        <label class="visually-hidden" for="navbar-marketplace-search-input">Buscar publicaciones</label>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+                        <input id="navbar-marketplace-search-input" type="search" name="q" value="{{ filtros.q|default:'' }}" placeholder="Buscar objetos perdidos..." autocomplete="off">
+                    </form>
+                    <button class="navbar-marketplace-filter" type="button" data-marketplace-filter aria-expanded="false" aria-controls="marketplace-sidebar" aria-label="Abrir filtros y categorías" title="Filtros y categorías">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10m-7 6h4"/></svg>
+                    </button>
+                </div>
+            {% endif %}
         {% endif %}
         <div class="collapse navbar-collapse" id="navegacionPrincipal">
             <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2 py-3 py-lg-0">

@@ -534,10 +534,6 @@
     text-decoration: none;
 }
 
-.navbar-marketplace-tools {
-    display: none;
-}
-
 @media (max-width: 1050px) {
     .marketplace-page {
         grid-template-columns: 300px minmax(0, 1fr);
