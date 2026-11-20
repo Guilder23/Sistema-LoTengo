@@ -97,11 +97,11 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             f"presencia_usuario_{self.contacto_id}",
         }
         self.escribiendo = False
-        await _marcar_leido(self.conversacion_id, usuario.pk)
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         for group in self.presencia_groups:
             await self.channel_layer.group_add(group, self.channel_name)
         await self.accept()
+        await _marcar_leido(self.conversacion_id, usuario.pk)
 
         expirados = await _registrar_presencia(self.usuario_id, self.channel_name)
         for estado in expirados:
@@ -278,3 +278,14 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         if mensaje["remitente_id"] != usuario.pk:
             await _marcar_leido(self.conversacion_id, usuario.pk)
         await self.send_json({"tipo": "mensaje", "mensaje": mensaje})
+
+    async def chat_lectura(self, evento):
+        if evento["usuario_id"] == self.scope["user"].pk:
+            return
+        await self.send_json(
+            {
+                "tipo": "lectura",
+                "usuario_id": evento["usuario_id"],
+                "mensaje_ids": evento["mensaje_ids"],
+            }
+        )

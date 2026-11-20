@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const conversacionesId = chat.dataset.chatConversacion;
     const pendientes = new Map();
     const temporizadoresPendientes = new Map();
+    const confirmacionesPendientes = new Set();
     let archivoPendiente = null;
     let urlVistaPrevia = "";
     let grabadora = null;
@@ -74,6 +75,28 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    const actualizarConfirmacionLectura = (indicador, leido) => {
+        indicador.dataset.estado = leido ? "leida" : "enviada";
+        indicador.textContent = leido ? "✓✓" : "✓";
+        indicador.title = leido ? "Leído" : "Enviado";
+        indicador.setAttribute("aria-label", leido ? "Leído" : "Enviado");
+    };
+
+    const confirmarLectura = (mensajeId) => {
+        const id = String(mensajeId);
+        if (!/^\d+$/.test(id)) return;
+
+        const elemento = mensajes.querySelector(`[data-mensaje-id="${id}"]`);
+        if (!elemento) {
+            confirmacionesPendientes.add(id);
+            return;
+        }
+        if (elemento.dataset.remitenteId !== String(usuarioId)) return;
+
+        const indicador = elemento.querySelector("[data-confirmacion-lectura]");
+        if (indicador) actualizarConfirmacionLectura(indicador, true);
+    };
+
     const crearElementoMensaje = (mensaje) => {
         const propio = String(mensaje.remitente_id) === String(usuarioId);
         const elemento = document.createElement("article");
@@ -117,7 +140,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const hora = document.createElement("time");
         hora.dateTime = mensaje.enviada_en || "";
         hora.textContent = mensaje.hora_la_paz;
-        burbuja.append(hora);
+        const pie = document.createElement("span");
+        pie.className = "messenger-mensaje-pie";
+        pie.append(hora);
+        const leidoPendiente = confirmacionesPendientes.delete(String(mensaje.id));
+        if (propio) {
+            const indicador = document.createElement("span");
+            indicador.className = "messenger-confirmacion";
+            indicador.dataset.confirmacionLectura = "";
+            indicador.setAttribute("role", "img");
+            actualizarConfirmacionLectura(
+                indicador,
+                Boolean(mensaje.leida) || leidoPendiente,
+            );
+            pie.append(indicador);
+        }
+        burbuja.append(pie);
         elemento.append(burbuja);
         return elemento;
     };
@@ -394,6 +432,12 @@ document.addEventListener("DOMContentLoaded", () => {
             ) {
                 contactoEscribiendo = Boolean(datos.escribiendo);
                 mostrarEstadoContacto();
+            } else if (
+                datos.tipo === "lectura"
+                && String(datos.usuario_id) === String(contactoId)
+                && Array.isArray(datos.mensaje_ids)
+            ) {
+                datos.mensaje_ids.forEach(confirmarLectura);
             } else if (datos.tipo === "mensaje") {
                 recibirMensaje(datos.mensaje);
             } else if (datos.tipo === "error") {

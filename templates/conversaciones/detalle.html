@@ -120,7 +120,12 @@
                             {% if mensaje.contenido %}
                                 <p>{{ mensaje.contenido|linebreaksbr }}</p>
                             {% endif %}
-                            <time datetime="{{ mensaje.enviada_en|timezone:'America/La_Paz'|date:'c' }}">{{ mensaje.enviada_en|timezone:'America/La_Paz'|date:"H:i" }}</time>
+                            <span class="messenger-mensaje-pie">
+                                <time datetime="{{ mensaje.enviada_en|timezone:'America/La_Paz'|date:'c' }}">{{ mensaje.enviada_en|timezone:'America/La_Paz'|date:"H:i" }}</time>
+                                {% if mensaje.remitente_id == user.pk %}
+                                    <span class="messenger-confirmacion" data-confirmacion-lectura data-estado="{% if mensaje.leida_en %}leida{% else %}enviada{% endif %}" role="img" aria-label="{% if mensaje.leida_en %}Leído{% else %}Enviado{% endif %}" title="{% if mensaje.leida_en %}Leído{% else %}Enviado{% endif %}">{% if mensaje.leida_en %}✓✓{% else %}✓{% endif %}</span>
+                                {% endif %}
+                            </span>
                         </div>
                     </article>
                 {% empty %}

@@ -273,6 +273,26 @@
     line-height: 1.2;
 }
 
+.messenger-mensaje-pie {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.messenger-confirmacion {
+    color: rgba(255, 255, 255, .7);
+    font-size: .72rem;
+    font-weight: 750;
+    letter-spacing: -.12em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.messenger-confirmacion[data-estado="leida"] {
+    color: #b6e3ff;
+}
+
 .messenger-mensaje:not(.es-propio) .messenger-burbuja time {
     color: #b0b3b8;
 }

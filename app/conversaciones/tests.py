@@ -355,6 +355,7 @@ class PruebasConversaciones(DatosConversaciones, TestCase):
         Mensaje.objects.filter(pk=mensaje.pk).update(enviada_en=fecha_utc)
         mensaje.refresh_from_db()
         self.assertEqual(serializar_mensaje(mensaje)["hora_la_paz"], "10:15")
+        self.assertFalse(serializar_mensaje(mensaje)["leida"])
 
         self.client.force_login(self.interesado)
         respuesta = self.client.get(self.detalle_url(conversacion))
@@ -363,6 +364,14 @@ class PruebasConversaciones(DatosConversaciones, TestCase):
             respuesta,
             'datetime="2026-11-20T10:15:00-04:00">10:15</time>',
         )
+        self.assertContains(respuesta, 'data-estado="enviada"')
+
+        mensaje.leida_en = timezone.now()
+        mensaje.save(update_fields=["leida_en"])
+        self.assertTrue(serializar_mensaje(mensaje)["leida"])
+
+        respuesta = self.client.get(self.detalle_url(conversacion))
+        self.assertContains(respuesta, 'data-estado="leida"')
 
 
 class PruebasWebSocketContadores(TransactionTestCase):
@@ -583,6 +592,50 @@ class PruebasPresenciaChat(DatosConversaciones, TransactionTestCase):
             interesado=self.interesado,
         )
         async_to_sync(self._verificar_presencia)(conversacion.pk)
+
+    def test_confirmacion_de_lectura_se_envia_al_remitente_en_tiempo_real(self):
+        conversacion = Conversacion.objects.create(
+            publicacion=self.publicacion,
+            interesado=self.interesado,
+        )
+        mensaje = Mensaje.objects.create(
+            conversacion=conversacion,
+            remitente=self.interesado,
+            contenido="Mensaje pendiente de lectura",
+        )
+
+        confirmacion = async_to_sync(self._verificar_confirmacion_lectura)(
+            conversacion.pk
+        )
+
+        self.assertEqual(confirmacion["tipo"], "lectura")
+        self.assertEqual(confirmacion["usuario_id"], self.publicador.pk)
+        self.assertEqual(confirmacion["mensaje_ids"], [mensaje.pk])
+        mensaje.refresh_from_db()
+        self.assertIsNotNone(mensaje.leida_en)
+
+    async def _verificar_confirmacion_lectura(self, conversacion_id):
+        aplicacion = URLRouter(websocket_urlpatterns)
+        ruta = f"/ws/conversaciones/{conversacion_id}/"
+        remitente = WebsocketCommunicator(aplicacion, ruta)
+        remitente.scope["user"] = self.interesado
+        lector = WebsocketCommunicator(aplicacion, ruta)
+        lector.scope["user"] = self.publicador
+
+        conectado_remitente, _ = await remitente.connect()
+        self.assertTrue(conectado_remitente)
+        await remitente.receive_json_from(timeout=2)
+        conectado_lector, _ = await lector.connect()
+        self.assertTrue(conectado_lector)
+
+        while True:
+            evento = await remitente.receive_json_from(timeout=2)
+            if evento["tipo"] == "lectura":
+                break
+
+        await lector.disconnect()
+        await remitente.disconnect()
+        return evento
 
     async def _verificar_presencia(self, conversacion_id):
         aplicacion = URLRouter(websocket_urlpatterns)

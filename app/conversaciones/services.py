@@ -14,6 +14,7 @@ from app.notificaciones.services import (
 from app.publicaciones.imagenes import ErrorImagen, preparar_imagen
 
 from .models import Conversacion, Mensaje
+from .realtime import publicar_confirmacion_lectura
 
 
 MAXIMO_CARACTERES_MENSAJE = 2000
@@ -82,6 +83,7 @@ def _serializar_mensaje(mensaje):
         "tipo_adjunto": mensaje.tipo_adjunto,
         "adjunto_url": adjunto_url,
         "enviada_en": mensaje.enviada_en.isoformat(),
+        "leida": mensaje.leida_en is not None,
         "hora_la_paz": timezone.localtime(
             mensaje.enviada_en,
             ZONA_HORARIA_LA_PAZ,
@@ -152,10 +154,20 @@ def crear_mensaje(conversacion_id, remitente, contenido="", archivo=None):
 
 def marcar_mensajes_leidos(conversacion_id, usuario_id):
     leida_en = timezone.now()
-    mensajes_actualizados = Mensaje.objects.filter(
+    mensajes_pendientes = Mensaje.objects.filter(
         conversacion_id=conversacion_id,
         leida_en__isnull=True,
-    ).exclude(remitente_id=usuario_id).update(leida_en=leida_en)
+    ).exclude(remitente_id=usuario_id)
+    mensajes_ids = list(mensajes_pendientes.values_list("pk", flat=True))
+    mensajes_actualizados = (
+        mensajes_pendientes.update(leida_en=leida_en) if mensajes_ids else 0
+    )
+    if mensajes_actualizados:
+        publicar_confirmacion_lectura(
+            conversacion_id,
+            usuario_id,
+            mensajes_ids,
+        )
     notificaciones_actualizadas = marcar_notificaciones_conversacion_leidas(
         usuario_id,
         conversacion_id,
