@@ -32,10 +32,14 @@
             <div class="messenger-lista" data-lista-conversaciones>
                 {% for item in conversaciones %}
                     <a class="messenger-conversacion{% if item.pk == conversacion.pk %} is-activa{% endif %}" href="{% url 'conversaciones:detalle' item.pk %}" data-conversacion data-conversacion-id="{{ item.pk }}" data-no-leidos="{% if item.mensajes_no_leidos %}true{% else %}false{% endif %}" data-busqueda="{{ item.persona_contacto.get_full_name|default:'Persona usuaria' }} {{ item.publicacion.titulo }}" {% if item.pk == conversacion.pk %}aria-current="page"{% endif %}>
-                        <span class="messenger-avatar" aria-hidden="true">{{ item.persona_contacto.first_name|default:"L"|first|upper }}</span>
+                        <span class="messenger-avatar-contenedor">
+                            <span class="messenger-avatar" aria-hidden="true">{{ item.persona_contacto.first_name|default:"L"|first|upper }}</span>
+                            <span class="messenger-presencia-punto" data-presencia-punto-usuario-id="{{ item.persona_contacto.pk }}" aria-hidden="true" hidden></span>
+                        </span>
                         <span class="messenger-conversacion-cuerpo">
                             <span class="messenger-conversacion-linea">
                                 <strong>{{ item.persona_contacto.get_full_name|default:"Persona usuaria" }}</strong>
+                                <span class="messenger-presencia" data-presencia-usuario-id="{{ item.persona_contacto.pk }}" hidden></span>
                                 <time datetime="{{ item.actualizada_en|timezone:'America/La_Paz'|date:'c' }}">{{ item.actualizada_en|timezone:'America/La_Paz'|date:"j M" }}</time>
                             </span>
                             <span class="messenger-conversacion-objeto">{{ item.publicacion.titulo }}</span>
@@ -69,6 +73,7 @@
             data-chat-anteriores-url="{{ mensajes_anteriores_url }}"
             data-chat-usuario="{{ user.pk }}"
             data-chat-contacto="{{ persona_contacto.first_name|default:'Contacto' }}"
+            data-chat-contacto-id="{{ persona_contacto.pk }}"
             data-chat-hay-mas="{% if hay_mensajes_anteriores %}true{% else %}false{% endif %}">
             <header class="messenger-chat-encabezado">
                 <a class="messenger-volver" href="{% url 'conversaciones:lista' %}" aria-label="Volver a todos los chats">

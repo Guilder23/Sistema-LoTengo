@@ -1,7 +1,9 @@
+from uuid import uuid4
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-from uuid import uuid4
+from django.utils import timezone
 
 
 def ruta_adjunto_mensaje(instance, filename):
@@ -102,3 +104,22 @@ class Mensaje(models.Model):
 
     def __str__(self):
         return f"Mensaje de {self.remitente} en conversación {self.conversacion_id}"
+
+
+class PresenciaUsuario(models.Model):
+    usuario = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="presencia_chat",
+    )
+    ultima_vez_en_linea = models.DateTimeField(null=True, blank=True)
+
+
+class ConexionPresencia(models.Model):
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="conexiones_chat_activas",
+    )
+    canal = models.CharField(max_length=255, unique=True)
+    ultimo_latido = models.DateTimeField(default=timezone.now, db_index=True)

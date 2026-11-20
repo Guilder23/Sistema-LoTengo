@@ -366,6 +366,8 @@ class PruebasConversaciones(DatosConversaciones, TestCase):
 
 
 class PruebasWebSocketContadores(TransactionTestCase):
+    serialized_rollback = True
+
     def setUp(self):
         super().setUp()
         DatosConversaciones.setUpTestData.__func__(self.__class__)
@@ -376,6 +378,56 @@ class PruebasWebSocketContadores(TransactionTestCase):
             interesado=self.interesado,
         )
         async_to_sync(self._verificar_contadores)(conversacion.pk)
+
+    def test_presencia_se_actualiza_desde_el_websocket_global(self):
+        conversacion = Conversacion.objects.create(
+            publicacion=self.publicacion,
+            interesado=self.interesado,
+        )
+        async_to_sync(self._verificar_presencia_global)(conversacion.pk)
+
+    async def _verificar_presencia_global(self, conversacion_id):
+        chat = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            f"/ws/conversaciones/{conversacion_id}/",
+        )
+        chat.scope["user"] = self.interesado
+        conectado_chat, _ = await chat.connect()
+        self.assertTrue(conectado_chat)
+        estado_inicial = await chat.receive_json_from(timeout=2)
+        self.assertFalse(estado_inicial["en_linea"])
+
+        global_usuario = WebsocketCommunicator(
+            URLRouter(notificaciones_websocket_urlpatterns),
+            "/ws/notificaciones/",
+        )
+        global_usuario.scope["user"] = self.publicador
+        conectado_global, _ = await global_usuario.connect()
+        self.assertTrue(conectado_global)
+        await global_usuario.receive_json_from(timeout=2)
+        await global_usuario.send_json_to(
+            {
+                "tipo": "presencia_suscribir",
+                "usuarios": [str(self.interesado.pk)],
+            }
+        )
+        presencia_contacto = await global_usuario.receive_json_from(timeout=2)
+        self.assertEqual(presencia_contacto["tipo"], "presencia")
+        self.assertEqual(presencia_contacto["usuario_id"], self.interesado.pk)
+        self.assertTrue(presencia_contacto["en_linea"])
+
+        estado_en_linea = await chat.receive_json_from(timeout=2)
+        self.assertEqual(estado_en_linea["tipo"], "presencia")
+        self.assertEqual(estado_en_linea["usuario_id"], self.publicador.pk)
+        self.assertTrue(estado_en_linea["en_linea"])
+        self.assertIsNone(estado_en_linea["segundos_desde_ultima_vez"])
+
+        await global_usuario.disconnect()
+        estado_desconectado = await chat.receive_json_from(timeout=2)
+        self.assertEqual(estado_desconectado["tipo"], "presencia")
+        self.assertFalse(estado_desconectado["en_linea"])
+        self.assertEqual(estado_desconectado["segundos_desde_ultima_vez"], 0)
+        await chat.disconnect()
 
     async def _verificar_contadores(self, conversacion_id):
         aplicacion = URLRouter(notificaciones_websocket_urlpatterns)
@@ -417,7 +469,13 @@ class PruebasWebSocketContadores(TransactionTestCase):
         await comunicador.disconnect()
 
 
-class PruebasWebSocketConversaciones(DatosConversaciones, TestCase):
+class PruebasWebSocketConversaciones(DatosConversaciones, TransactionTestCase):
+    serialized_rollback = True
+
+    def setUp(self):
+        super().setUp()
+        DatosConversaciones.setUpTestData.__func__(self.__class__)
+
     @patch(
         "app.conversaciones.consumers._marcar_leido",
         new_callable=AsyncMock,
@@ -496,6 +554,7 @@ class PruebasWebSocketConversaciones(DatosConversaciones, TestCase):
         self.assertTrue(conectado_destinatario)
         await remitente.receive_json_from(timeout=2)
         await destinatario.receive_json_from(timeout=2)
+        await remitente.receive_json_from(timeout=2)
 
         await remitente.send_json_to(
             {
@@ -509,3 +568,60 @@ class PruebasWebSocketConversaciones(DatosConversaciones, TestCase):
         await remitente.disconnect()
         await destinatario.disconnect()
         return recibido_remitente, recibido_destinatario, (conectado_ajeno, codigo_ajeno)
+
+
+class PruebasPresenciaChat(DatosConversaciones, TransactionTestCase):
+    serialized_rollback = True
+
+    def setUp(self):
+        super().setUp()
+        DatosConversaciones.setUpTestData.__func__(self.__class__)
+
+    def test_presencia_escritura_y_ultima_conexion_en_tiempo_real(self):
+        conversacion = Conversacion.objects.create(
+            publicacion=self.publicacion,
+            interesado=self.interesado,
+        )
+        async_to_sync(self._verificar_presencia)(conversacion.pk)
+
+    async def _verificar_presencia(self, conversacion_id):
+        aplicacion = URLRouter(websocket_urlpatterns)
+        ruta = f"/ws/conversaciones/{conversacion_id}/"
+        publicador = WebsocketCommunicator(aplicacion, ruta)
+        publicador.scope["user"] = self.publicador
+        interesado = WebsocketCommunicator(aplicacion, ruta)
+        interesado.scope["user"] = self.interesado
+
+        conectado_publicador, _ = await publicador.connect()
+        self.assertTrue(conectado_publicador)
+        estado_inicial = await publicador.receive_json_from(timeout=2)
+        self.assertEqual(estado_inicial["tipo"], "presencia")
+        self.assertFalse(estado_inicial["en_linea"])
+
+        conectado_interesado, _ = await interesado.connect()
+        self.assertTrue(conectado_interesado)
+        estado_publicador = await interesado.receive_json_from(timeout=2)
+        estado_interesado = await publicador.receive_json_from(timeout=2)
+        self.assertTrue(estado_publicador["en_linea"])
+        self.assertTrue(estado_interesado["en_linea"])
+
+        await interesado.send_json_to(
+            {"tipo": "escribiendo", "escribiendo": True}
+        )
+        escritura = await publicador.receive_json_from(timeout=2)
+        self.assertEqual(escritura["tipo"], "escribiendo")
+        self.assertEqual(escritura["usuario_id"], self.interesado.pk)
+        self.assertTrue(escritura["escribiendo"])
+
+        await interesado.send_json_to(
+            {"tipo": "escribiendo", "escribiendo": False}
+        )
+        fin_escritura = await publicador.receive_json_from(timeout=2)
+        self.assertFalse(fin_escritura["escribiendo"])
+
+        await interesado.disconnect()
+        ultima_vez = await publicador.receive_json_from(timeout=2)
+        self.assertEqual(ultima_vez["tipo"], "presencia")
+        self.assertFalse(ultima_vez["en_linea"])
+        self.assertTrue(ultima_vez["ultima_vez"])
+        await publicador.disconnect()

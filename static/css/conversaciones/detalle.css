@@ -91,10 +91,14 @@
 
 .messenger-estado {
     display: inline-flex;
+    max-width: min(260px, 42vw);
     align-items: center;
     gap: 6px;
+    overflow: hidden;
     color: #b0b3b8;
     font-size: .7rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .messenger-estado::before {
@@ -107,6 +111,15 @@
 
 .messenger-estado[data-estado="conectada"]::before {
     background: #31a24c;
+}
+
+.messenger-estado[data-estado="escribiendo"] {
+    color: #78aaff;
+}
+
+.messenger-estado[data-estado="escribiendo"]::before {
+    background: #0866ff;
+    animation: messenger-pulso 1s ease-in-out infinite alternate;
 }
 
 .messenger-estado[data-estado="desconectada"]::before {
@@ -577,6 +590,10 @@
         font-size: .62rem;
     }
 
+    .messenger-estado {
+        max-width: 42vw;
+    }
+
     .messenger-producto {
         max-width: min(35vw, 150px);
         margin-left: auto;
@@ -644,7 +661,8 @@
 @media (prefers-reduced-motion: reduce) {
     .messenger-enviar,
     .messenger-accion-adjunto,
-    .messenger-grabacion > span {
+    .messenger-grabacion > span,
+    .messenger-estado[data-estado="escribiendo"]::before {
         animation: none;
         transition: none;
     }

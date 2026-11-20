@@ -14,10 +14,106 @@ document.addEventListener("DOMContentLoaded", () => {
     const enlacesChats = [...document.querySelectorAll("[data-enlace-chats]")];
     const insigniasChats = [...document.querySelectorAll("[data-chat-insignia]")];
     const conteosChats = [...document.querySelectorAll("[data-chat-conteo]")];
+    const presenciaLista = [
+        ...document.querySelectorAll("[data-presencia-usuario-id]"),
+    ];
+    const puntosPresencia = [
+        ...document.querySelectorAll("[data-presencia-punto-usuario-id]"),
+    ];
+    const tiemposPresencia = new Map();
     let socketContadores = null;
     let reconexionContadores = null;
+    let intervaloLatidoContadores = null;
+    let intervaloTiemposPresencia = null;
     let esperaReconexionContadores = 1000;
     let cerrarContadores = false;
+
+    const formatearTiempoPresencia = (segundos) => {
+        const total = Math.floor(Math.max(0, segundos));
+        if (total < 60) return `${total} s`;
+
+        const minutos = Math.floor(total / 60);
+        if (minutos < 60) return `${minutos} min`;
+
+        const horas = Math.floor(minutos / 60);
+        if (horas < 24) return `${horas} h`;
+
+        const dias = Math.floor(horas / 24);
+        if (dias < 30) return `${dias} d`;
+
+        const meses = Math.floor(dias / 30);
+        if (meses < 12) return `${meses} mes`;
+        return `${Math.floor(dias / 365)} a`;
+    };
+
+    const actualizarTiempoPresencia = (elemento) => {
+        const presencia = tiemposPresencia.get(elemento);
+        if (!presencia) return;
+
+        const segundos = presencia.segundos
+            + (performance.now() - presencia.recibidaEn) / 1000;
+        const tiempo = formatearTiempoPresencia(segundos);
+        elemento.textContent = tiempo;
+        elemento.title = `Desconectado hace ${tiempo}`;
+        elemento.setAttribute("aria-label", `Desconectado hace ${tiempo}`);
+    };
+
+    const actualizarTiemposPresencia = () => {
+        tiemposPresencia.forEach((_, elemento) => {
+            if (!elemento.isConnected) {
+                tiemposPresencia.delete(elemento);
+                return;
+            }
+            actualizarTiempoPresencia(elemento);
+        });
+    };
+
+    const actualizarPresenciaLista = (datos) => {
+        const usuarioId = String(datos.usuario_id);
+        const elementos = presenciaLista.filter(
+            (elemento) => elemento.dataset.presenciaUsuarioId === usuarioId,
+        );
+        const puntos = puntosPresencia.filter(
+            (elemento) => elemento.dataset.presenciaPuntoUsuarioId === usuarioId,
+        );
+        if (!elementos.length && !puntos.length) return;
+
+        const enLinea = Boolean(datos.en_linea);
+        const segundosDesconectado = Number.isFinite(
+            datos.segundos_desde_ultima_vez,
+        )
+            ? Math.max(0, datos.segundos_desde_ultima_vez)
+            : null;
+        const recibidaEn = performance.now();
+
+        puntos.forEach((punto) => {
+            punto.hidden = !enLinea;
+        });
+        elementos.forEach((elemento) => {
+            if (enLinea) {
+                elemento.hidden = true;
+                elemento.textContent = "";
+                elemento.removeAttribute("title");
+                elemento.removeAttribute("aria-label");
+                delete elemento.dataset.estado;
+                tiemposPresencia.delete(elemento);
+            } else if (segundosDesconectado !== null) {
+                elemento.hidden = false;
+                elemento.dataset.estado = "desconectada";
+                tiemposPresencia.set(elemento, {
+                    segundos: segundosDesconectado,
+                    recibidaEn,
+                });
+                actualizarTiempoPresencia(elemento);
+            } else {
+                elemento.hidden = true;
+                elemento.textContent = "";
+                elemento.removeAttribute("title");
+                elemento.removeAttribute("aria-label");
+                tiemposPresencia.delete(elemento);
+            }
+        });
+    };
 
     const cerrarNotificaciones = () => {
         botonNotificaciones?.setAttribute("aria-expanded", "false");
@@ -162,6 +258,37 @@ document.addEventListener("DOMContentLoaded", () => {
         socketContadores = new WebSocket(url);
         socketContadores.addEventListener("open", () => {
             esperaReconexionContadores = 1000;
+            clearInterval(intervaloLatidoContadores);
+            intervaloLatidoContadores = window.setInterval(() => {
+                if (socketContadores?.readyState !== WebSocket.OPEN) return;
+                try {
+                    socketContadores.send(JSON.stringify({ tipo: "ping" }));
+                } catch (error) {
+                    console.error("No se pudo mantener activa la presencia.", error);
+                }
+            }, 25000);
+            const usuarios = [
+                ...new Set(
+                    presenciaLista
+                        .map((elemento) => elemento.dataset.presenciaUsuarioId)
+                        .filter(Boolean),
+                ),
+            ];
+            if (usuarios.length) {
+                try {
+                    socketContadores.send(
+                        JSON.stringify({
+                            tipo: "presencia_suscribir",
+                            usuarios,
+                        }),
+                    );
+                } catch (error) {
+                    console.error(
+                        "No se pudo solicitar la presencia de los chats.",
+                        error,
+                    );
+                }
+            }
         });
         socketContadores.addEventListener("message", (evento) => {
             let datos;
@@ -169,6 +296,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 datos = JSON.parse(evento.data);
             } catch (error) {
                 console.error("El servidor envió un contador en formato inválido.", error);
+                return;
+            }
+            if (datos.tipo === "presencia") {
+                actualizarPresenciaLista(datos);
                 return;
             }
             if (datos.tipo !== "contadores") return;
@@ -186,6 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
             socketContadores?.close();
         });
         socketContadores.addEventListener("close", () => {
+            clearInterval(intervaloLatidoContadores);
             socketContadores = null;
             if (cerrarContadores) return;
             reconexionContadores = window.setTimeout(
@@ -286,10 +418,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cargarNotificaciones();
     const intervaloNotificaciones = window.setInterval(cargarNotificaciones, 45000);
+    if (presenciaLista.length) {
+        intervaloTiemposPresencia = window.setInterval(
+            actualizarTiemposPresencia,
+            15000,
+        );
+    }
     conectarContadores();
     window.addEventListener("pagehide", () => {
         cerrarContadores = true;
         window.clearTimeout(reconexionContadores);
+        window.clearInterval(intervaloLatidoContadores);
+        window.clearInterval(intervaloTiemposPresencia);
         window.clearInterval(intervaloNotificaciones);
         socketContadores?.close();
     }, { once: true });

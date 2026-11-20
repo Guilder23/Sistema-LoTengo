@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const botonCargarAnteriores = chat.querySelector("[data-chat-cargar-anteriores]");
     const botonBajar = chat.querySelector("[data-chat-bajar]");
     const usuarioId = chat.dataset.chatUsuario;
+    const contactoId = chat.dataset.chatContactoId;
     const conversacionesId = chat.dataset.chatConversacion;
     const pendientes = new Map();
     const temporizadoresPendientes = new Map();
@@ -32,10 +33,21 @@ document.addEventListener("DOMContentLoaded", () => {
     let solicitandoMicrofono = false;
     let socket = null;
     let reconexion = null;
+    let intervaloLatido = null;
+    let intervaloUltimaVez = null;
+    let temporizadorEscribiendo = null;
     let esperaReconexion = 1000;
     let cerrarAlSalir = false;
     let subiendoAdjunto = false;
     let seguirAlFinal = true;
+    let presenciaContacto = {
+        enLinea: false,
+        ultimaVez: "",
+        segundosDesconectado: null,
+        recibidaEn: 0,
+    };
+    let contactoEscribiendo = false;
+    let usuarioEscribiendo = false;
 
     const mostrarError = (texto = "") => {
         if (error) error.textContent = texto;
@@ -197,11 +209,116 @@ document.addEventListener("DOMContentLoaded", () => {
         mostrarError();
     };
 
-    const actualizarEstado = (texto, estado) => {
+    const actualizarEstado = (texto, estado, descripcion = texto) => {
         const elemento = chat.querySelector("[data-chat-estado]");
         if (!elemento) return;
         elemento.textContent = texto;
         elemento.dataset.estado = estado;
+        elemento.title = descripcion;
+    };
+
+    const formatoUltimaConexion = new Intl.DateTimeFormat("es-BO", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "America/La_Paz",
+    });
+
+    const formatearUltimaConexion = (fechaISO) => {
+        const fecha = new Date(fechaISO);
+        if (!Number.isFinite(fecha.getTime())) return "";
+        return formatoUltimaConexion.format(fecha);
+    };
+
+    const tiempoDesconectado = (segundos) => {
+        const minutos = Math.floor(segundos / 60);
+        if (minutos < 1) return "hace menos de un minuto";
+        if (minutos < 60) {
+            return `hace ${minutos} minuto${minutos === 1 ? "" : "s"}`;
+        }
+
+        const horas = Math.floor(minutos / 60);
+        if (horas < 24) {
+            return `hace ${horas} hora${horas === 1 ? "" : "s"}`;
+        }
+
+        const dias = Math.floor(horas / 24);
+        if (dias < 30) return `hace ${dias} día${dias === 1 ? "" : "s"}`;
+
+        const meses = Math.floor(dias / 30);
+        if (meses < 12) return `hace ${meses} mes${meses === 1 ? "" : "es"}`;
+
+        const anios = Math.floor(dias / 365);
+        return `hace ${anios} año${anios === 1 ? "" : "s"}`;
+    };
+
+    const mostrarEstadoContacto = () => {
+        if (contactoEscribiendo) {
+            actualizarEstado("Escribiendo…", "escribiendo");
+        } else if (presenciaContacto.enLinea) {
+            actualizarEstado("En línea", "conectada");
+        } else if (presenciaContacto.ultimaVez) {
+            const fecha = formatearUltimaConexion(presenciaContacto.ultimaVez);
+            if (fecha) {
+                const tiempoTranscurrido = presenciaContacto.segundosDesconectado === null
+                    ? ""
+                    : ` · Desconectado ${tiempoDesconectado(
+                        presenciaContacto.segundosDesconectado
+                            + (performance.now() - presenciaContacto.recibidaEn) / 1000,
+                    )}`;
+                actualizarEstado(
+                    `Última conexión: ${fecha}`,
+                    "desconectada",
+                    `Última conexión: ${fecha}${tiempoTranscurrido}`,
+                );
+                return;
+            }
+            actualizarEstado("Desconectado", "desconectada");
+        } else if (presenciaContacto.segundosDesconectado !== null) {
+            const segundos = Math.max(
+                0,
+                presenciaContacto.segundosDesconectado
+                    + (performance.now() - presenciaContacto.recibidaEn) / 1000,
+            );
+            actualizarEstado(
+                `Desconectado ${tiempoDesconectado(segundos)}`,
+                "desconectada",
+            );
+        } else {
+            actualizarEstado("Desconectado", "desconectada");
+        }
+    };
+
+    const enviarEstadoEscritura = (escribiendo) => {
+        if (
+            socket?.readyState !== WebSocket.OPEN
+            || usuarioEscribiendo === escribiendo
+        ) return;
+        try {
+            socket.send(JSON.stringify({ tipo: "escribiendo", escribiendo }));
+            usuarioEscribiendo = escribiendo;
+        } catch (errorEnvio) {
+            console.error("No se pudo actualizar el estado de escritura.", errorEnvio);
+        }
+    };
+
+    const actualizarEstadoEscrituraLocal = () => {
+        clearTimeout(temporizadorEscribiendo);
+        const escribiendo = Boolean(campo.value.trim());
+        enviarEstadoEscritura(escribiendo);
+        if (escribiendo) {
+            temporizadorEscribiendo = window.setTimeout(() => {
+                enviarEstadoEscritura(false);
+            }, 2000);
+        }
+    };
+
+    const detenerEstadoEscrituraLocal = () => {
+        clearTimeout(temporizadorEscribiendo);
+        enviarEstadoEscritura(false);
     };
 
     const recibirMensaje = (mensaje) => {
@@ -228,7 +345,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         socket.addEventListener("open", () => {
             esperaReconexion = 1000;
-            actualizarEstado("Conectado", "conectada");
+            clearInterval(intervaloLatido);
+            intervaloLatido = window.setInterval(() => {
+                if (socket?.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({ tipo: "ping" }));
+                }
+            }, 25000);
+            actualizarEstadoEscrituraLocal();
         });
 
         socket.addEventListener("message", (evento) => {
@@ -239,7 +362,39 @@ document.addEventListener("DOMContentLoaded", () => {
                 mostrarError("El chat recibió una respuesta no válida.");
                 return;
             }
-            if (datos.tipo === "mensaje") {
+            if (
+                datos.tipo === "presencia"
+                && String(datos.usuario_id) === String(contactoId)
+            ) {
+                presenciaContacto = {
+                    enLinea: Boolean(datos.en_linea),
+                    ultimaVez: datos.ultima_vez || "",
+                    segundosDesconectado: Number.isFinite(
+                        datos.segundos_desde_ultima_vez,
+                    )
+                        ? Math.max(0, datos.segundos_desde_ultima_vez)
+                        : null,
+                    recibidaEn: performance.now(),
+                };
+                contactoEscribiendo = false;
+                mostrarEstadoContacto();
+                clearInterval(intervaloUltimaVez);
+                if (
+                    !presenciaContacto.enLinea
+                    && presenciaContacto.segundosDesconectado !== null
+                ) {
+                    intervaloUltimaVez = window.setInterval(
+                        mostrarEstadoContacto,
+                        60000,
+                    );
+                }
+            } else if (
+                datos.tipo === "escribiendo"
+                && String(datos.usuario_id) === String(contactoId)
+            ) {
+                contactoEscribiendo = Boolean(datos.escribiendo);
+                mostrarEstadoContacto();
+            } else if (datos.tipo === "mensaje") {
                 recibirMensaje(datos.mensaje);
             } else if (datos.tipo === "error") {
                 const idCliente = datos.id_cliente;
@@ -258,6 +413,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         socket.addEventListener("close", (evento) => {
+            clearInterval(intervaloLatido);
+            clearTimeout(temporizadorEscribiendo);
+            usuarioEscribiendo = false;
             if (cerrarAlSalir) return;
             if (evento.code === 4401 || evento.code === 4403 || evento.code === 4404) {
                 actualizarEstado("No se pudo conectar", "desconectada");
@@ -307,6 +465,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const enviarAdjunto = async () => {
         if (!archivoPendiente || subiendoAdjunto) return;
+        detenerEstadoEscrituraLocal();
         subiendoAdjunto = true;
         botonEnviar.disabled = true;
         campo.disabled = true;
@@ -373,6 +532,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (socket?.readyState !== WebSocket.OPEN) return;
 
         evento.preventDefault();
+        detenerEstadoEscrituraLocal();
         const idCliente = window.crypto?.randomUUID
             ? window.crypto.randomUUID()
             : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -404,8 +564,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     campo?.addEventListener("input", () => {
         actualizarContador();
+        actualizarEstadoEscrituraLocal();
         mostrarError();
     });
+
+    campo?.addEventListener("blur", detenerEstadoEscrituraLocal);
 
     campo?.addEventListener("keydown", (evento) => {
         if (
@@ -534,6 +697,9 @@ document.addEventListener("DOMContentLoaded", () => {
         cerrarAlSalir = true;
         clearTimeout(reconexion);
         clearInterval(intervaloGrabacion);
+        clearInterval(intervaloLatido);
+        clearInterval(intervaloUltimaVez);
+        clearTimeout(temporizadorEscribiendo);
         flujoAudio?.getTracks().forEach((pista) => pista.stop());
         if (socket && socket.readyState < WebSocket.CLOSING) socket.close();
         if (urlVistaPrevia) URL.revokeObjectURL(urlVistaPrevia);
