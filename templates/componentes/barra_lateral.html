@@ -27,11 +27,10 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5m8-4.5-8 4.5m0 9v-9"/></svg>
             <span class="sidebar-label">Mis publicaciones</span>
         </a>
-        <span class="sidebar-link is-disabled" aria-disabled="true" aria-label="Conversaciones, próximamente" title="Conversaciones, próximamente" data-tooltip="Conversaciones, próximamente">
+        <a class="sidebar-link{% if 'conversaciones:' in request.resolver_match.view_name %} is-active{% endif %}" href="{% url 'conversaciones:lista' %}" aria-label="Conversaciones" title="Conversaciones" data-tooltip="Conversaciones"{% if 'conversaciones:' in request.resolver_match.view_name %} aria-current="page"{% endif %}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
             <span class="sidebar-label">Conversaciones</span>
-            <small>Pronto</small>
-        </span>
+        </a>
         <a class="sidebar-link" href="{% url 'cuentas:panel' %}#perfil" aria-label="Mi perfil" title="Mi perfil" data-tooltip="Mi perfil">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
             <span class="sidebar-label">Mi perfil</span>

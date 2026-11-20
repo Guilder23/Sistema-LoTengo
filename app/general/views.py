@@ -6,7 +6,12 @@ from app.publicaciones.models import Publicacion
 def inicio(request):
     publicaciones_recientes = (
         Publicacion.objects.filter(estado=Publicacion.Estado.PUBLICADA)
-        .select_related("categoria", "ubicacion")
+        .select_related(
+            "categoria",
+            "ubicacion",
+            "ubicacion__departamento",
+            "ubicacion__municipio",
+        )
         .prefetch_related("imagenes")
         .order_by("-creada_en")[:6]
     )

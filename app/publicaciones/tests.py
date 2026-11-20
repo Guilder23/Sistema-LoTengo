@@ -135,6 +135,7 @@ class PruebasPublicaciones(TestCase):
         self.assertNotContains(response, "entrada norte")
         self.assertNotContains(response, "calcomanía debajo")
         self.assertNotContains(response, self.propietario.email)
+        self.assertContains(response, "Inicia sesión para contactar")
 
     def test_propietario_ve_sus_datos_privados_y_estado(self):
         publicacion = self.crear_publicacion()
@@ -148,6 +149,7 @@ class PruebasPublicaciones(TestCase):
         self.assertContains(response, 'class="cuenta-sidebar"', html=False)
         self.assertContains(response, "calcomanía debajo")
         self.assertContains(response, "entrada norte")
+        self.assertNotContains(response, "Contactar por mensaje")
 
     def test_paginas_de_creacion_edicion_y_gestion_renderizan(self):
         publicacion = self.crear_publicacion()
@@ -231,6 +233,10 @@ class PruebasPublicaciones(TestCase):
         self.assertNotContains(response, 'class="navbar-notificaciones-boton"', html=False)
         self.assertContains(response, 'class="tarjeta-publicacion"', html=False)
         self.assertContains(response, publicacion.titulo)
+        self.assertContains(response, publicacion.marca)
+        self.assertContains(response, publicacion.color)
+        self.assertContains(response, publicacion.caracteristicas_publicas)
+        self.assertNotContains(response, publicacion.caracteristica_privada)
         self.assertContains(
             response,
             reverse("publicaciones:detalle", args=[publicacion.pk]),

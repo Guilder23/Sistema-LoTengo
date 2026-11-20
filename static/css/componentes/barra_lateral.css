@@ -503,7 +503,7 @@
     }
 
     .navbar-con-sidebar .navbar-toggler {
-        margin-left: auto;
+        margin-left: 0;
     }
 
     .cuenta-espacio-contenido {

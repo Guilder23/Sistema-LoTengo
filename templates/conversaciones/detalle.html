@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chat con {{ persona_contacto.get_full_name|default:"persona usuaria" }} | Lotengo{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/conversaciones/lista.css' %}"><link rel="stylesheet" href="{% static 'css/conversaciones/detalle.css' %}">{% endblock %}
+
+{% block content %}
+<section class="messenger-pagina">
+    <div class="messenger-layout messenger-bandeja messenger-con-chat">
+        <aside class="messenger-sidebar" aria-label="Lista de conversaciones">
+            <header class="messenger-sidebar-encabezado">
+                <div>
+                    <span class="messenger-etiqueta">MENSAJES PRIVADOS</span>
+                    <h1>Chats</h1>
+                </div>
+                <a class="messenger-explorar" href="{% url 'publicaciones:listado' %}" aria-label="Explorar publicaciones" title="Explorar publicaciones">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4m-9-13v8m-4-4h8"/></svg>
+                </a>
+            </header>
+
+            <label class="messenger-busqueda">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4"/></svg>
+                <span class="visually-hidden">Buscar conversación</span>
+                <input type="search" data-buscar-conversacion placeholder="Buscar en tus chats" autocomplete="off">
+            </label>
+
+            <nav class="messenger-filtros" aria-label="Filtrar chats">
+                <button type="button" class="is-active" data-filtro-chat="todos" aria-pressed="true">Todos</button>
+                <button type="button" data-filtro-chat="no-leidos" aria-pressed="false">No leídos</button>
+            </nav>
+
+            <div class="messenger-lista" data-lista-conversaciones>
+                {% for item in conversaciones %}
+                    <a class="messenger-conversacion{% if item.pk == conversacion.pk %} is-activa{% endif %}" href="{% url 'conversaciones:detalle' item.pk %}" data-conversacion data-no-leidos="{% if item.mensajes_no_leidos %}true{% else %}false{% endif %}" data-busqueda="{{ item.persona_contacto.get_full_name|default:'Persona usuaria' }} {{ item.publicacion.titulo }}" {% if item.pk == conversacion.pk %}aria-current="page"{% endif %}>
+                        <span class="messenger-avatar" aria-hidden="true">{{ item.persona_contacto.first_name|default:"L"|first|upper }}</span>
+                        <span class="messenger-conversacion-cuerpo">
+                            <span class="messenger-conversacion-linea">
+                                <strong>{{ item.persona_contacto.get_full_name|default:"Persona usuaria" }}</strong>
+                                <time datetime="{{ item.actualizada_en|date:'c' }}">{{ item.actualizada_en|date:"j M" }}</time>
+                            </span>
+                            <span class="messenger-conversacion-objeto">{{ item.publicacion.titulo }}</span>
+                            <span class="messenger-conversacion-ultimo">
+                                {% if item.ultimo_mensaje %}
+                                    {% if item.ultimo_remitente_id == user.pk %}Tú: {% endif %}{{ item.ultimo_mensaje|truncatechars:76 }}
+                                {% elif item.ultimo_adjunto == "imagen" %}
+                                    {% if item.ultimo_remitente_id == user.pk %}Tú: {% endif %}Foto
+                                {% elif item.ultimo_adjunto == "audio" %}
+                                    {% if item.ultimo_remitente_id == user.pk %}Tú: {% endif %}Audio
+                                {% else %}
+                                    Conversación iniciada. Envía el primer mensaje.
+                                {% endif %}
+                            </span>
+                        </span>
+                        {% if item.mensajes_no_leidos %}
+                            <span class="messenger-no-leidos" aria-label="{{ item.mensajes_no_leidos }} mensaje{{ item.mensajes_no_leidos|pluralize }} sin leer">{{ item.mensajes_no_leidos }}</span>
+                        {% endif %}
+                    </a>
+                {% empty %}
+                    <div class="messenger-lista-vacia">
+                        <strong>Aún no tienes otros chats</strong>
+                        <p>Contacta a alguien desde una publicación para iniciar una conversación.</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <p class="messenger-sin-resultados" data-sin-resultados hidden>No encontramos chats con ese nombre u objeto.</p>
+        </aside>
+
+        <section class="messenger-chat" data-chat-root
+            data-chat-conversacion="{{ conversacion.pk }}"
+            data-chat-socket="{{ websocket_url }}"
+            data-chat-anteriores-url="{{ mensajes_anteriores_url }}"
+            data-chat-usuario="{{ user.pk }}"
+            data-chat-contacto="{{ persona_contacto.first_name|default:'Contacto' }}"
+            data-chat-hay-mas="{% if hay_mensajes_anteriores %}true{% else %}false{% endif %}">
+            <header class="messenger-chat-encabezado">
+                <a class="messenger-volver" href="{% url 'conversaciones:lista' %}" aria-label="Volver a todos los chats">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6M9 12h11"/></svg>
+                </a>
+                <span class="messenger-avatar messenger-avatar-grande" aria-hidden="true">{{ persona_contacto.first_name|default:"L"|first|upper }}</span>
+                <div class="messenger-identidad">
+                    <h1>{{ persona_contacto.get_full_name|default:"Persona usuaria" }}</h1>
+                    <span class="messenger-estado" data-chat-estado role="status">Conectando…</span>
+                </div>
+                {% if puede_ver_publicacion %}
+                    <a class="messenger-producto" href="{% url 'publicaciones:detalle' conversacion.publicacion.pk %}">
+                {% else %}
+                    <span class="messenger-producto" aria-disabled="true">
+                {% endif %}
+                    <span class="messenger-producto-etiqueta">SOBRE ESTA PUBLICACIÓN</span>
+                    <strong>{{ conversacion.publicacion.titulo }}</strong>
+                {% if puede_ver_publicacion %}</a>{% else %}</span>{% endif %}
+            </header>
+
+            <div class="messenger-contexto">
+                <span class="publicacion-tipo tipo-{{ conversacion.publicacion.tipo }}">{{ conversacion.publicacion.get_tipo_display }}</span>
+                <span>{{ conversacion.publicacion.categoria.nombre }}</span>
+                <span class="messenger-privacidad">Chat privado</span>
+            </div>
+
+            <section class="messenger-mensajes" aria-label="Mensajes" aria-live="polite" aria-relevant="additions text" data-chat-mensajes>
+                {% if hay_mensajes_anteriores %}
+                    <button class="messenger-cargar-anteriores" type="button" data-chat-cargar-anteriores>Cargar mensajes anteriores</button>
+                {% endif %}
+                {% for mensaje in mensajes %}
+                    <article class="messenger-mensaje{% if mensaje.remitente_id == user.pk %} es-propio{% endif %}" data-mensaje data-mensaje-id="{{ mensaje.pk }}" data-remitente-id="{{ mensaje.remitente_id }}">
+                        <div class="messenger-burbuja">
+                            {% if mensaje.archivo and mensaje.tipo_adjunto == "imagen" %}
+                                <a class="messenger-imagen-enlace" href="{% url 'conversaciones:adjunto' conversacion.pk mensaje.pk %}" target="_blank" rel="noopener">
+                                    <img src="{% url 'conversaciones:adjunto' conversacion.pk mensaje.pk %}" alt="Imagen enviada en la conversación" loading="lazy">
+                                </a>
+                            {% elif mensaje.archivo and mensaje.tipo_adjunto == "audio" %}
+                                <audio controls preload="metadata" src="{% url 'conversaciones:adjunto' conversacion.pk mensaje.pk %}">Tu navegador no puede reproducir este audio.</audio>
+                            {% endif %}
+                            {% if mensaje.contenido %}
+                                <p>{{ mensaje.contenido|linebreaksbr }}</p>
+                            {% endif %}
+                            <time datetime="{{ mensaje.enviada_en|date:'c' }}">{{ mensaje.enviada_en|date:"H:i" }}</time>
+                        </div>
+                    </article>
+                {% empty %}
+                    <div class="messenger-sin-mensajes" data-chat-vacio>
+                        <span class="messenger-avatar messenger-avatar-grande" aria-hidden="true">{{ persona_contacto.first_name|default:"L"|first|upper }}</span>
+                        <h3>{{ persona_contacto.get_full_name|default:"Persona usuaria" }}</h3>
+                        <p>Inicia la conversación con respeto. Puedes escribir, adjuntar una foto o enviar un audio.</p>
+                    </div>
+                {% endfor %}
+                <button class="messenger-nuevos-mensajes" type="button" data-chat-bajar hidden>Ir a los mensajes nuevos</button>
+            </section>
+
+            <form class="messenger-compositor" method="post" enctype="multipart/form-data" action="{% url 'conversaciones:detalle' conversacion.pk %}" data-chat-form>
+                {% csrf_token %}
+                <div class="messenger-adjunto" data-chat-adjunto hidden>
+                    <img alt="Vista previa de la imagen" data-chat-vista-imagen hidden>
+                    <audio controls preload="metadata" data-chat-vista-audio hidden></audio>
+                    <span data-chat-adjunto-nombre></span>
+                    <button type="button" data-chat-quitar-adjunto aria-label="Quitar archivo adjunto">×</button>
+                </div>
+                <div class="messenger-herramientas">
+                    <label class="messenger-accion-adjunto" for="chat-archivo" aria-label="Adjuntar una imagen o un audio" title="Adjuntar una imagen o un audio">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="9" cy="9" r="1.5"/><path d="m20 15-5-5L5 20"/></svg>
+                        <input id="chat-archivo" name="archivo" type="file" accept="image/jpeg,image/png,image/webp,audio/webm,audio/ogg,audio/wav,audio/mpeg,audio/mp4" data-chat-archivo>
+                    </label>
+                    <button class="messenger-accion-adjunto" type="button" data-chat-grabar aria-label="Grabar un audio" title="Grabar un audio">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2m-7 9v3m-4 0h8"/></svg>
+                    </button>
+                    <span class="messenger-grabacion" data-chat-grabacion hidden><span></span><time data-chat-cronometro>00:00</time> Grabando audio…</span>
+                </div>
+                <div class="messenger-campo">
+                    <label class="visually-hidden" for="chat-contenido">Escribe un mensaje</label>
+                    <textarea id="chat-contenido" name="contenido" rows="1" maxlength="{{ maximo_caracteres_mensaje }}" placeholder="Escribe un mensaje…" data-chat-contenido></textarea>
+                    <button class="messenger-enviar" type="submit" aria-label="Enviar mensaje" title="Enviar mensaje">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4zM22 2 11 13"/></svg>
+                    </button>
+                </div>
+                <div class="messenger-compositor-pie">
+                    <span data-chat-contador>Enter para enviar · Shift + Enter para salto de línea</span>
+                    <span data-chat-error role="status" aria-live="polite"></span>
+                </div>
+            </form>
+        </section>
+    </div>
+</section>
+{% endblock %}
+
+{% block page_js %}
+<script src="{% static 'js/conversaciones/lista.js' %}"></script>
+<script src="{% static 'js/conversaciones/detalle.js' %}"></script>
+{% endblock %}

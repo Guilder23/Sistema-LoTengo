@@ -21,7 +21,9 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "daphne",
     "django.contrib.staticfiles",
+    "channels",
     "app.cuentas.apps.CuentasConfig",
     "app.perfiles",
     "app.publicaciones",
@@ -71,6 +73,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "lotengo.wsgi.application"
 ASGI_APPLICATION = "lotengo.asgi.application"
+
+REDIS_URL = os.getenv("REDIS_URL", "").strip()
+if REDIS_URL:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {"hosts": [REDIS_URL]},
+        }
+    }
+else:
+    CHANNEL_LAYERS = {
+        "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
+    }
 
 if os.getenv("DB_ENGINE", "sqlite").lower() == "postgresql":
     DATABASES = {

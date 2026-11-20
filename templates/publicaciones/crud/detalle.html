@@ -9,12 +9,30 @@
     <div class="container detalle-contenedor">
         <a class="volver-publicaciones" href="{% if es_propietario %}{% url 'publicaciones:mis_publicaciones' %}{% else %}{% url 'publicaciones:listado' %}{% endif %}">← Volver</a>
         <article class="detalle-tarjeta">
-            <div class="detalle-galeria">
-                {% for imagen in publicacion.imagenes.all %}
-                    <img src="{{ imagen.archivo.url }}" alt="Fotografía de {{ publicacion.titulo }}" {% if not forloop.first %}loading="lazy"{% endif %}>
-                {% empty %}
-                    <div class="detalle-sin-imagen" aria-label="Sin fotografía">L</div>
-                {% endfor %}
+            <div class="detalle-galeria" data-galeria-detalle>
+                {% with imagenes=publicacion.imagenes.all %}
+                    {% if imagenes %}
+                        {% for imagen in imagenes %}
+                            {% if forloop.first %}
+                                <div class="detalle-galeria-principal">
+                                    <img src="{{ imagen.archivo.url }}" alt="Fotografía de {{ publicacion.titulo }}" data-galeria-imagen-principal>
+                                    <span class="detalle-galeria-contador" data-galeria-contador>1 / {{ imagenes|length }}</span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% if imagenes|length > 1 %}
+                            <div class="detalle-galeria-miniaturas" role="group" aria-label="Fotografías del objeto">
+                                {% for imagen in imagenes %}
+                                    <button class="detalle-galeria-miniatura{% if forloop.first %} is-activa{% endif %}" type="button" data-galeria-miniatura data-src="{{ imagen.archivo.url }}" data-alt="Fotografía {{ forloop.counter }} de {{ publicacion.titulo }}" aria-label="Mostrar fotografía {{ forloop.counter }}" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}">
+                                        <img src="{{ imagen.archivo.url }}" alt="" loading="lazy">
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="detalle-sin-imagen" aria-label="Sin fotografía">L</div>
+                    {% endif %}
+                {% endwith %}
             </div>
             <div class="detalle-contenido">
                 <div class="detalle-etiquetas">
@@ -37,6 +55,28 @@
                     <div><dt>Publicado</dt><dd>{{ publicacion.creada_en|date:"j M Y" }}</dd></div>
                 </dl>
                 <p class="detalle-privacidad">Por seguridad, no se muestran datos de contacto ni referencias exactas de ubicación.</p>
+                {% if not es_propietario %}
+                    <aside class="detalle-contacto" aria-labelledby="detalle-contacto-titulo">
+                        <div>
+                            <span class="detalle-contacto-etiqueta">Contacto privado</span>
+                            <h2 id="detalle-contacto-titulo">¿Tienes información sobre este objeto?</h2>
+                            <p>Escribe a quien publicó. Tu correo y teléfono no se compartirán en la publicación.</p>
+                        </div>
+                        {% if user.is_authenticated %}
+                            <form method="post" action="{% url 'conversaciones:iniciar' publicacion.pk %}">
+                                {% csrf_token %}
+                                <button class="btn btn-primary" type="submit">
+                                    <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
+                                    Contactar por mensaje
+                                </button>
+                            </form>
+                        {% else %}
+                            <a class="btn btn-primary" href="{% url 'cuentas:iniciar_sesion' %}?next={% url 'publicaciones:detalle' publicacion.pk %}">
+                                Inicia sesión para contactar
+                            </a>
+                        {% endif %}
+                    </aside>
+                {% endif %}
                 {% if es_propietario %}
                     <div class="detalle-propietario">
                         <span class="estado-publicacion estado-{{ publicacion.estado }}">{{ publicacion.get_estado_display }}</span>

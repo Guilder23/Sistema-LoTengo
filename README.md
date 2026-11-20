@@ -77,6 +77,19 @@ static/js/publicaciones/crud/crear.js
 
 CSS y JavaScript mantienen la misma estructura y nombres que sus plantillas.
 
+## Conversaciones en tiempo real
+
+El chat usa Django Channels sobre ASGI. Los mensajes de texto se transmiten al instante;
+Enter envía y Shift+Enter agrega una línea. También permite adjuntar imágenes JPG, PNG y
+WEBP (máximo 5 MB) y audios WEBM, OGG, WAV, MP3 o M4A (máximo 20 MB). Las imágenes se
+procesan para quitar metadatos. Los archivos del chat solo se sirven a las personas que
+participan en esa conversación.
+
+En desarrollo, `python manage.py runserver` habilita WebSockets mediante Daphne. Para
+producción, inicia la aplicación ASGI con Daphne o un servidor ASGI equivalente y define
+`REDIS_URL` para que los mensajes en vivo funcionen entre varios procesos. Si se deja vacío,
+se usa una capa en memoria que solo sirve para desarrollo de un único proceso.
+
 ## Configuración local
 
 Requiere Python 3.11 o superior. `.env.example` contiene nombres de variables y
@@ -101,6 +114,12 @@ python manage.py check
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
+```
+
+Para una instalación de producción, usa por ejemplo:
+
+```powershell
+daphne -b 0.0.0.0 -p 8000 lotengo.asgi:application
 ```
 
 El correo de verificación y recuperación utiliza SMTP configurado en `.env`. Durante el

@@ -57,7 +57,50 @@
         {% if publicaciones_recientes %}
             <div class="tarjetas-publicaciones-grid">
                 {% for publicacion in publicaciones_recientes %}
-                    {% include "componentes/tarjeta_publicacion.html" %}
+                    <article class="tarjeta-publicacion">
+                        {% with portada=publicacion.imagenes.first %}
+                            <a class="tarjeta-publicacion-imagen" href="{% url 'publicaciones:detalle' publicacion.pk %}" aria-label="Ver detalle de {{ publicacion.titulo }}">
+                                {% if portada %}
+                                    <img src="{{ portada.archivo.url }}" alt="Fotografía de {{ publicacion.titulo }}" loading="lazy">
+                                {% else %}
+                                    <span class="tarjeta-publicacion-sin-imagen" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5m8-4.5-8 4.5m0 9v-9"/></svg>
+                                    </span>
+                                {% endif %}
+                                <span class="tarjeta-publicacion-tipo tipo-{{ publicacion.tipo }}">{{ publicacion.get_tipo_display }}</span>
+                            </a>
+                        {% endwith %}
+                        <div class="tarjeta-publicacion-cuerpo">
+                            <div class="tarjeta-publicacion-categoria">
+                                <span>{{ publicacion.categoria.nombre }}</span>
+                                <time datetime="{{ publicacion.creada_en|date:'c' }}">{{ publicacion.creada_en|date:"j M Y" }}</time>
+                            </div>
+                            <h3><a href="{% url 'publicaciones:detalle' publicacion.pk %}">{{ publicacion.titulo }}</a></h3>
+                            <p>{{ publicacion.descripcion|truncatechars:105 }}</p>
+                            <dl class="tarjeta-publicacion-detalles" aria-label="Detalles del objeto">
+                                {% if publicacion.marca %}
+                                    <div><dt>Marca</dt><dd>{{ publicacion.marca }}</dd></div>
+                                {% endif %}
+                                {% if publicacion.color %}
+                                    <div><dt>Color</dt><dd>{{ publicacion.color }}</dd></div>
+                                {% endif %}
+                                <div><dt>Fecha aproximada</dt><dd>{{ publicacion.fecha_evento|date:"j M Y" }}</dd></div>
+                            </dl>
+                            {% if publicacion.caracteristicas_publicas %}
+                                <p class="tarjeta-publicacion-caracteristicas"><strong>Características:</strong> {{ publicacion.caracteristicas_publicas|truncatechars:90 }}</p>
+                            {% endif %}
+                            <div class="tarjeta-publicacion-pie">
+                                <span class="tarjeta-publicacion-ubicacion">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                                    {{ publicacion.ubicacion.municipio.nombre }}, {{ publicacion.ubicacion.get_departamento_display }}
+                                </span>
+                                <a class="tarjeta-publicacion-detalle" href="{% url 'publicaciones:detalle' publicacion.pk %}">
+                                    Ver detalle
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
                 {% endfor %}
             </div>
         {% else %}

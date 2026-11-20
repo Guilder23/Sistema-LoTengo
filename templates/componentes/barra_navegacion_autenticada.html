@@ -15,43 +15,63 @@
         </button>
         <div class="collapse navbar-collapse" id="navegacionPrincipal">
             <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2 py-3 py-lg-0">
-                <li class="nav-item navbar-menu-seccion">Explora</li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'general:inicio' %}#como-funciona">Cómo funciona</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'publicaciones:listado' %}">Explorar objetos</a></li>
                 {% if user.is_staff %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'categorias:lista' %}">Administración</a></li>
                 {% endif %}
                 <li class="nav-item"><a class="btn btn-primary btn-sm ms-lg-2" href="{% url 'publicaciones:crear' %}">Publicar objeto</a></li>
-                <li class="nav-item navbar-menu-seccion">Tu cuenta</li>
-                <li class="nav-item">
-                    <div class="navbar-notificaciones">
-                        <button class="navbar-notificaciones-boton" type="button" aria-expanded="false" aria-controls="panelNotificaciones" aria-label="Abrir notificaciones" title="Notificaciones">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
-                            <span class="navbar-notificaciones-etiqueta">Notificaciones</span>
-                        </button>
-                        <section class="navbar-notificaciones-panel" id="panelNotificaciones" aria-label="Notificaciones" hidden>
-                            <div class="navbar-notificaciones-encabezado">
-                                <strong>Notificaciones</strong>
-                                <span>Sin novedades</span>
-                            </div>
-                            <p>Te avisaremos aquí cuando haya novedades sobre tu cuenta o tus publicaciones.</p>
-                            <a href="{% url 'publicaciones:mis_publicaciones' %}">Ver mis publicaciones</a>
-                        </section>
+            </ul>
+        </div>
+        <div class="navbar-user-actions">
+            <a class="navbar-action-button navbar-action-messages" href="{% url 'conversaciones:lista' %}" aria-label="Abrir conversaciones" title="Conversaciones">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
+            </a>
+            <div class="navbar-notificaciones">
+                <button class="navbar-action-button navbar-notificaciones-boton" type="button" aria-expanded="false" aria-controls="panelNotificaciones" aria-label="Abrir notificaciones" title="Notificaciones">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+                </button>
+                <section class="navbar-notificaciones-panel" id="panelNotificaciones" aria-label="Notificaciones" hidden>
+                    <div class="navbar-notificaciones-encabezado">
+                        <strong>Notificaciones</strong>
+                        <span>Sin novedades</span>
                     </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link d-flex align-items-center" href="{% url 'cuentas:panel' %}">
-                        <span class="nav-account-mark" aria-hidden="true">{{ user.first_name|default:user.email|first|upper }}</span>
-                        Mi espacio
+                    <p>Te avisaremos aquí cuando haya novedades sobre tu cuenta o tus publicaciones.</p>
+                    <a href="{% url 'publicaciones:mis_publicaciones' %}">Ver mis publicaciones</a>
+                </section>
+            </div>
+            <div class="navbar-cuenta-menu">
+                <button class="navbar-cuenta-boton" type="button" data-navbar-cuenta-boton aria-expanded="false" aria-controls="panelCuentaUsuario" aria-label="Abrir menú de usuario" title="Menú de usuario">
+                    <span class="navbar-cuenta-avatar" aria-hidden="true">{{ user.first_name|default:user.email|first|upper }}</span>
+                    <svg class="navbar-cuenta-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+                </button>
+                <section class="navbar-cuenta-panel" id="panelCuentaUsuario" aria-label="Menú de usuario" hidden>
+                    <a class="navbar-cuenta-perfil" href="{% url 'cuentas:panel' %}">
+                        <span class="navbar-cuenta-avatar navbar-cuenta-avatar-grande" aria-hidden="true">{{ user.first_name|default:user.email|first|upper }}</span>
+                        <span class="navbar-cuenta-perfil-texto">
+                            <strong>{{ user.get_full_name|default:"Mi cuenta" }}</strong>
+                            <small>Ver tu espacio personal</small>
+                        </span>
+                        <svg class="navbar-cuenta-flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
                     </a>
-                </li>
-                <li class="nav-item">
+                    <div class="navbar-cuenta-separador"></div>
+                    <a class="navbar-cuenta-opcion" href="{% url 'publicaciones:mis_publicaciones' %}">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5m8-4.5-8 4.5m0 9v-9"/></svg>
+                        Mis publicaciones
+                    </a>
+                    <a class="navbar-cuenta-opcion" href="{% url 'conversaciones:lista' %}">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
+                        Conversaciones
+                    </a>
                     <form method="post" action="{% url 'cuentas:cerrar_sesion' %}">
                         {% csrf_token %}
-                        <button class="btn btn-outline-primary btn-sm ms-lg-2" type="submit">Cerrar sesión</button>
+                        <button class="navbar-cuenta-opcion navbar-cuenta-cerrar" type="submit">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h5m5-4 4-4-4-4m4 4H9"/></svg>
+                            Cerrar sesión
+                        </button>
                     </form>
-                </li>
-            </ul>
+                </section>
+            </div>
         </div>
     </div>
 </nav>

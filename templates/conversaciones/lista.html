@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chats | Lotengo{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/conversaciones/lista.css' %}">{% endblock %}
+
+{% block content %}
+<section class="messenger-pagina">
+    <div class="messenger-layout messenger-bandeja">
+        <aside class="messenger-sidebar" aria-label="Lista de conversaciones">
+            <header class="messenger-sidebar-encabezado">
+                <div>
+                    <span class="messenger-etiqueta">MENSAJES PRIVADOS</span>
+                    <h1>Chats</h1>
+                </div>
+                <a class="messenger-explorar" href="{% url 'publicaciones:listado' %}" aria-label="Explorar publicaciones" title="Explorar publicaciones">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4m-9-13v8m-4-4h8"/></svg>
+                </a>
+            </header>
+
+            <label class="messenger-busqueda">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4"/></svg>
+                <span class="visually-hidden">Buscar conversación</span>
+                <input type="search" data-buscar-conversacion placeholder="Buscar en tus chats" autocomplete="off">
+            </label>
+
+            <nav class="messenger-filtros" aria-label="Filtrar chats">
+                <button type="button" class="is-active" data-filtro-chat="todos" aria-pressed="true">Todos</button>
+                <button type="button" data-filtro-chat="no-leidos" aria-pressed="false">No leídos</button>
+            </nav>
+
+            <div class="messenger-lista" data-lista-conversaciones>
+                {% for conversacion in conversaciones %}
+                    <a class="messenger-conversacion" href="{% url 'conversaciones:detalle' conversacion.pk %}" data-conversacion data-no-leidos="{% if conversacion.mensajes_no_leidos %}true{% else %}false{% endif %}" data-busqueda="{{ conversacion.persona_contacto.get_full_name|default:'Persona usuaria' }} {{ conversacion.publicacion.titulo }}">
+                        <span class="messenger-avatar" aria-hidden="true">{{ conversacion.persona_contacto.first_name|default:"L"|first|upper }}</span>
+                        <span class="messenger-conversacion-cuerpo">
+                            <span class="messenger-conversacion-linea">
+                                <strong>{{ conversacion.persona_contacto.get_full_name|default:"Persona usuaria" }}</strong>
+                                <time datetime="{{ conversacion.actualizada_en|date:'c' }}">{{ conversacion.actualizada_en|date:"j M" }}</time>
+                            </span>
+                            <span class="messenger-conversacion-objeto">{{ conversacion.publicacion.titulo }}</span>
+                            <span class="messenger-conversacion-ultimo">
+                                {% if conversacion.ultimo_mensaje %}
+                                    {% if conversacion.ultimo_remitente_id == user.pk %}Tú: {% endif %}{{ conversacion.ultimo_mensaje|truncatechars:76 }}
+                                {% elif conversacion.ultimo_adjunto == "imagen" %}
+                                    {% if conversacion.ultimo_remitente_id == user.pk %}Tú: {% endif %}Foto
+                                {% elif conversacion.ultimo_adjunto == "audio" %}
+                                    {% if conversacion.ultimo_remitente_id == user.pk %}Tú: {% endif %}Audio
+                                {% else %}
+                                    Conversación iniciada. Envía el primer mensaje.
+                                {% endif %}
+                            </span>
+                        </span>
+                        {% if conversacion.mensajes_no_leidos %}
+                            <span class="messenger-no-leidos" aria-label="{{ conversacion.mensajes_no_leidos }} mensaje{{ conversacion.mensajes_no_leidos|pluralize }} sin leer">{{ conversacion.mensajes_no_leidos }}</span>
+                        {% endif %}
+                    </a>
+                {% empty %}
+                    <div class="messenger-lista-vacia">
+                        <span aria-hidden="true">✦</span>
+                        <strong>Tus chats aparecerán aquí</strong>
+                        <p>Contacta a quien publicó un objeto para iniciar una conversación privada.</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <p class="messenger-sin-resultados" data-sin-resultados hidden>No encontramos chats con ese nombre u objeto.</p>
+        </aside>
+
+        <section class="messenger-vacio" aria-label="Selecciona una conversación">
+            <span class="messenger-vacio-icono" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
+            </span>
+            <h2>Tu espacio para conversar</h2>
+            <p>Elige un chat para continuar o explora publicaciones para contactar a su autor.</p>
+            <a href="{% url 'publicaciones:listado' %}">Explorar publicaciones</a>
+        </section>
+    </div>
+</section>
+{% endblock %}
+
+{% block page_js %}<script src="{% static 'js/conversaciones/lista.js' %}"></script>{% endblock %}

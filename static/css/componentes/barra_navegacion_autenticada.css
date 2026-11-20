@@ -1,7 +1,3 @@
-.app-navbar-autenticada .navbar-nav {
-    gap: .35rem;
-}
-
 .navbar-con-sidebar {
     width: calc(100% - 276px);
     margin-left: 276px;
@@ -13,8 +9,53 @@
     margin-left: 82px;
 }
 
-.navbar-menu-seccion {
-    display: none;
+.app-navbar-autenticada .navbar-nav {
+    gap: .35rem;
+}
+
+.navbar-user-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 7px;
+    margin-left: 12px;
+}
+
+.navbar-action-button {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: #f0f1f3;
+    color: #4a4e54;
+    text-decoration: none;
+    transition: background-color .18s ease, color .18s ease, transform .18s ease;
+}
+
+.navbar-action-button:hover,
+.navbar-action-button:focus-visible,
+.navbar-action-button[aria-expanded="true"] {
+    background: #e7e8eb;
+    color: #272a2e;
+}
+
+.navbar-action-button:focus-visible,
+.navbar-cuenta-boton:focus-visible {
+    outline: 3px solid rgba(201, 50, 112, .25);
+    outline-offset: 2px;
+}
+
+.navbar-action-button svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
 }
 
 .navbar-notificaciones {
@@ -23,41 +64,7 @@
 
 .navbar-notificaciones-boton {
     position: relative;
-    display: grid;
-    width: 40px;
-    height: 40px;
-    place-items: center;
-    border: 1px solid transparent;
-    border-radius: 12px;
-    background: transparent;
-    color: var(--muted);
-    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
-}
-
-.navbar-notificaciones-boton:hover,
-.navbar-notificaciones-boton[aria-expanded="true"] {
-    border-color: var(--line);
-    background: var(--brand-soft);
-    color: var(--brand-dark);
-}
-
-.navbar-notificaciones-boton:focus-visible {
-    outline: 3px solid rgba(201, 50, 112, .3);
-    outline-offset: 2px;
-}
-
-.navbar-notificaciones-boton svg {
-    width: 20px;
-    height: 20px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.7;
-}
-
-.navbar-notificaciones-etiqueta {
-    display: none;
+    padding: 0;
 }
 
 .navbar-notificaciones-panel {
@@ -113,6 +120,169 @@
     text-decoration: underline;
 }
 
+.navbar-cuenta-menu {
+    position: relative;
+}
+
+.navbar-cuenta-boton {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    gap: 3px;
+    padding: 3px;
+    border: 0;
+    border-radius: 24px;
+    background: transparent;
+    color: #4a4e54;
+    transition: background-color .18s ease;
+}
+
+.navbar-cuenta-boton:hover,
+.navbar-cuenta-boton[aria-expanded="true"] {
+    background: #f0f1f3;
+}
+
+.navbar-cuenta-avatar {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: linear-gradient(145deg, var(--brand-vivid), var(--brand-dark));
+    box-shadow: 0 2px 6px rgba(53, 21, 33, .16);
+    color: #fff;
+    font-size: .82rem;
+    font-weight: 800;
+}
+
+.navbar-cuenta-chevron,
+.navbar-cuenta-flecha {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+.navbar-cuenta-panel {
+    position: absolute;
+    z-index: 1050;
+    top: calc(100% + 10px);
+    right: 0;
+    width: min(340px, calc(100vw - 24px));
+    padding: 9px;
+    border: 1px solid rgba(53, 21, 33, .08);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 16px 42px rgba(35, 29, 32, .2);
+}
+
+.navbar-cuenta-panel[hidden] {
+    display: none;
+}
+
+.navbar-cuenta-perfil {
+    display: flex;
+    min-height: 66px;
+    align-items: center;
+    gap: 11px;
+    padding: 10px;
+    border-radius: 12px;
+    background: #fffafd;
+    color: inherit;
+    text-decoration: none;
+}
+
+.navbar-cuenta-perfil:hover,
+.navbar-cuenta-opcion:hover {
+    background: #f5f1f3;
+    color: #351521;
+}
+
+.navbar-cuenta-avatar-grande {
+    width: 46px;
+    height: 46px;
+    font-size: .96rem;
+}
+
+.navbar-cuenta-perfil-texto {
+    display: grid;
+    min-width: 0;
+    flex: 1;
+    gap: 3px;
+}
+
+.navbar-cuenta-perfil-texto strong {
+    overflow: hidden;
+    color: #25272b;
+    font-size: .91rem;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.navbar-cuenta-perfil-texto small {
+    color: #767b82;
+    font-size: .73rem;
+}
+
+.navbar-cuenta-flecha {
+    color: #767b82;
+}
+
+.navbar-cuenta-separador {
+    height: 1px;
+    margin: 8px 3px;
+    background: #ece9eb;
+}
+
+.navbar-cuenta-opcion {
+    display: flex;
+    width: 100%;
+    min-height: 43px;
+    align-items: center;
+    gap: 11px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #393b40;
+    font-size: .83rem;
+    font-weight: 650;
+    text-align: left;
+    text-decoration: none;
+}
+
+.navbar-cuenta-opcion svg {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+    fill: none;
+    stroke: #63686f;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+}
+
+.navbar-cuenta-panel form {
+    margin: 5px 0 0;
+    padding-top: 6px;
+    border-top: 1px solid #ece9eb;
+}
+
+.navbar-cuenta-cerrar {
+    cursor: pointer;
+}
+
+.navbar-cuenta-cerrar:hover {
+    background: #fff0f2;
+    color: #a22652;
+}
+
 @media (max-width: 767.98px) {
     .navbar-con-sidebar,
     .navbar-con-sidebar.is-sidebar-collapsed {
@@ -139,19 +309,55 @@
         overscroll-behavior: contain;
     }
 
+    .app-navbar-autenticada .navbar-brand {
+        order: 1;
+        margin-right: 0;
+    }
+
+    .navbar-user-actions {
+        order: 2;
+        gap: 4px;
+        margin-left: auto;
+    }
+
+    .navbar-action-messages {
+        display: none;
+    }
+
+    .navbar-cuenta-avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    .navbar-cuenta-chevron {
+        width: 13px;
+        height: 13px;
+    }
+
+    .navbar-cuenta-panel {
+        position: fixed;
+        top: 72px;
+        right: 12px;
+    }
+
+    .navbar-notificaciones-panel {
+        position: fixed;
+        top: 72px;
+        right: 12px;
+        width: min(320px, calc(100vw - 24px));
+    }
+
+    .app-navbar-autenticada .navbar-toggler {
+        order: 3;
+    }
+
+    .app-navbar-autenticada .navbar-collapse {
+        order: 4;
+    }
+
     .app-navbar-autenticada .navbar-nav {
         gap: 4px !important;
         padding: 0 !important;
-    }
-
-    .app-navbar-autenticada .navbar-menu-seccion {
-        display: block;
-        padding: 10px 12px 3px;
-        color: #9a8390;
-        font-size: .68rem;
-        font-weight: 800;
-        letter-spacing: .08em;
-        text-transform: uppercase;
     }
 
     .app-navbar-autenticada .navbar-nav > .nav-item > .nav-link {
@@ -180,31 +386,8 @@
         align-items: stretch !important;
     }
 
-    .app-navbar-autenticada .navbar-notificaciones {
-        align-self: stretch;
-    }
-
-    .app-navbar-autenticada .navbar-notificaciones-boton {
-        display: flex;
-        width: 100%;
-        min-height: 44px;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 12px;
-        padding: .65rem .8rem;
-        border-radius: 11px;
-        text-align: left;
-    }
-
-    .navbar-notificaciones-etiqueta {
-        display: inline;
-        font-size: .91rem;
-        font-weight: 600;
-    }
-
-    .app-navbar-autenticada .navbar-nav > .nav-item:last-child {
-        margin-top: 5px;
-        padding-top: 9px;
-        border-top: 1px solid var(--line);
+    .navbar-user-actions .navbar-action-button {
+        width: 38px;
+        height: 38px;
     }
 }
