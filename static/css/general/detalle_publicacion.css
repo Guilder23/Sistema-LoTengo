@@ -1,5 +1,5 @@
 .marketplace-publicacion-detalle {
-    grid-template-columns: 360px minmax(0, 1fr);
+    grid-template-columns: 300px minmax(0, 1fr);
 }
 
 .publicacion-detalle-main {
@@ -177,10 +177,12 @@
 .publicacion-detalle-tarjeta {
     display: grid;
     grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+    align-items: start;
 }
 
 .publicacion-detalle-galeria {
     display: grid;
+    align-self: start;
     align-content: start;
     gap: 9px;
     padding: 13px;
@@ -417,6 +419,73 @@
 
 .publicacion-detalle-contacto .publicacion-detalle-kicker {
     margin: 1px 0 -5px;
+}
+
+.publicacion-detalle-contacto-publicador {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 46px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color .16s ease, background-color .16s ease;
+}
+
+.publicacion-detalle-contacto-publicador:hover,
+.publicacion-detalle-contacto-publicador:focus-visible {
+    border-color: var(--brand-light);
+    background: var(--brand-soft);
+}
+
+.publicacion-detalle-contacto-publicador:focus-visible {
+    outline: 3px solid rgba(201, 50, 112, .28);
+    outline-offset: 3px;
+}
+
+.publicacion-detalle-contacto-publicador-avatar {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    overflow: hidden;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+    font-size: 1rem;
+    font-weight: 850;
+}
+
+.publicacion-detalle-contacto-publicador-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.publicacion-detalle-contacto-publicador-info {
+    display: grid;
+    min-width: 0;
+}
+
+.publicacion-detalle-contacto-publicador-info small {
+    color: var(--muted);
+    font-size: .66rem;
+}
+
+.publicacion-detalle-contacto-publicador-info strong {
+    color: var(--ink);
+    font-size: .82rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.publicacion-detalle-contacto-publicador-flecha {
+    color: var(--brand);
+    font-size: 1.35rem;
 }
 
 .publicacion-detalle-contacto h2,

@@ -1,5 +1,5 @@
 .perfil-publico-pagina {
-    grid-template-columns: 360px minmax(0, 1fr);
+    grid-template-columns: 300px minmax(0, 1fr);
 }
 
 .perfil-publico-contenido {
@@ -34,15 +34,37 @@
 }
 
 .perfil-publico-encabezado {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 16px;
     margin-bottom: 26px;
-    padding: 20px;
+    min-height: 160px;
+    overflow: hidden;
+    padding: 28px;
     border: 1px solid var(--line);
     border-radius: 18px;
-    background: var(--surface);
+    background:
+        linear-gradient(115deg, rgba(201, 50, 112, .12), transparent 58%),
+        var(--surface);
     box-shadow: var(--shadow-soft);
+}
+
+.perfil-publico-encabezado::after {
+    position: absolute;
+    right: -48px;
+    bottom: -92px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    content: "";
+    pointer-events: none;
+}
+
+.perfil-publico-encabezado > * {
+    position: relative;
+    z-index: 1;
 }
 
 .perfil-publico-avatar {
@@ -90,10 +112,25 @@
 }
 
 .perfil-publico-publicaciones-titulo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     margin: 0 0 14px;
     color: var(--ink);
     font-size: 1.1rem;
     font-weight: 800;
+}
+
+.perfil-publico-publicaciones-titulo::before {
+    width: 4px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--brand);
+    content: "";
+}
+
+.perfil-publico-pagina .marketplace-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr));
 }
 
 .perfil-publico-paginacion {
@@ -135,12 +172,18 @@
 
     .perfil-publico-encabezado {
         align-items: flex-start;
-        padding: 16px;
+        min-height: 0;
+        padding: 18px;
     }
 
     .perfil-publico-avatar {
         width: 62px;
         height: 62px;
+    }
+
+    .perfil-publico-pagina .marketplace-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 9px;
     }
 }
 

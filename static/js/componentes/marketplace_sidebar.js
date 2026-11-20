@@ -1,4 +1,28 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const sidebar = document.getElementById("marketplace-sidebar");
+    const filterButtons = document.querySelectorAll("[data-marketplace-filter]");
+
+    if (sidebar && filterButtons.length) {
+        let lastFilterButton = null;
+        const setSidebarOpen = (open) => {
+            sidebar.classList.toggle("is-open", open);
+            filterButtons.forEach((button) => button.setAttribute("aria-expanded", String(open)));
+        };
+
+        filterButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                lastFilterButton = button;
+                setSidebarOpen(!sidebar.classList.contains("is-open"));
+            });
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key !== "Escape" || !sidebar.classList.contains("is-open")) return;
+            setSidebarOpen(false);
+            lastFilterButton?.focus();
+        });
+    }
+
     document.querySelectorAll("[data-marketplace-municipality-picker]").forEach((picker) => {
         const department = picker.closest("form")?.querySelector('[name="departamento"]');
         const input = picker.querySelector("[data-marketplace-municipality-input]");

@@ -24,11 +24,6 @@
             </a>
         </div>
 
-        <button class="marketplace-mobile-filter" type="button" aria-expanded="false" aria-controls="marketplace-sidebar" data-marketplace-filter>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10m-7 6h4"/></svg>
-            Buscar y filtrar
-        </button>
-
         <div class="marketplace-tabs" aria-label="Filtrar avisos">
             <a class="is-selected" href="{% url 'general:inicio' %}" aria-current="page">Todos</a>
             <a href="{% url 'publicaciones:listado' %}?tipo=perdido">Perdidos</a>
@@ -74,5 +69,4 @@
 
 {% block page_js %}
     <script src="{% static 'js/componentes/marketplace_sidebar.js' %}"></script>
-    <script src="{% static 'js/general/inicio.js' %}"></script>
 {% endblock %}

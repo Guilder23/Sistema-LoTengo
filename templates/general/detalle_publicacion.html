@@ -18,11 +18,6 @@
             Volver a publicaciones
         </a>
 
-        <button class="marketplace-mobile-filter" type="button" aria-expanded="false" aria-controls="marketplace-sidebar" data-marketplace-filter>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10m-7 6h4"/></svg>
-            Buscar y filtrar
-        </button>
-
         <header class="publicacion-detalle-encabezado">
             <span class="publicacion-detalle-kicker">DETALLE DEL AVISO</span>
             <div class="publicacion-detalle-titulo-fila">
@@ -31,26 +26,6 @@
                     <p>{{ publicacion.categoria.nombre }} · {{ publicacion.ubicacion.municipio.nombre }}, {{ publicacion.ubicacion.departamento.nombre }}</p>
                 </div>
                 <span class="publicacion-detalle-tipo tipo-{{ publicacion.tipo }}">{{ publicacion.get_tipo_display }}</span>
-            </div>
-            <a class="publicacion-detalle-publicador" href="{% url 'perfiles:publico' publicacion.usuario.pk %}" aria-label="Ver perfil de {{ publicacion.usuario.get_full_name|default:publicacion.usuario.email }}">
-                <span class="publicacion-detalle-publicador-avatar" aria-hidden="true">
-                    {% if publicacion.usuario.perfil.foto %}
-                        <img src="{{ publicacion.usuario.perfil.foto.url }}" alt="">
-                    {% else %}
-                        {{ publicacion.usuario.first_name|default:publicacion.usuario.email|first|upper }}
-                    {% endif %}
-                </span>
-                <div>
-                    <span>Publicado por</span>
-                    <strong>
-                        {% if publicacion.usuario.get_full_name %}
-                            {{ publicacion.usuario.get_full_name }}
-                        {% else %}
-                            {{ publicacion.usuario.email }}
-                        {% endif %}
-                    </strong>
-                    <span class="publicacion-detalle-publicador-flecha" aria-hidden="true">›</span>
-                </a>
             </div>
         </header>
 
@@ -131,6 +106,26 @@
                         <svg viewBox="0 0 24 24"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
                     </span>
                     <span class="publicacion-detalle-kicker">CONTACTO PRIVADO</span>
+                    <a class="publicacion-detalle-contacto-publicador" href="{% url 'perfiles:publico' publicacion.usuario.pk %}" aria-label="Ver perfil de {{ publicacion.usuario.get_full_name|default:publicacion.usuario.email }}">
+                        <span class="publicacion-detalle-contacto-publicador-avatar" aria-hidden="true">
+                            {% if publicacion.usuario.perfil.foto %}
+                                <img src="{{ publicacion.usuario.perfil.foto.url }}" alt="">
+                            {% else %}
+                                {{ publicacion.usuario.first_name|default:publicacion.usuario.email|first|upper }}
+                            {% endif %}
+                        </span>
+                        <span class="publicacion-detalle-contacto-publicador-info">
+                            <small>Publicado por</small>
+                            <strong>
+                                {% if publicacion.usuario.get_full_name %}
+                                    {{ publicacion.usuario.get_full_name }}
+                                {% else %}
+                                    {{ publicacion.usuario.email }}
+                                {% endif %}
+                            </strong>
+                        </span>
+                        <span class="publicacion-detalle-contacto-publicador-flecha" aria-hidden="true">›</span>
+                    </a>
                     <h2>{% if publicacion.tipo == "perdido" %}¿Tienes información sobre este objeto?{% else %}¿Reconoces a quién pertenece?{% endif %}</h2>
                     <p>Comunícate con quien publicó. Tu correo y teléfono no se mostrarán en el aviso.</p>
                     {% if user.is_authenticated %}

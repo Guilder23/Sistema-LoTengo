@@ -174,8 +174,7 @@
 :root[data-tema="claro"] .marketplace-nav-icon,
 :root[data-tema="claro"] .marketplace-tabs a:hover,
 :root[data-tema="claro"] .marketplace-tabs a.is-selected,
-:root[data-tema="claro"] .marketplace-more-link,
-:root[data-tema="claro"] .marketplace-mobile-filter {
+:root[data-tema="claro"] .marketplace-more-link {
     background: var(--brand-soft);
     color: var(--brand-dark);
 }
@@ -272,11 +271,6 @@
 @media (max-width: 700px) {
     :root[data-tema="oscuro"] .marketplace-sidebar {
         border-color: var(--line);
-    }
-
-    :root[data-tema="oscuro"] .marketplace-mobile-filter {
-        background: #40343b;
-        color: #f6cbe6;
     }
 }
 

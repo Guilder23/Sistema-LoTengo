@@ -93,6 +93,7 @@
 .detalle-tarjeta {
     display: grid;
     grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+    align-items: start;
     overflow: hidden;
     border: 1px solid var(--line);
     border-radius: 20px;
@@ -100,8 +101,13 @@
     box-shadow: var(--shadow-soft);
 }
 
+.detalle-pagina .detalle-contenedor {
+    max-width: 1180px;
+}
+
 .detalle-galeria {
     display: grid;
+    align-self: start;
     align-content: start;
     gap: 12px;
     min-width: 0;

@@ -150,6 +150,10 @@ class PruebasPublicaciones(TestCase):
         self.assertContains(response, "/media/perfiles/fotos/ana-publicadora.jpg")
         self.assertContains(response, reverse("perfiles:publico", args=[self.propietario.pk]))
         self.assertContains(response, "Inicia sesión para contactar")
+        publicador = response.content.find(b"publicacion-detalle-contacto-publicador")
+        boton = response.content.find(b"publicacion-detalle-boton")
+        self.assertGreaterEqual(publicador, 0)
+        self.assertGreater(boton, publicador)
 
     def test_perfil_publico_muestra_datos_y_publicaciones_del_autor(self):
         activa = self.crear_publicacion(titulo="Mochila publicada")

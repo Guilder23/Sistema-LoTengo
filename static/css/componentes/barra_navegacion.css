@@ -57,9 +57,23 @@
 }
 
 .navbar-toggler {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
     padding: .4rem .55rem;
     border-color: var(--line);
     border-radius: 11px;
+    color: var(--ink);
+}
+
+.navbar-toggler-svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-width: 2;
 }
 
 .navbar-toggler:focus {
