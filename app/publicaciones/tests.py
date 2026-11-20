@@ -161,6 +161,7 @@ class PruebasPublicaciones(TestCase):
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, 200)
                 self.assertContains(response, 'class="cuenta-sidebar"', html=False)
+                self.assertContains(response, 'data-progreso-formulario', html=False)
 
         response = self.client.get(reverse("publicaciones:mis_publicaciones"))
         self.assertEqual(response.status_code, 200)
@@ -170,6 +171,56 @@ class PruebasPublicaciones(TestCase):
         self.assertContains(response, reverse("publicaciones:eliminar", args=[publicacion.pk]))
         self.assertContains(response, "Acciones")
         self.assertContains(response, 'class="icono-accion"', html=False)
+
+    def test_creacion_solicita_tipo_antes_de_mostrar_el_formulario(self):
+        self.client.force_login(self.propietario)
+
+        selector = self.client.get(reverse("publicaciones:crear"))
+        formulario = self.client.get(
+            reverse("publicaciones:crear"),
+            {"tipo": Publicacion.Tipo.ENCONTRADO},
+        )
+
+        self.assertEqual(selector.status_code, 200)
+        self.assertFalse(selector.context["mostrar_formulario"])
+        self.assertContains(selector, "¿Qué ocurrió con el objeto?")
+        self.assertContains(selector, "data-formulario-publicacion hidden", html=False)
+        self.assertContains(selector, 'data-paso-formulario="paso-objeto"', html=False)
+        self.assertContains(selector, "data-campo-contador", html=False)
+        self.assertEqual(formulario.status_code, 200)
+        self.assertTrue(formulario.context["mostrar_formulario"])
+        self.assertContains(formulario, 'value="encontrado" data-tipo-publicacion-input', html=False)
+
+    def test_edicion_conserva_fotografia_marcada_si_hay_errores(self):
+        publicacion = self.crear_publicacion()
+        buffer = BytesIO()
+        Image.new("RGB", (20, 20), color="blue").save(buffer, format="PNG")
+        self.client.force_login(self.propietario)
+
+        with TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                fotografia = ImagenPublicacion.objects.create(
+                    publicacion=publicacion,
+                    archivo=SimpleUploadedFile(
+                        "foto.png",
+                        buffer.getvalue(),
+                        content_type="image/png",
+                    ),
+                )
+                datos = self.datos_formulario()
+                datos["titulo"] = ""
+                datos["eliminar_imagenes"] = [str(fotografia.pk)]
+                response = self.client.post(
+                    reverse("publicaciones:editar", args=[publicacion.pk]),
+                    datos,
+                )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            f'value="{fotografia.pk}" checked',
+            html=False,
+        )
 
     def test_inicio_muestra_avisos_recientes_en_tarjetas_con_acceso_al_detalle(self):
         publicacion = self.crear_publicacion()

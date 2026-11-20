@@ -13,6 +13,10 @@
     margin-left: 82px;
 }
 
+.navbar-menu-seccion {
+    display: none;
+}
+
 .navbar-notificaciones {
     position: relative;
 }
@@ -50,6 +54,10 @@
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-width: 1.7;
+}
+
+.navbar-notificaciones-etiqueta {
+    display: none;
 }
 
 .navbar-notificaciones-panel {
@@ -112,11 +120,91 @@
         margin-left: 72px;
     }
 
+    .app-navbar-autenticada .navbar-collapse {
+        position: absolute;
+        z-index: 1;
+        top: calc(100% + 8px);
+        right: 12px;
+        left: 12px;
+        max-height: calc(100vh - 84px);
+        max-height: calc(100dvh - 84px);
+        overflow-x: hidden;
+        overflow-y: auto;
+        margin: 0;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 18px 44px rgba(53, 21, 33, .16);
+        overscroll-behavior: contain;
+    }
+
+    .app-navbar-autenticada .navbar-nav {
+        gap: 4px !important;
+        padding: 0 !important;
+    }
+
+    .app-navbar-autenticada .navbar-menu-seccion {
+        display: block;
+        padding: 10px 12px 3px;
+        color: #9a8390;
+        font-size: .68rem;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .app-navbar-autenticada .navbar-nav > .nav-item > .nav-link {
+        display: flex;
+        min-height: 44px;
+        align-items: center;
+        padding: .65rem .8rem;
+        border-radius: 11px;
+    }
+
+    .app-navbar-autenticada .navbar-nav > .nav-item > .nav-link:hover,
+    .app-navbar-autenticada .navbar-nav > .nav-item > .nav-link:focus-visible {
+        background: var(--brand-soft);
+    }
+
+    .app-navbar-autenticada .navbar-nav > .nav-item > .btn {
+        display: flex;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
+        margin: 4px 0 !important;
+        border-radius: 11px;
+    }
+
     .app-navbar-autenticada .navbar-nav {
         align-items: stretch !important;
     }
 
     .app-navbar-autenticada .navbar-notificaciones {
-        align-self: flex-start;
+        align-self: stretch;
+    }
+
+    .app-navbar-autenticada .navbar-notificaciones-boton {
+        display: flex;
+        width: 100%;
+        min-height: 44px;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+        padding: .65rem .8rem;
+        border-radius: 11px;
+        text-align: left;
+    }
+
+    .navbar-notificaciones-etiqueta {
+        display: inline;
+        font-size: .91rem;
+        font-weight: 600;
+    }
+
+    .app-navbar-autenticada .navbar-nav > .nav-item:last-child {
+        margin-top: 5px;
+        padding-top: 9px;
+        border-top: 1px solid var(--line);
     }
 }

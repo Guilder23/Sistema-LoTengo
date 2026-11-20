@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}Política de privacidad | Lotengo{% endblock %}
-{% block page_css %}<link rel="stylesheet" href="{% static 'css/cuentas/legales/documentos_legales.css' %}">{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/cuentas/legales/privacidad.css' %}">{% endblock %}
 {% block content %}
 <article class="container documento-legal">
     <span class="cuenta-etiqueta">Versión {{ version }}</span>
@@ -18,3 +18,4 @@
     <p>Los datos se conservarán durante el tiempo necesario para operar la cuenta y atender obligaciones legales aplicables. Los plazos definitivos deben establecerse antes de publicar esta política.</p>
 </article>
 {% endblock %}
+{% block page_js %}<script src="{% static 'js/cuentas/legales/privacidad.js' %}"></script>{% endblock %}

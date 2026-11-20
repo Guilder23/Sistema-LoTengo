@@ -1,6 +1,11 @@
 {% load static %}
 <nav class="navbar navbar-expand-lg app-navbar app-navbar-autenticada{% if mostrar_sidebar_cuenta %} navbar-con-sidebar{% endif %}">
     <div class="container">
+        {% if mostrar_sidebar_cuenta %}
+            <button class="sidebar-drawer-trigger" type="button" data-sidebar-drawer-trigger aria-expanded="false" aria-controls="barraLateralCuenta" aria-label="Abrir opciones de Mi cuenta" title="Opciones de Mi cuenta">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16m5-11 3 3-3 3"/></svg>
+            </button>
+        {% endif %}
         <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'general:inicio' %}" aria-label="Lotengo, inicio">
             <span class="brand-mark" aria-hidden="true">L</span>
             <span>Lotengo</span>
@@ -10,16 +15,19 @@
         </button>
         <div class="collapse navbar-collapse" id="navegacionPrincipal">
             <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2 py-3 py-lg-0">
+                <li class="nav-item navbar-menu-seccion">Explora</li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'general:inicio' %}#como-funciona">Cómo funciona</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'publicaciones:listado' %}">Explorar objetos</a></li>
                 {% if user.is_staff %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'categorias:lista' %}">Administración</a></li>
                 {% endif %}
                 <li class="nav-item"><a class="btn btn-primary btn-sm ms-lg-2" href="{% url 'publicaciones:crear' %}">Publicar objeto</a></li>
+                <li class="nav-item navbar-menu-seccion">Tu cuenta</li>
                 <li class="nav-item">
                     <div class="navbar-notificaciones">
                         <button class="navbar-notificaciones-boton" type="button" aria-expanded="false" aria-controls="panelNotificaciones" aria-label="Abrir notificaciones" title="Notificaciones">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+                            <span class="navbar-notificaciones-etiqueta">Notificaciones</span>
                         </button>
                         <section class="navbar-notificaciones-panel" id="panelNotificaciones" aria-label="Notificaciones" hidden>
                             <div class="navbar-notificaciones-encabezado">

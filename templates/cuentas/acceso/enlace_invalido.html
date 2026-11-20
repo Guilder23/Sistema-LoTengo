@@ -13,4 +13,5 @@
     <a class="btn btn-primary cuenta-boton" href="{% url 'cuentas:reenviar_verificacion' %}">Solicitar otro enlace</a>
 </header>
 {% endblock %}
+{% block js_cuenta %}<script src="{% static 'js/cuentas/acceso/enlace_invalido.js' %}"></script>{% endblock %}
 

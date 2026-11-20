@@ -1,4 +1,32 @@
-@import url("formulario.css");
+.eliminar-publicacion-pagina {
+    min-height: 65vh;
+    padding: 34px 0 70px;
+}
+
+.volver-publicaciones {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 20px;
+    color: #a22652;
+    font-size: .88rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.volver-publicaciones:hover {
+    color: #771b35;
+}
+
+.icono-accion {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
 
 .eliminar-publicacion-contenedor {
     max-width: 720px;
@@ -70,6 +98,10 @@
 }
 
 @media (max-width: 520px) {
+    .eliminar-publicacion-pagina {
+        padding: 22px 0 45px;
+    }
+
     .confirmacion-acciones {
         flex-direction: column-reverse;
     }

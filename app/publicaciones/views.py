@@ -14,7 +14,7 @@ from app.categorias.models import Categoria
 from app.geografia.models import Departamento, Municipio
 from app.ubicaciones.models import Ubicacion
 
-from .imagenes import ErrorImagen, preparar_imagen
+from .imagenes import ErrorImagen, TAMANO_MAXIMO_IMAGEN, preparar_imagen
 from .models import ImagenPublicacion, Publicacion
 
 
@@ -303,7 +303,8 @@ def _guardar_publicacion(request, valores, imagenes, ids_eliminar, publicacion=N
 
 
 def _contexto_formulario(publicacion=None, valores=None, errores=None):
-    departamento = (valores or {}).get("departamento", "")
+    valores = valores or {}
+    departamento = valores.get("departamento", "")
     codigo_departamento = (
         departamento.codigo
         if isinstance(departamento, Departamento)
@@ -318,12 +319,20 @@ def _contexto_formulario(publicacion=None, valores=None, errores=None):
     )
     return {
         "publicacion": publicacion,
-        "valores": valores or {},
+        "valores": valores,
         "errores": errores or {},
+        "mostrar_formulario": valores.get("tipo", "") in Publicacion.Tipo.values,
+        "imagenes_a_eliminar": set(
+            valores.getlist("eliminar_imagenes")
+            if hasattr(valores, "getlist")
+            else []
+        ),
         "categorias": Categoria.objects.filter(activa=True),
         "departamentos": Departamento.objects.all(),
         "municipios": municipios,
         "maximo_imagenes": MAXIMO_IMAGENES,
+        "tamano_maximo_imagen": TAMANO_MAXIMO_IMAGEN,
+        "tamano_maximo_imagen_mb": TAMANO_MAXIMO_IMAGEN // (1024 * 1024),
         "today": timezone.localdate(),
         "mostrar_sidebar_cuenta": True,
     }

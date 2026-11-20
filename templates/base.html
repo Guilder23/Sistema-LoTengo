@@ -24,7 +24,6 @@
             <link rel="stylesheet" href="{% static 'css/componentes/pie_pagina.css' %}">
         {% endif %}
     {% endblock %}
-    {% if mostrar_sidebar_cuenta %}<link rel="stylesheet" href="{% static 'css/cuentas/espacio.css' %}">{% endif %}
     {% block page_css %}{% endblock %}
 </head>
 <body>
@@ -38,6 +37,7 @@
     <main id="contenido"{% if mostrar_sidebar_cuenta %} class="cuenta-con-sidebar"{% endif %}>
         {% if mostrar_sidebar_cuenta %}
             <div class="cuenta-espacio">
+                <button class="cuenta-sidebar-fondo" type="button" data-sidebar-cerrar aria-label="Cerrar menú de cuenta" hidden></button>
                 {% include "componentes/barra_lateral.html" %}
                 <div class="cuenta-espacio-contenido">
         {% endif %}

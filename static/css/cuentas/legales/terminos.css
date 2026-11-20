@@ -1,0 +1,31 @@
+/* Estilos propios de esta pagina legal. */
+.documento-legal {
+    max-width: 860px;
+    min-height: 65vh;
+    padding-top: 52px;
+    padding-bottom: 70px;
+}
+
+.documento-legal h1 {
+    margin: 10px 0 18px;
+    font-weight: 800;
+    letter-spacing: -.055em;
+}
+
+.documento-legal h2 {
+    margin: 28px 0 9px;
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.documento-legal p {
+    color: #59667e;
+    line-height: 1.8;
+}
+
+.documento-aviso {
+    padding: 12px 15px;
+    border-left: 3px solid var(--brand);
+    border-radius: 0 9px 9px 0;
+    background: var(--brand-soft);
+}

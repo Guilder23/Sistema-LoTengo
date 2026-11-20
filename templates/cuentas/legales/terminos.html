@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}Términos y condiciones | Lotengo{% endblock %}
-{% block page_css %}<link rel="stylesheet" href="{% static 'css/cuentas/legales/documentos_legales.css' %}">{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/cuentas/legales/terminos.css' %}">{% endblock %}
 {% block content %}
 <article class="container documento-legal">
     <span class="cuenta-etiqueta">Versión {{ version }}</span>
@@ -18,3 +18,4 @@
     <p>No se permite publicar contenido ilegal, fraudulento, que facilite la apropiación de objetos ajenos o que exponga información privada de terceros. Las publicaciones pueden ser revisadas y retiradas conforme a las reglas de la plataforma.</p>
 </article>
 {% endblock %}
+{% block page_js %}<script src="{% static 'js/cuentas/legales/terminos.js' %}"></script>{% endblock %}

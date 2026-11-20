@@ -11,24 +11,73 @@
         <header class="formulario-encabezado">
             <span class="publicaciones-etiqueta">AYUDEMOS A ENCONTRARLO</span>
             <h1>Publica un objeto</h1>
-            <p>Completa las secciones. Tu correo, teléfono y referencia exacta nunca serán públicos.</p>
+            <p>Completa dos pasos breves. Los detalles privados y las fotografías son opcionales.</p>
         </header>
 
-        <form class="formulario-publicacion" method="post" enctype="multipart/form-data" novalidate>
+        <dialog class="modal-tipo-aviso" data-modal-tipo aria-labelledby="modal-tipo-titulo" aria-describedby="modal-tipo-descripcion">
+            <div class="modal-tipo-contenido">
+                <span class="modal-tipo-etiqueta">Antes de empezar</span>
+                <h2 id="modal-tipo-titulo">¿Qué ocurrió con el objeto?</h2>
+                <p id="modal-tipo-descripcion">Elige una opción para adaptar tu aviso. Después podrás completar los detalles.</p>
+                {% for error in errores.tipo %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                <div class="modal-tipo-opciones">
+                    <button class="modal-tipo-opcion" type="button" data-tipo-publicacion="perdido" data-etiqueta-tipo="Perdí un objeto">
+                        <span class="modal-tipo-icono modal-tipo-icono-perdido" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5M8 11h6"/></svg>
+                        </span>
+                        <strong>Perdí un objeto</strong>
+                        <small>Ayúdanos a encontrar algo que extraviaste.</small>
+                    </button>
+                    <button class="modal-tipo-opcion" type="button" data-tipo-publicacion="encontrado" data-etiqueta-tipo="Encontré un objeto">
+                        <span class="modal-tipo-icono modal-tipo-icono-encontrado" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/><circle cx="12" cy="12" r="10"/></svg>
+                        </span>
+                        <strong>Encontré un objeto</strong>
+                        <small>Ayúdanos a devolver algo a su dueño.</small>
+                    </button>
+                </div>
+            </div>
+        </dialog>
+        <noscript>
+            <div class="selector-tipo-sin-js">
+                <strong>Selecciona el tipo de aviso para continuar</strong>
+                <a href="?tipo=perdido">Perdí un objeto</a>
+                <a href="?tipo=encontrado">Encontré un objeto</a>
+            </div>
+        </noscript>
+
+        <form class="formulario-publicacion" method="post" enctype="multipart/form-data" data-formulario-publicacion{% if not mostrar_formulario %} hidden{% endif %}>
             {% csrf_token %}
+            <div class="formulario-progreso" data-progreso-formulario>
+                <div class="formulario-progreso-resumen">
+                    <strong data-progreso-texto>Paso 1 de 2: Objeto</strong>
+                    <span data-progreso-porcentaje>50%</span>
+                </div>
+                <div class="formulario-progreso-barra" role="progressbar" aria-label="Progreso del formulario" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1">
+                    <span data-progreso-barra></span>
+                </div>
+                <nav class="formulario-progreso-pasos" aria-label="Secciones del formulario">
+                    <a href="#paso-objeto" data-paso-formulario="paso-objeto" data-etiqueta-paso="Objeto" aria-current="step"><span>01</span>Objeto</a>
+                    <a href="#paso-ubicacion" data-paso-formulario="paso-ubicacion" data-etiqueta-paso="Fecha y lugar"><span>02</span>Fecha y lugar</a>
+                </nav>
+            </div>
+            <div class="paso-formulario" id="paso-objeto" data-paso-formulario-contenedor="paso-objeto">
             <section class="form-seccion" aria-labelledby="seccion-aviso">
-                <span class="form-seccion-etiqueta" id="seccion-aviso">01 · EL AVISO</span>
+                <header class="form-seccion-encabezado">
+                    <span class="form-seccion-numero" aria-hidden="true">01</span>
+                    <div>
+                        <h2 id="seccion-aviso">Sobre el objeto</h2>
+                        <p>Esta información aparecerá en el aviso público.</p>
+                    </div>
+                </header>
+                <input type="hidden" name="tipo" value="{{ valores.tipo|default:'' }}" data-tipo-publicacion-input>
+                <div class="tipo-aviso-seleccionado">
+                    <span>Tipo de aviso</span>
+                    <strong data-tipo-publicacion-resumen>{% if valores.tipo == "perdido" %}Perdí un objeto{% elif valores.tipo == "encontrado" %}Encontré un objeto{% else %}Selecciona una opción{% endif %}</strong>
+                    <button class="tipo-aviso-cambiar" type="button" data-cambiar-tipo>Cambiar</button>
+                </div>
                 <div class="form-grid">
-                    <label>
-                        <span>¿Qué ocurrió? <b>*</b></span>
-                        <select name="tipo" required>
-                            <option value="">Selecciona un tipo</option>
-                            <option value="perdido" {% if valores.tipo == "perdido" %}selected{% endif %}>Perdí un objeto</option>
-                            <option value="encontrado" {% if valores.tipo == "encontrado" %}selected{% endif %}>Encontré un objeto</option>
-                        </select>
-                        {% for error in errores.tipo %}<small class="campo-error">{{ error }}</small>{% endfor %}
-                    </label>
-                    <label>
+                    <label class="campo-completo">
                         <span>Categoría <b>*</b></span>
                         <select name="categoria" required>
                             <option value="">Selecciona una categoría</option>
@@ -36,51 +85,71 @@
                                 <option value="{{ categoria.pk }}" {% if valores.categoria == categoria.pk|stringformat:"s" %}selected{% endif %}>{{ categoria.nombre }}</option>
                             {% endfor %}
                         </select>
+                        <small>Elige la categoría que mejor describe el objeto para que sea más fácil encontrarlo.</small>
                         {% for error in errores.categoria %}<small class="campo-error">{{ error }}</small>{% endfor %}
                     </label>
                     <label class="campo-completo">
                         <span>Título <b>*</b></span>
-                        <input type="text" name="titulo" maxlength="140" value="{{ valores.titulo|default:'' }}" placeholder="Ej. Mochila azul encontrada en el parque" required>
+                        <input type="text" name="titulo" maxlength="140" value="{{ valores.titulo|default:'' }}" placeholder="Ej. Mochila azul encontrada en el parque" data-campo-contador required>
+                        <small class="contador-caracteres"><span data-contador-caracteres>0</span> de 140 caracteres</small>
                         {% for error in errores.titulo %}<small class="campo-error">{{ error }}</small>{% endfor %}
                     </label>
                     <label class="campo-completo">
                         <span>Descripción <b>*</b></span>
-                        <textarea name="descripcion" rows="4" maxlength="1600" placeholder="Describe el objeto sin incluir datos personales o información que deba mantenerse privada." required>{{ valores.descripcion|default:'' }}</textarea>
+                        <textarea name="descripcion" rows="4" maxlength="1600" placeholder="Describe el objeto sin incluir datos personales o información que deba mantenerse privada." data-campo-contador required>{{ valores.descripcion|default:'' }}</textarea>
+                        <small class="contador-caracteres"><span data-contador-caracteres>0</span> de 1600 caracteres</small>
                         {% for error in errores.descripcion %}<small class="campo-error">{{ error }}</small>{% endfor %}
                     </label>
-                    <label>
-                        <span>Marca (opcional)</span>
-                        <input type="text" name="marca" maxlength="80" value="{{ valores.marca|default:'' }}">
-                        {% for error in errores.marca %}<small class="campo-error">{{ error }}</small>{% endfor %}
-                    </label>
-                    <label>
-                        <span>Color (opcional)</span>
-                        <input type="text" name="color" maxlength="60" value="{{ valores.color|default:'' }}">
-                        {% for error in errores.color %}<small class="campo-error">{{ error }}</small>{% endfor %}
-                    </label>
-                    <label class="campo-completo">
-                        <span>Características públicas</span>
-                        <textarea name="caracteristicas_publicas" rows="2" maxlength="500" placeholder="Detalles generales que ayuden a reconocer el objeto.">{{ valores.caracteristicas_publicas|default:'' }}</textarea>
-                        {% for error in errores.caracteristicas_publicas %}<small class="campo-error">{{ error }}</small>{% endfor %}
-                    </label>
-                    <label class="campo-completo">
-                        <span>Dato privado para verificar la propiedad</span>
-                        <textarea name="caracteristica_privada" rows="2" maxlength="500" placeholder="No se mostrará en el aviso público. Puedes dejarlo vacío.">{{ valores.caracteristica_privada|default:'' }}</textarea>
-                        <small>Reserva un detalle que solo tú conoces para comprobar una posible reclamación.</small>
-                        {% for error in errores.caracteristica_privada %}<small class="campo-error">{{ error }}</small>{% endfor %}
-                    </label>
+                </div>
+                <details class="detalle-opcional" {% if errores.marca or errores.color or errores.caracteristicas_publicas %}open{% endif %}>
+                    <summary>
+                        <span>Agregar detalles del objeto</span>
+                        <small>Opcional</small>
+                    </summary>
+                    <div class="form-grid">
+                        <label>
+                            <span>Marca</span>
+                            <input type="text" name="marca" maxlength="80" value="{{ valores.marca|default:'' }}" placeholder="Ej. Samsung, Nike">
+                            {% for error in errores.marca %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                        </label>
+                        <label>
+                            <span>Color</span>
+                            <input type="text" name="color" maxlength="60" value="{{ valores.color|default:'' }}" placeholder="Ej. azul oscuro">
+                            {% for error in errores.color %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                        </label>
+                        <label class="campo-completo">
+                            <span>Otra característica pública</span>
+                            <textarea name="caracteristicas_publicas" rows="2" maxlength="500" placeholder="Detalles generales que ayuden a reconocer el objeto.">{{ valores.caracteristicas_publicas|default:'' }}</textarea>
+                            {% for error in errores.caracteristicas_publicas %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                        </label>
+                    </div>
+                </details>
+            </section>
+
+                <div class="paso-acciones paso-acciones-siguiente">
+                    <span>Solo faltan la fecha y la ubicación</span>
+                    <button class="btn btn-primary" type="button" data-siguiente-paso hidden>
+                        Continuar
+                        <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="paso-formulario" id="paso-ubicacion" data-paso-formulario-contenedor="paso-ubicacion">
+            <section class="form-seccion" aria-labelledby="seccion-ubicacion">
+                <header class="form-seccion-encabezado">
+                    <span class="form-seccion-numero" aria-hidden="true">02</span>
+                    <div>
+                        <h2 id="seccion-ubicacion">Cuándo y dónde</h2>
+                        <p>Comparte una fecha y una ubicación aproximada para ayudar a identificar el objeto.</p>
+                    </div>
+                </header>
+                <div class="form-grid">
                     <label>
                         <span>Fecha aproximada <b>*</b></span>
                         <input type="date" name="fecha_evento" max="{{ today|date:'Y-m-d' }}" value="{{ valores.fecha_evento|default:'' }}" required>
                         {% for error in errores.fecha_evento %}<small class="campo-error">{{ error }}</small>{% endfor %}
                     </label>
-                </div>
-            </section>
-
-            <section class="form-seccion" aria-labelledby="seccion-ubicacion">
-                <span class="form-seccion-etiqueta" id="seccion-ubicacion">02 · UBICACIÓN APROXIMADA</span>
-                <p class="form-ayuda">El municipio y la zona pueden mostrarse públicamente. Nunca publicamos tu referencia exacta.</p>
-                <div class="form-grid">
                     <label>
                         <span>Departamento <b>*</b></span>
                         <select name="departamento" required>
@@ -106,45 +175,91 @@
                         <input type="text" name="zona" maxlength="120" value="{{ valores.zona|default:'' }}" placeholder="Ej. cerca de la plaza principal">
                         {% for error in errores.zona %}<small class="campo-error">{{ error }}</small>{% endfor %}
                     </label>
-                    <label class="form-check campo-completo">
-                        <input type="checkbox" name="conoce_lugar_exacto" value="on" {% if valores.conoce_lugar_exacto %}checked{% endif %}>
-                        <span>Conozco una referencia más exacta y quiero guardarla en privado.</span>
-                    </label>
+                </div>
+            </section>
+
+                <div class="paso-opcional-intro">
+                    <strong>Ya completaste lo necesario</strong>
+                    <span>Tu aviso puede publicarse sin estos datos. Ábrelos solo si deseas agregar información.</span>
+                </div>
+            <details class="form-seccion seccion-opcional" {% if errores.caracteristica_privada or errores.referencia_privada %}open{% endif %}>
+                <summary class="form-seccion-encabezado">
+                    <div>
+                        <h2 id="seccion-privada">Agregar un dato privado</h2>
+                        <p>Opcional · solo se usa para verificar que el objeto es tuyo.</p>
+                    </div>
+                </summary>
+                <div class="aviso-privacidad">
+                    <strong>Tu información está protegida</strong>
+                    <span>Usa un detalle que solo tú conozcas para verificar la propiedad. No incluyas datos personales.</span>
+                </div>
+                <div class="form-grid">
                     <label class="campo-completo">
+                        <span>Dato para verificar la propiedad (opcional)</span>
+                        <textarea name="caracteristica_privada" rows="2" maxlength="500" placeholder="Ej. una marca o detalle que no aparece en las fotos.">{{ valores.caracteristica_privada|default:'' }}</textarea>
+                        {% for error in errores.caracteristica_privada %}<small class="campo-error">{{ error }}</small>{% endfor %}
+                    </label>
+                    <label class="form-check campo-completo">
+                        <input id="conoceLugarExacto" type="checkbox" name="conoce_lugar_exacto" value="on" data-conoce-lugar-exacto {% if valores.conoce_lugar_exacto %}checked{% endif %}>
+                        <span>Tengo una referencia exacta y quiero guardarla en privado.</span>
+                    </label>
+                    <label class="campo-completo referencia-privada" data-referencia-privada{% if not valores.conoce_lugar_exacto %} hidden{% endif %}>
                         <span>Referencia exacta privada</span>
-                        <input type="text" name="referencia_privada" maxlength="240" value="{{ valores.referencia_privada|default:'' }}" placeholder="No se mostrará en la publicación pública.">
+                        <input type="text" name="referencia_privada" maxlength="240" value="{{ valores.referencia_privada|default:'' }}" placeholder="Solo tú podrás verla.">
                         {% for error in errores.referencia_privada %}<small class="campo-error">{{ error }}</small>{% endfor %}
                     </label>
                 </div>
-            </section>
+            </details>
 
-            <section class="form-seccion" aria-labelledby="seccion-fotografias">
-                <span class="form-seccion-etiqueta" id="seccion-fotografias">03 · FOTOGRAFÍAS</span>
+            <details class="form-seccion seccion-opcional form-seccion-fin" {% if errores.imagenes %}open{% endif %}>
+                <summary class="form-seccion-encabezado">
+                    <div>
+                        <h2 id="seccion-fotografias">Agregar fotografías</h2>
+                        <p>Opcional · una imagen clara ayuda a reconocer el objeto.</p>
+                    </div>
+                </summary>
                 <div class="aviso-privacidad">
-                    <strong>Cuida tus datos</strong>
-                    <span>No subas fotos de carnets, tarjetas, números de serie visibles ni documentos con datos personales. Se eliminan los metadatos de ubicación de las imágenes.</span>
+                    <strong>Antes de subir</strong>
+                    <span>Evita incluir carnets, tarjetas, números de serie o documentos con datos personales. Se eliminan los metadatos de ubicación de las imágenes.</span>
                 </div>
-                <label class="selector-imagenes">
-                    <span>JPG, PNG o WEBP · hasta {{ maximo_imagenes }} fotos · 5 MB por imagen</span>
-                    <input id="imagenesPublicacion" type="file" name="imagenes" accept="image/jpeg,image/png,image/webp" multiple>
-                </label>
-                <div id="vistaPreviaImagenes" class="vista-previa-imagenes" aria-live="polite"></div>
+                <div class="imagenes-subida" data-maximo-imagenes="{{ maximo_imagenes }}" data-tamano-maximo-bytes="{{ tamano_maximo_imagen }}">
+                    <div class="zona-subida-imagenes" data-zona-subida-imagenes>
+                        <input id="imagenesPublicacion" class="input-imagenes" type="file" name="imagenes" accept="image/jpeg,image/png,image/webp" multiple aria-label="Seleccionar fotografías" aria-describedby="ayudaImagenes">
+                        <span class="zona-subida-icono" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M12 16V4m-5 5 5-5 5 5"/><path d="M4 16v4h16v-4"/></svg>
+                        </span>
+                        <strong>Arrastra tus fotos aquí</strong>
+                        <span class="zona-subida-texto">o selecciona imágenes desde tu dispositivo</span>
+                        <label class="btn btn-outline-primary boton-seleccionar-imagenes" for="imagenesPublicacion">Elegir fotografías</label>
+                        <small id="ayudaImagenes">JPG, PNG o WEBP · máximo {{ maximo_imagenes }} imágenes · {{ tamano_maximo_imagen_mb }} MB por imagen</small>
+                    </div>
+                    <div class="imagenes-controles">
+                        <strong>Imágenes seleccionadas</strong>
+                        <span data-conteo-imagenes>0 de {{ maximo_imagenes }}</span>
+                    </div>
+                    <div id="vistaPreviaImagenes" class="vista-previa-imagenes" aria-live="polite"></div>
+                    <p class="estado-subida-imagenes" data-estado-subida-imagenes aria-live="polite">Aún no agregaste fotografías.</p>
+                </div>
                 {% for error in errores.imagenes %}<small class="campo-error">{{ error }}</small>{% endfor %}
-            </section>
+            </details>
 
             <div class="form-acciones">
-                <a class="btn btn-light" href="{% url 'publicaciones:mis_publicaciones' %}">
-                    <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
-                    Cancelar
-                </a>
+                <button class="btn btn-light" type="button" data-paso-anterior hidden>
+                    <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6 6-6-6 6-6"/></svg>
+                    Atrás
+                </button>
+                <a class="btn btn-light" href="{% url 'publicaciones:mis_publicaciones' %}">Cancelar</a>
                 <button class="btn btn-primary" type="submit">
                     <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
                     Publicar aviso
                 </button>
+            </div>
             </div>
         </form>
     </div>
 </section>
 {% endblock %}
 
-{% block page_js %}<script src="{% static 'js/publicaciones/crud/crear.js' %}"></script>{% endblock %}
+{% block page_js %}
+    <script src="{% static 'js/publicaciones/crud/crear.js' %}"></script>
+{% endblock %}
