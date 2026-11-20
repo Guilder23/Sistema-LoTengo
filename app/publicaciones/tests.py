@@ -12,6 +12,7 @@ from PIL import Image
 
 from app.categorias.models import Categoria
 from app.geografia.models import Departamento, Municipio
+from app.notificaciones.models import Notificacion, PreferenciaNotificaciones
 from app.ubicaciones.models import Ubicacion
 
 from .imagenes import ErrorImagen, TAMANO_MAXIMO_IMAGEN, preparar_imagen
@@ -260,6 +261,40 @@ class PruebasPublicaciones(TestCase):
         )
         self.assertEqual(publicacion.usuario, self.propietario)
         self.assertEqual(publicacion.ubicacion.referencia_privada, "Cerca de la entrada norte")
+
+    def test_nueva_publicacion_avisa_solo_a_cuentas_opt_in_y_no_repite_al_editar(self):
+        PreferenciaNotificaciones.objects.create(
+            usuario=self.otro_usuario,
+            nuevas_publicaciones=True,
+        )
+        self.client.force_login(self.propietario)
+
+        respuesta = self.client.post(
+            reverse("publicaciones:crear"),
+            self.datos_formulario(),
+        )
+        publicacion = Publicacion.objects.get(titulo="Billetera azul")
+        notificacion = Notificacion.objects.get()
+
+        self.assertRedirects(
+            respuesta,
+            reverse("publicaciones:detalle", args=[publicacion.pk]),
+            fetch_redirect_response=False,
+        )
+        self.assertEqual(notificacion.usuario, self.otro_usuario)
+        self.assertEqual(notificacion.tipo, Notificacion.Tipo.NUEVA_PUBLICACION)
+        self.assertEqual(notificacion.url, reverse("publicaciones:detalle", args=[publicacion.pk]))
+        self.assertFalse(
+            Notificacion.objects.filter(usuario=self.propietario).exists()
+        )
+
+        datos = self.datos_formulario()
+        datos["titulo"] = "Billetera azul editada"
+        self.client.post(
+            reverse("publicaciones:editar", args=[publicacion.pk]),
+            datos,
+        )
+        self.assertEqual(Notificacion.objects.count(), 1)
 
     def test_creacion_guarda_fotografia_validada_con_nombre_aleatorio(self):
         self.client.force_login(self.propietario)

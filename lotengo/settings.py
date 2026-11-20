@@ -75,6 +75,17 @@ WSGI_APPLICATION = "lotengo.wsgi.application"
 ASGI_APPLICATION = "lotengo.asgi.application"
 
 REDIS_URL = os.getenv("REDIS_URL", "").strip()
+WEBPUSH_VAPID_PUBLIC_KEY = os.getenv("WEBPUSH_VAPID_PUBLIC_KEY", "").strip()
+WEBPUSH_VAPID_PRIVATE_KEY = os.getenv("WEBPUSH_VAPID_PRIVATE_KEY", "").strip()
+if (
+    WEBPUSH_VAPID_PRIVATE_KEY
+    and not Path(WEBPUSH_VAPID_PRIVATE_KEY).is_absolute()
+):
+    WEBPUSH_VAPID_PRIVATE_KEY = str(BASE_DIR / WEBPUSH_VAPID_PRIVATE_KEY)
+WEBPUSH_VAPID_SUBJECT = os.getenv(
+    "WEBPUSH_VAPID_SUBJECT",
+    "mailto:admin@lotengo.app",
+).strip()
 if REDIS_URL:
     CHANNEL_LAYERS = {
         "default": {

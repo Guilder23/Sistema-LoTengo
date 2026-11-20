@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "Lotengo",
+  "short_name": "Lotengo",
+  "description": "Objetos perdidos y encontrados.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fdfcfb",
+  "theme_color": "#c93270",
+  "icons": [
+    {
+      "src": "/static/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

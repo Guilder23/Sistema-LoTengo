@@ -12,6 +12,7 @@ from django.views.decorators.http import require_GET, require_POST, require_http
 
 from app.categorias.models import Categoria
 from app.geografia.models import Departamento, Municipio
+from app.notificaciones.services import notificar_nueva_publicacion
 from app.ubicaciones.models import Ubicacion
 
 from .imagenes import ErrorImagen, TAMANO_MAXIMO_IMAGEN, preparar_imagen
@@ -263,6 +264,7 @@ def _validar_datos_publicacion(request, publicacion=None):
 
 
 def _guardar_publicacion(request, valores, imagenes, ids_eliminar, publicacion=None):
+    es_nueva = publicacion is None
     with transaction.atomic():
         ubicacion = publicacion.ubicacion if publicacion else Ubicacion()
         ubicacion.departamento = valores["departamento"]
@@ -299,6 +301,8 @@ def _guardar_publicacion(request, valores, imagenes, ids_eliminar, publicacion=N
             )
         for archivo in imagenes:
             ImagenPublicacion.objects.create(publicacion=publicacion, archivo=archivo)
+        if es_nueva:
+            notificar_nueva_publicacion(publicacion)
     return publicacion
 
 

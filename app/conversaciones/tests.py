@@ -1,13 +1,15 @@
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone as datetime_timezone
 from io import BytesIO
+import json
 from tempfile import TemporaryDirectory
 
 from asgiref.sync import async_to_sync
+from channels.db import database_sync_to_async
 from channels.routing import URLRouter
 from channels.testing import WebsocketCommunicator
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from PIL import Image
@@ -15,11 +17,14 @@ from unittest.mock import AsyncMock, patch
 
 from app.categorias.models import Categoria
 from app.geografia.models import Departamento, Municipio
+from app.notificaciones.models import Notificacion, SuscripcionPush
+from app.notificaciones.routing import websocket_urlpatterns as notificaciones_websocket_urlpatterns
 from app.publicaciones.models import Publicacion
 from app.ubicaciones.models import Ubicacion
 
 from .models import Conversacion, Mensaje
 from .routing import websocket_urlpatterns
+from .services import crear_mensaje, marcar_mensajes_leidos, serializar_mensaje
 
 
 class DatosConversaciones:
@@ -116,6 +121,7 @@ class PruebasConversaciones(DatosConversaciones, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Teléfono azul")
         self.assertContains(response, 'js/conversaciones/detalle.js')
+        self.assertEqual(response.content.count(b"data-chat-conteo"), 2)
         self.assertNotContains(response, self.publicador.email)
         self.assertNotContains(response, self.publicador.telefono)
 
@@ -126,6 +132,10 @@ class PruebasConversaciones(DatosConversaciones, TestCase):
         self.assertRedirects(response, self.detalle_url(conversacion))
         mensaje = Mensaje.objects.get(conversacion=conversacion)
         self.assertEqual(mensaje.remitente, self.interesado)
+        notificacion = Notificacion.objects.get()
+        self.assertEqual(notificacion.usuario, self.publicador)
+        self.assertEqual(notificacion.tipo, Notificacion.Tipo.MENSAJE)
+        self.assertNotIn("creo que encontré", notificacion.mensaje)
 
         self.client.force_login(self.publicador)
         response = self.client.get(reverse("conversaciones:lista"))
@@ -201,6 +211,10 @@ class PruebasConversaciones(DatosConversaciones, TestCase):
                 self.assertRedirects(response, self.detalle_url(conversacion))
                 mensaje = Mensaje.objects.get(conversacion=conversacion)
                 self.assertEqual(mensaje.tipo_adjunto, Mensaje.TipoAdjunto.IMAGEN)
+                self.assertContains(
+                    self.client.get(self.detalle_url(conversacion)),
+                    "messenger-burbuja-imagen",
+                )
 
                 url_adjunto = reverse(
                     "conversaciones:adjunto",
@@ -247,6 +261,40 @@ class PruebasConversaciones(DatosConversaciones, TestCase):
                 self.assertEqual(response["Content-Type"], "audio/webm")
                 response._resource_closers[0]()
 
+    @override_settings(
+        WEBPUSH_VAPID_PUBLIC_KEY="public-key",
+        WEBPUSH_VAPID_PRIVATE_KEY="private-key.pem",
+        WEBPUSH_VAPID_SUBJECT="mailto:admin@lotengo.app",
+    )
+    @patch("app.notificaciones.services.webpush")
+    def test_push_de_mensaje_no_expone_contenido_privado(self, enviar_push):
+        conversacion = Conversacion.objects.create(
+            publicacion=self.publicacion,
+            interesado=self.interesado,
+        )
+        SuscripcionPush.objects.create(
+            usuario=self.publicador,
+            endpoint="https://fcm.googleapis.com/fcm/send/push-token",
+            clave_publica="publicKey_123",
+            clave_auth="authKey_456",
+        )
+
+        with self.captureOnCommitCallbacks(execute=True):
+            crear_mensaje(
+                conversacion.pk,
+                self.interesado,
+                "Mi código privado de verificación es 7431.",
+            )
+
+        datos_push = json.loads(enviar_push.call_args.kwargs["data"])
+        self.assertEqual(datos_push["title"], "Nuevo mensaje")
+        self.assertNotIn("7431", datos_push["body"])
+        self.assertNotIn("7431", enviar_push.call_args.kwargs["data"])
+        self.assertEqual(
+            datos_push["url"],
+            reverse("conversaciones:detalle", args=(conversacion.pk,)),
+        )
+
     def test_historial_pagina_mensajes_anteriores(self):
         conversacion = Conversacion.objects.create(
             publicacion=self.publicacion,
@@ -268,6 +316,9 @@ class PruebasConversaciones(DatosConversaciones, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Cargar mensajes anteriores")
         self.assertEqual(response.content.count(b"data-mensaje-id="), 50)
+        mensajes_visibles = response.context["mensajes"]
+        self.assertEqual(mensajes_visibles[0].contenido, "Mensaje 2")
+        self.assertEqual(mensajes_visibles[-1].contenido, "Mensaje 51")
         primer_mensaje_cargado = response.context["mensajes"][0]
 
         respuesta_anterior = self.client.get(
@@ -282,6 +333,88 @@ class PruebasConversaciones(DatosConversaciones, TestCase):
             respuesta_anterior.json()["mensajes"][0]["contenido"],
             "Mensaje 1",
         )
+
+    def test_hora_de_mensaje_se_muestra_en_zona_horaria_de_la_paz(self):
+        conversacion = Conversacion.objects.create(
+            publicacion=self.publicacion,
+            interesado=self.interesado,
+        )
+        mensaje = Mensaje.objects.create(
+            conversacion=conversacion,
+            remitente=self.interesado,
+            contenido="Hora de prueba",
+        )
+        fecha_utc = datetime(
+            2026,
+            11,
+            20,
+            14,
+            15,
+            tzinfo=datetime_timezone.utc,
+        )
+        Mensaje.objects.filter(pk=mensaje.pk).update(enviada_en=fecha_utc)
+        mensaje.refresh_from_db()
+        self.assertEqual(serializar_mensaje(mensaje)["hora_la_paz"], "10:15")
+
+        self.client.force_login(self.interesado)
+        respuesta = self.client.get(self.detalle_url(conversacion))
+
+        self.assertContains(
+            respuesta,
+            'datetime="2026-11-20T10:15:00-04:00">10:15</time>',
+        )
+
+
+class PruebasWebSocketContadores(TransactionTestCase):
+    def setUp(self):
+        super().setUp()
+        DatosConversaciones.setUpTestData.__func__(self.__class__)
+
+    def test_contadores_se_actualizan_al_recibir_y_leer_un_mensaje(self):
+        conversacion = Conversacion.objects.create(
+            publicacion=self.publicacion,
+            interesado=self.interesado,
+        )
+        async_to_sync(self._verificar_contadores)(conversacion.pk)
+
+    async def _verificar_contadores(self, conversacion_id):
+        aplicacion = URLRouter(notificaciones_websocket_urlpatterns)
+        comunicador = WebsocketCommunicator(aplicacion, "/ws/notificaciones/")
+        comunicador.scope["user"] = self.publicador
+        conectado, _ = await comunicador.connect()
+        self.assertTrue(conectado)
+        self.assertEqual(
+            await comunicador.receive_json_from(timeout=2),
+            {
+                "tipo": "contadores",
+                "chats_sin_leer": 0,
+                "mensajes_por_conversacion": {},
+                "notificaciones_sin_leer": 0,
+            },
+        )
+
+        await database_sync_to_async(crear_mensaje)(
+            conversacion_id,
+            self.interesado,
+            "Hola",
+        )
+        recibidos = await comunicador.receive_json_from(timeout=2)
+        self.assertEqual(recibidos["chats_sin_leer"], 1)
+        self.assertEqual(
+            recibidos["mensajes_por_conversacion"],
+            {str(conversacion_id): 1},
+        )
+        self.assertEqual(recibidos["notificaciones_sin_leer"], 1)
+
+        await database_sync_to_async(marcar_mensajes_leidos)(
+            conversacion_id,
+            self.publicador.pk,
+        )
+        leidos = await comunicador.receive_json_from(timeout=2)
+        self.assertEqual(leidos["chats_sin_leer"], 0)
+        self.assertEqual(leidos["mensajes_por_conversacion"], {})
+        self.assertEqual(leidos["notificaciones_sin_leer"], 0)
+        await comunicador.disconnect()
 
 
 class PruebasWebSocketConversaciones(DatosConversaciones, TestCase):
@@ -332,12 +465,14 @@ class PruebasWebSocketConversaciones(DatosConversaciones, TestCase):
             "tipo_adjunto": "",
             "adjunto_url": "",
             "enviada_en": timezone.now().isoformat(),
+            "hora_la_paz": "10:00",
         }
         remitente, destinatario, ajeno = await self._intercambiar_mensaje(
             conversacion_id
         )
 
         self.assertEqual(remitente["mensaje"]["contenido"], "Hola en vivo")
+        self.assertEqual(remitente["mensaje"]["hora_la_paz"], "10:00")
         self.assertEqual(destinatario["mensaje"]["contenido"], "Hola en vivo")
         self.assertEqual(ajeno, (False, 4403))
         crear.assert_awaited_once()

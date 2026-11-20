@@ -1,10 +1,16 @@
 from uuid import uuid4
+from zoneinfo import ZoneInfo
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.urls import reverse
 from django.utils import timezone
 
+from app.notificaciones.realtime import publicar_actualizacion_contadores
+from app.notificaciones.services import (
+    marcar_notificaciones_conversacion_leidas,
+    notificar_mensaje_recibido,
+)
 from app.publicaciones.imagenes import ErrorImagen, preparar_imagen
 
 from .models import Conversacion, Mensaje
@@ -12,6 +18,7 @@ from .models import Conversacion, Mensaje
 
 MAXIMO_CARACTERES_MENSAJE = 2000
 MAXIMO_AUDIO_BYTES = 20 * 1024 * 1024
+ZONA_HORARIA_LA_PAZ = ZoneInfo("America/La_Paz")
 
 
 class ErrorMensaje(ValueError):
@@ -75,6 +82,10 @@ def _serializar_mensaje(mensaje):
         "tipo_adjunto": mensaje.tipo_adjunto,
         "adjunto_url": adjunto_url,
         "enviada_en": mensaje.enviada_en.isoformat(),
+        "hora_la_paz": timezone.localtime(
+            mensaje.enviada_en,
+            ZONA_HORARIA_LA_PAZ,
+        ).strftime("%H:%M"),
     }
 
 
@@ -85,7 +96,10 @@ def serializar_mensaje(mensaje):
 @transaction.atomic
 def crear_mensaje(conversacion_id, remitente, contenido="", archivo=None):
     conversacion = (
-        Conversacion.objects.select_related("publicacion")
+        Conversacion.objects.select_related(
+            "publicacion__usuario",
+            "interesado",
+        )
         .filter(pk=conversacion_id)
         .first()
     )
@@ -132,14 +146,22 @@ def crear_mensaje(conversacion_id, remitente, contenido="", archivo=None):
     Conversacion.objects.filter(pk=conversacion.pk).update(
         actualizada_en=timezone.now()
     )
+    notificar_mensaje_recibido(conversacion, remitente)
     return _serializar_mensaje(mensaje)
 
 
 def marcar_mensajes_leidos(conversacion_id, usuario_id):
-    Mensaje.objects.filter(
+    leida_en = timezone.now()
+    mensajes_actualizados = Mensaje.objects.filter(
         conversacion_id=conversacion_id,
         leida_en__isnull=True,
-    ).exclude(remitente_id=usuario_id).update(leida_en=timezone.now())
+    ).exclude(remitente_id=usuario_id).update(leida_en=leida_en)
+    notificaciones_actualizadas = marcar_notificaciones_conversacion_leidas(
+        usuario_id,
+        conversacion_id,
+    )
+    if mensajes_actualizados or notificaciones_actualizadas:
+        publicar_actualizacion_contadores(usuario_id)
 
 
 def extension_mime_adjunto(mensaje):

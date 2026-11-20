@@ -1,3 +1,19 @@
+.messenger-layout.messenger-con-chat {
+    grid-template-columns: minmax(0, 1fr) minmax(265px, 340px);
+}
+
+.messenger-layout.messenger-con-chat > .messenger-sidebar {
+    grid-column: 2;
+    grid-row: 1;
+    border-right: 0;
+    border-left: 1px solid #393a3b;
+}
+
+.messenger-layout.messenger-con-chat > .messenger-chat {
+    grid-column: 1;
+    grid-row: 1;
+}
+
 .messenger-chat {
     display: grid;
     min-width: 0;
@@ -54,6 +70,13 @@
     display: grid;
     min-width: 0;
     gap: 3px;
+}
+
+.messenger-identidad-linea {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 4px;
 }
 
 .messenger-identidad h1 {
@@ -171,7 +194,6 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 18px 22px 14px;
-    scroll-behavior: smooth;
     scrollbar-color: #545658 transparent;
     scrollbar-width: thin;
 }
@@ -212,6 +234,10 @@
     background: #3a3b3c;
     color: #e4e6eb;
     overflow-wrap: anywhere;
+}
+
+.messenger-burbuja-imagen {
+    width: fit-content;
 }
 
 .messenger-mensaje.es-propio .messenger-burbuja {
@@ -543,6 +569,12 @@
     .messenger-identidad h1 {
         max-width: 145px;
         font-size: .82rem;
+    }
+
+    .messenger-identidad .messenger-conteo-no-leidos {
+        height: 18px;
+        margin-left: 0;
+        font-size: .62rem;
     }
 
     .messenger-producto {

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Notificaciones | Lotengo{% endblock %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/notificaciones/lista.css' %}">
+{% endblock %}
+
+{% block content %}
+    <section
+        class="notificaciones-pagina"
+        data-notificaciones-configuracion
+        data-configuracion-url="{% url 'notificaciones:configuracion_push' %}"
+        data-registro-url="{% url 'notificaciones:registrar_suscripcion' %}"
+        data-eliminar-url="{% url 'notificaciones:eliminar_suscripcion' %}"
+        data-service-worker-url="{% url 'service_worker' %}"
+    >
+        <header class="notificaciones-encabezado">
+            <div>
+                <span class="notificaciones-etiqueta">Tu actividad</span>
+                <h1>Notificaciones</h1>
+                <p>Revisa tus mensajes y las novedades de publicaciones que elegiste recibir.</p>
+            </div>
+            {% if pagina.object_list %}
+                <form method="post" action="{% url 'notificaciones:marcar_todas_leidas' %}">
+                    {% csrf_token %}
+                    <button class="notificaciones-secundario" type="submit">Marcar todas como leídas</button>
+                </form>
+            {% endif %}
+        </header>
+
+        <section class="notificaciones-configuracion" aria-labelledby="preferenciasTitulo">
+            <div class="notificaciones-seccion-titulo">
+                <div>
+                    <h2 id="preferenciasTitulo">Tus preferencias</h2>
+                    <p>Elige qué avisos quieres recibir en tu bandeja.</p>
+                </div>
+            </div>
+            <form class="notificaciones-preferencia-form" method="post" action="{% url 'notificaciones:preferencias' %}">
+                {% csrf_token %}
+                <label class="notificaciones-opcion">
+                    <input
+                        type="checkbox"
+                        name="nuevas_publicaciones"
+                        {% if preferencia.nuevas_publicaciones %}checked{% endif %}
+                    >
+                    <span>
+                        <strong>Nuevas publicaciones</strong>
+                        <small>Recibir avisos cuando alguien publique un objeto.</small>
+                    </span>
+                </label>
+                <button class="notificaciones-guardar" type="submit">Guardar preferencia</button>
+            </form>
+
+            <div class="notificaciones-push">
+                <div>
+                    <h3>Avisos en este dispositivo</h3>
+                    <p>Permite que Lotengo muestre avisos del navegador, incluso cuando no tengas la página abierta.</p>
+                    <p class="notificaciones-push-estado" data-push-estado role="status" aria-live="polite">
+                        {% if push_configurado %}
+                            Aún no están activados en este dispositivo.
+                        {% else %}
+                            Las notificaciones del navegador aún no están configuradas en el servidor.
+                        {% endif %}
+                    </p>
+                </div>
+                <button
+                    class="notificaciones-secundario"
+                    type="button"
+                    data-push-boton
+                    {% if not push_configurado %}disabled{% endif %}
+                >
+                    Activar en este dispositivo
+                </button>
+            </div>
+        </section>
+
+        <section class="notificaciones-listado" aria-labelledby="actividadTitulo">
+            <div class="notificaciones-seccion-titulo">
+                <div>
+                    <h2 id="actividadTitulo">Actividad reciente</h2>
+                    <p>Los avisos se marcan como leídos al abrirlos.</p>
+                </div>
+            </div>
+            {% if pagina.object_list %}
+                <div class="notificaciones-elementos">
+                    {% for notificacion in pagina %}
+                        <a
+                            class="notificacion-elemento{% if not notificacion.leida_en %} no-leida{% endif %}"
+                            href="{% url 'notificaciones:abrir' notificacion.pk %}"
+                        >
+                            <span class="notificacion-icono" aria-hidden="true">
+                                {% if notificacion.tipo == "mensaje" %}M{% else %}P{% endif %}
+                            </span>
+                            <span class="notificacion-texto">
+                                <strong>{{ notificacion.titulo }}</strong>
+                                <span>{{ notificacion.mensaje }}</span>
+                                <time datetime="{{ notificacion.creada_en|date:'c' }}">{{ notificacion.creada_en|date:"d/m/Y H:i" }}</time>
+                            </span>
+                            {% if not notificacion.leida_en %}
+                                <span class="notificacion-indicador" aria-label="Sin leer"></span>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="notificaciones-vacio">
+                    <span aria-hidden="true">✓</span>
+                    <h3>Todo al día</h3>
+                    <p>Cuando recibas un mensaje o una novedad, aparecerá aquí.</p>
+                </div>
+            {% endif %}
+
+            {% if pagina.has_other_pages %}
+                <nav class="notificaciones-paginacion" aria-label="Páginas de notificaciones">
+                    {% if pagina.has_previous %}
+                        <a href="?pagina={{ pagina.previous_page_number }}">Anteriores</a>
+                    {% endif %}
+                    <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+                    {% if pagina.has_next %}
+                        <a href="?pagina={{ pagina.next_page_number }}">Siguientes</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        </section>
+    </section>
+{% endblock %}
+
+{% block page_js %}
+    <script src="{% static 'js/notificaciones/lista.js' %}"></script>
+{% endblock %}

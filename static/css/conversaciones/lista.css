@@ -50,6 +50,27 @@
     letter-spacing: -.04em;
 }
 
+.messenger-conteo-no-leidos {
+    display: inline-grid;
+    min-width: 20px;
+    height: 20px;
+    place-items: center;
+    margin-left: 4px;
+    padding: 0 5px;
+    border-radius: 12px;
+    background: #0866ff;
+    color: #fff;
+    font-family: "DM Sans", sans-serif;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    vertical-align: middle;
+}
+
+.messenger-conteo-no-leidos[hidden] {
+    display: none;
+}
+
 .messenger-explorar {
     display: grid;
     width: 38px;

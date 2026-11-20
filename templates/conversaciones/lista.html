@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static tz %}
 
 {% block title %}Chats | Lotengo{% endblock %}
 {% block page_css %}<link rel="stylesheet" href="{% static 'css/conversaciones/lista.css' %}">{% endblock %}
@@ -11,7 +11,7 @@
             <header class="messenger-sidebar-encabezado">
                 <div>
                     <span class="messenger-etiqueta">MENSAJES PRIVADOS</span>
-                    <h1>Chats</h1>
+                    <h1>Chats <span class="messenger-conteo-no-leidos" data-chat-conteo hidden></span></h1>
                 </div>
                 <a class="messenger-explorar" href="{% url 'publicaciones:listado' %}" aria-label="Explorar publicaciones" title="Explorar publicaciones">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4m-9-13v8m-4-4h8"/></svg>
@@ -31,12 +31,12 @@
 
             <div class="messenger-lista" data-lista-conversaciones>
                 {% for conversacion in conversaciones %}
-                    <a class="messenger-conversacion" href="{% url 'conversaciones:detalle' conversacion.pk %}" data-conversacion data-no-leidos="{% if conversacion.mensajes_no_leidos %}true{% else %}false{% endif %}" data-busqueda="{{ conversacion.persona_contacto.get_full_name|default:'Persona usuaria' }} {{ conversacion.publicacion.titulo }}">
+                    <a class="messenger-conversacion" href="{% url 'conversaciones:detalle' conversacion.pk %}" data-conversacion data-conversacion-id="{{ conversacion.pk }}" data-no-leidos="{% if conversacion.mensajes_no_leidos %}true{% else %}false{% endif %}" data-busqueda="{{ conversacion.persona_contacto.get_full_name|default:'Persona usuaria' }} {{ conversacion.publicacion.titulo }}">
                         <span class="messenger-avatar" aria-hidden="true">{{ conversacion.persona_contacto.first_name|default:"L"|first|upper }}</span>
                         <span class="messenger-conversacion-cuerpo">
                             <span class="messenger-conversacion-linea">
                                 <strong>{{ conversacion.persona_contacto.get_full_name|default:"Persona usuaria" }}</strong>
-                                <time datetime="{{ conversacion.actualizada_en|date:'c' }}">{{ conversacion.actualizada_en|date:"j M" }}</time>
+                                <time datetime="{{ conversacion.actualizada_en|timezone:'America/La_Paz'|date:'c' }}">{{ conversacion.actualizada_en|timezone:'America/La_Paz'|date:"j M" }}</time>
                             </span>
                             <span class="messenger-conversacion-objeto">{{ conversacion.publicacion.titulo }}</span>
                             <span class="messenger-conversacion-ultimo">
@@ -51,9 +51,7 @@
                                 {% endif %}
                             </span>
                         </span>
-                        {% if conversacion.mensajes_no_leidos %}
-                            <span class="messenger-no-leidos" aria-label="{{ conversacion.mensajes_no_leidos }} mensaje{{ conversacion.mensajes_no_leidos|pluralize }} sin leer">{{ conversacion.mensajes_no_leidos }}</span>
-                        {% endif %}
+                        <span class="messenger-no-leidos" data-conversacion-conteo aria-label="{{ conversacion.mensajes_no_leidos }} mensaje{{ conversacion.mensajes_no_leidos|pluralize }} sin leer"{% if not conversacion.mensajes_no_leidos %} hidden{% endif %}>{% if conversacion.mensajes_no_leidos %}{{ conversacion.mensajes_no_leidos }}{% endif %}</span>
                     </a>
                 {% empty %}
                     <div class="messenger-lista-vacia">

@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     busqueda?.addEventListener("input", filtrar);
+    document.addEventListener("chat-contadores-actualizados", filtrar);
     filtros.forEach((boton) => {
         boton.addEventListener("click", () => {
             filtroActivo = boton.dataset.filtroChat || "todos";

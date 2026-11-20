@@ -15,6 +15,8 @@ from django.utils.encoding import force_str
 from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode
 from django.views.decorators.http import require_http_methods, require_POST
 
+from app.notificaciones.models import SuscripcionPush
+
 from .correos import (
     ErrorEnvioCorreo,
     enviar_restauracion_contrasena,
@@ -203,6 +205,12 @@ def iniciar_sesion(request):
 
 @require_POST
 def cerrar_sesion(request):
+    endpoint_push = request.POST.get("push_endpoint", "").strip()
+    if request.user.is_authenticated and 0 < len(endpoint_push) <= 2048:
+        SuscripcionPush.objects.filter(
+            usuario=request.user,
+            endpoint=endpoint_push,
+        ).delete()
     logout(request)
     messages.success(request, "Cerraste sesión correctamente.")
     return redirect("general:inicio")

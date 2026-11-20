@@ -35,9 +35,14 @@ document.addEventListener("DOMContentLoaded", () => {
     let esperaReconexion = 1000;
     let cerrarAlSalir = false;
     let subiendoAdjunto = false;
+    let seguirAlFinal = true;
 
     const mostrarError = (texto = "") => {
         if (error) error.textContent = texto;
+    };
+
+    const mantenerChatAlFinal = () => {
+        if (seguirAlFinal) mensajes.scrollTop = mensajes.scrollHeight;
     };
 
     const actualizarContador = () => {
@@ -45,15 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
         contador.textContent = `${campo.value.length}/${campo.maxLength} · Enter para enviar · Shift + Enter para salto de línea`;
         campo.style.height = "auto";
         campo.style.height = `${Math.min(campo.scrollHeight, 132)}px`;
-    };
-
-    const fechaLegible = (fecha) => {
-        const valor = new Date(fecha);
-        if (Number.isNaN(valor.getTime())) return "";
-        return valor.toLocaleTimeString("es-BO", {
-            hour: "2-digit",
-            minute: "2-digit",
-        });
     };
 
     const urlAdjuntoSegura = (ruta) => {
@@ -79,6 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const url = urlAdjuntoSegura(mensaje.adjunto_url);
 
         if (url && mensaje.tipo_adjunto === "imagen") {
+            burbuja.classList.add("messenger-burbuja-imagen");
             const enlace = document.createElement("a");
             enlace.className = "messenger-imagen-enlace";
             enlace.href = url;
@@ -107,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const hora = document.createElement("time");
         hora.dateTime = mensaje.enviada_en || "";
-        hora.textContent = fechaLegible(mensaje.enviada_en);
+        hora.textContent = mensaje.hora_la_paz;
         burbuja.append(hora);
         elemento.append(burbuja);
         return elemento;
@@ -133,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const hora = enlace.querySelector("time");
         if (hora) {
             hora.dateTime = mensaje.enviada_en || "";
-            hora.textContent = fechaLegible(mensaje.enviada_en);
+            hora.textContent = mensaje.hora_la_paz;
         }
     };
 
@@ -154,9 +151,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (alFinal && cercaDelFinal) {
+            seguirAlFinal = true;
             mensajes.scrollTop = mensajes.scrollHeight;
-        } else if (alFinal && botonBajar) {
-            botonBajar.hidden = false;
+        } else if (alFinal) {
+            seguirAlFinal = false;
+            if (botonBajar) botonBajar.hidden = false;
         }
         actualizarUltimoMensaje(mensaje);
     };
@@ -509,19 +508,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     botonCargarAnteriores?.addEventListener("click", cargarAnteriores);
     botonBajar?.addEventListener("click", () => {
+        seguirAlFinal = true;
         mensajes.scrollTo({ top: mensajes.scrollHeight, behavior: "smooth" });
         botonBajar.hidden = true;
     });
 
+    mensajes.addEventListener("load", mantenerChatAlFinal, true);
+    mensajes.addEventListener("loadedmetadata", mantenerChatAlFinal, true);
     mensajes.addEventListener("scroll", () => {
-        if (mensajes.scrollHeight - mensajes.scrollTop - mensajes.clientHeight < 80) {
+        seguirAlFinal = (
+            mensajes.scrollHeight - mensajes.scrollTop - mensajes.clientHeight < 80
+        );
+        if (seguirAlFinal) {
             botonBajar.hidden = true;
         }
     });
 
     actualizarContador();
     requestAnimationFrame(() => {
-        mensajes.scrollTop = mensajes.scrollHeight;
+        mantenerChatAlFinal();
     });
     conectar();
 

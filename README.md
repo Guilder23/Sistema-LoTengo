@@ -133,3 +133,36 @@ Bootstrap 5.3 se carga desde jsDelivr en `templates/base.html`.
 
 El modelo de usuario personalizado ya está definido en `app/cuentas`. Usa la migración inicial
 incluida antes de crear datos en una base compartida.
+
+## Notificaciones
+
+La bandeja de notificaciones incluye avisos de mensajes recibidos. Los avisos de nuevas
+publicaciones se crean únicamente para las cuentas que activen esa preferencia en
+`/notificaciones/`. Desde esa misma pantalla cada persona puede activar o desactivar las
+notificaciones del navegador en el dispositivo actual.
+
+Las notificaciones del navegador usan Web Push y requieren HTTPS en producción (localhost
+se admite para desarrollo), un Service Worker y una pareja de claves VAPID. Para generar
+las claves en PowerShell desde la raíz del proyecto:
+
+```powershell
+New-Item -ItemType Directory -Force secrets
+Push-Location secrets
+& ..\.venv\Scripts\vapid.exe --gen
+Pop-Location
+Move-Item secrets\private_key.pem secrets\vapid_private.pem
+```
+
+Copia el valor `Application Server Key` que produce este comando a
+`WEBPUSH_VAPID_PUBLIC_KEY` en `.env`:
+
+```powershell
+.\.venv\Scripts\vapid.exe --applicationServerKey --private-key secrets\vapid_private.pem
+```
+
+Configura además `WEBPUSH_VAPID_PRIVATE_KEY=secrets/vapid_private.pem` y
+`WEBPUSH_VAPID_SUBJECT` con una dirección de contacto `mailto:` o una URL del servicio.
+La clave privada y la carpeta `secrets/` están excluidas de Git. No copies la clave privada
+al navegador ni la compartas. El manifiesto de la web app está en `static/site.webmanifest`.
+En iOS, añade Lotengo a la pantalla de inicio y activa las notificaciones para esa web app;
+los navegadores móviles requieren HTTPS fuera de localhost.

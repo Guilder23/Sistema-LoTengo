@@ -24,20 +24,36 @@
             </ul>
         </div>
         <div class="navbar-user-actions">
-            <a class="navbar-action-button navbar-action-messages" href="{% url 'conversaciones:lista' %}" aria-label="Abrir conversaciones" title="Conversaciones">
+            <a class="navbar-action-button navbar-action-messages" href="{% url 'conversaciones:lista' %}" data-enlace-chats aria-label="Abrir conversaciones" title="Conversaciones">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
+                <span class="navbar-notificaciones-insignia" data-chat-insignia aria-hidden="true" hidden></span>
             </a>
             <div class="navbar-notificaciones">
                 <button class="navbar-action-button navbar-notificaciones-boton" type="button" aria-expanded="false" aria-controls="panelNotificaciones" aria-label="Abrir notificaciones" title="Notificaciones">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+                    <span class="navbar-notificaciones-insignia" data-notificaciones-insignia aria-hidden="true" hidden></span>
                 </button>
-                <section class="navbar-notificaciones-panel" id="panelNotificaciones" aria-label="Notificaciones" hidden>
+                <section
+                    class="navbar-notificaciones-panel"
+                    id="panelNotificaciones"
+                    aria-label="Notificaciones"
+                    data-resumen-url="{% url 'notificaciones:resumen' %}"
+                    hidden
+                >
                     <div class="navbar-notificaciones-encabezado">
                         <strong>Notificaciones</strong>
-                        <span>Sin novedades</span>
+                        <span data-notificaciones-contador>0 sin leer</span>
                     </div>
-                    <p>Te avisaremos aquí cuando haya novedades sobre tu cuenta o tus publicaciones.</p>
-                    <a href="{% url 'publicaciones:mis_publicaciones' %}">Ver mis publicaciones</a>
+                    <ul class="navbar-notificaciones-lista" data-notificaciones-lista aria-live="polite">
+                        <li class="navbar-notificaciones-vacia">Cargando notificaciones...</li>
+                    </ul>
+                    <div class="navbar-notificaciones-pie">
+                        <form method="post" action="{% url 'notificaciones:marcar_todas_leidas' %}" data-marcar-notificaciones-leidas>
+                            {% csrf_token %}
+                            <button type="submit">Marcar todas como leídas</button>
+                        </form>
+                        <a href="{% url 'notificaciones:lista' %}">Ver todas y configurar</a>
+                    </div>
                 </section>
             </div>
             <div class="navbar-cuenta-menu">
@@ -59,12 +75,14 @@
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5l8 4.5m8-4.5-8 4.5m0 9v-9"/></svg>
                         Mis publicaciones
                     </a>
-                    <a class="navbar-cuenta-opcion" href="{% url 'conversaciones:lista' %}">
+                    <a class="navbar-cuenta-opcion" href="{% url 'conversaciones:lista' %}" data-enlace-chats>
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
                         Conversaciones
+                        <span class="navbar-contador-menu" data-chat-insignia aria-hidden="true" hidden></span>
                     </a>
-                    <form method="post" action="{% url 'cuentas:cerrar_sesion' %}">
+                    <form method="post" action="{% url 'cuentas:cerrar_sesion' %}" data-cerrar-sesion-form>
                         {% csrf_token %}
+                        <input type="hidden" name="push_endpoint" data-push-endpoint>
                         <button class="navbar-cuenta-opcion navbar-cuenta-cerrar" type="submit">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h5m5-4 4-4-4-4m4 4H9"/></svg>
                             Cerrar sesión

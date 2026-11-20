@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static tz %}
 
 {% block title %}Chat con {{ persona_contacto.get_full_name|default:"persona usuaria" }} | Lotengo{% endblock %}
 {% block page_css %}<link rel="stylesheet" href="{% static 'css/conversaciones/lista.css' %}"><link rel="stylesheet" href="{% static 'css/conversaciones/detalle.css' %}">{% endblock %}
@@ -11,7 +11,7 @@
             <header class="messenger-sidebar-encabezado">
                 <div>
                     <span class="messenger-etiqueta">MENSAJES PRIVADOS</span>
-                    <h1>Chats</h1>
+                    <h1>Chats <span class="messenger-conteo-no-leidos" data-chat-conteo hidden></span></h1>
                 </div>
                 <a class="messenger-explorar" href="{% url 'publicaciones:listado' %}" aria-label="Explorar publicaciones" title="Explorar publicaciones">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4m-9-13v8m-4-4h8"/></svg>
@@ -31,12 +31,12 @@
 
             <div class="messenger-lista" data-lista-conversaciones>
                 {% for item in conversaciones %}
-                    <a class="messenger-conversacion{% if item.pk == conversacion.pk %} is-activa{% endif %}" href="{% url 'conversaciones:detalle' item.pk %}" data-conversacion data-no-leidos="{% if item.mensajes_no_leidos %}true{% else %}false{% endif %}" data-busqueda="{{ item.persona_contacto.get_full_name|default:'Persona usuaria' }} {{ item.publicacion.titulo }}" {% if item.pk == conversacion.pk %}aria-current="page"{% endif %}>
+                    <a class="messenger-conversacion{% if item.pk == conversacion.pk %} is-activa{% endif %}" href="{% url 'conversaciones:detalle' item.pk %}" data-conversacion data-conversacion-id="{{ item.pk }}" data-no-leidos="{% if item.mensajes_no_leidos %}true{% else %}false{% endif %}" data-busqueda="{{ item.persona_contacto.get_full_name|default:'Persona usuaria' }} {{ item.publicacion.titulo }}" {% if item.pk == conversacion.pk %}aria-current="page"{% endif %}>
                         <span class="messenger-avatar" aria-hidden="true">{{ item.persona_contacto.first_name|default:"L"|first|upper }}</span>
                         <span class="messenger-conversacion-cuerpo">
                             <span class="messenger-conversacion-linea">
                                 <strong>{{ item.persona_contacto.get_full_name|default:"Persona usuaria" }}</strong>
-                                <time datetime="{{ item.actualizada_en|date:'c' }}">{{ item.actualizada_en|date:"j M" }}</time>
+                                <time datetime="{{ item.actualizada_en|timezone:'America/La_Paz'|date:'c' }}">{{ item.actualizada_en|timezone:'America/La_Paz'|date:"j M" }}</time>
                             </span>
                             <span class="messenger-conversacion-objeto">{{ item.publicacion.titulo }}</span>
                             <span class="messenger-conversacion-ultimo">
@@ -51,9 +51,7 @@
                                 {% endif %}
                             </span>
                         </span>
-                        {% if item.mensajes_no_leidos %}
-                            <span class="messenger-no-leidos" aria-label="{{ item.mensajes_no_leidos }} mensaje{{ item.mensajes_no_leidos|pluralize }} sin leer">{{ item.mensajes_no_leidos }}</span>
-                        {% endif %}
+                        <span class="messenger-no-leidos" data-conversacion-conteo aria-label="{{ item.mensajes_no_leidos }} mensaje{{ item.mensajes_no_leidos|pluralize }} sin leer"{% if not item.mensajes_no_leidos %} hidden{% endif %}>{% if item.mensajes_no_leidos %}{{ item.mensajes_no_leidos }}{% endif %}</span>
                     </a>
                 {% empty %}
                     <div class="messenger-lista-vacia">
@@ -78,7 +76,10 @@
                 </a>
                 <span class="messenger-avatar messenger-avatar-grande" aria-hidden="true">{{ persona_contacto.first_name|default:"L"|first|upper }}</span>
                 <div class="messenger-identidad">
-                    <h1>{{ persona_contacto.get_full_name|default:"Persona usuaria" }}</h1>
+                    <div class="messenger-identidad-linea">
+                        <h1>{{ persona_contacto.get_full_name|default:"Persona usuaria" }}</h1>
+                        <span class="messenger-conteo-no-leidos" data-chat-conteo aria-label="Chats con mensajes sin leer" hidden></span>
+                    </div>
                     <span class="messenger-estado" data-chat-estado role="status">Conectando…</span>
                 </div>
                 {% if puede_ver_publicacion %}
@@ -103,7 +104,7 @@
                 {% endif %}
                 {% for mensaje in mensajes %}
                     <article class="messenger-mensaje{% if mensaje.remitente_id == user.pk %} es-propio{% endif %}" data-mensaje data-mensaje-id="{{ mensaje.pk }}" data-remitente-id="{{ mensaje.remitente_id }}">
-                        <div class="messenger-burbuja">
+                        <div class="messenger-burbuja{% if mensaje.archivo and mensaje.tipo_adjunto == 'imagen' %} messenger-burbuja-imagen{% endif %}">
                             {% if mensaje.archivo and mensaje.tipo_adjunto == "imagen" %}
                                 <a class="messenger-imagen-enlace" href="{% url 'conversaciones:adjunto' conversacion.pk mensaje.pk %}" target="_blank" rel="noopener">
                                     <img src="{% url 'conversaciones:adjunto' conversacion.pk mensaje.pk %}" alt="Imagen enviada en la conversación" loading="lazy">
@@ -114,7 +115,7 @@
                             {% if mensaje.contenido %}
                                 <p>{{ mensaje.contenido|linebreaksbr }}</p>
                             {% endif %}
-                            <time datetime="{{ mensaje.enviada_en|date:'c' }}">{{ mensaje.enviada_en|date:"H:i" }}</time>
+                            <time datetime="{{ mensaje.enviada_en|timezone:'America/La_Paz'|date:'c' }}">{{ mensaje.enviada_en|timezone:'America/La_Paz'|date:"H:i" }}</time>
                         </div>
                     </article>
                 {% empty %}
