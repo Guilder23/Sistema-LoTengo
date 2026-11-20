@@ -454,6 +454,53 @@
     color: var(--muted);
 }
 
+:root[data-tema="oscuro"] .publicaciones-etiqueta {
+    color: var(--brand-light);
+}
+
+:root[data-tema="oscuro"] .publicaciones-encabezado h1,
+:root[data-tema="oscuro"] .resultados-encabezado h2,
+:root[data-tema="oscuro"] .publicaciones-vacio h2 {
+    color: var(--ink);
+}
+
+:root[data-tema="oscuro"] .publicaciones-encabezado p,
+:root[data-tema="oscuro"] .resultados-encabezado > span,
+:root[data-tema="oscuro"] .publicaciones-vacio p {
+    color: var(--muted);
+}
+
+:root[data-tema="oscuro"] .formulario-progreso-resumen {
+    color: var(--ink);
+}
+
+:root[data-tema="oscuro"] .formulario-progreso-resumen > span,
+:root[data-tema="oscuro"] .formulario-progreso-pasos a[aria-current="step"] {
+    color: var(--brand-light);
+}
+
+:root[data-tema="oscuro"] .formulario-progreso-pasos a {
+    color: var(--muted);
+}
+
+:root[data-tema="oscuro"] .formulario-progreso-pasos a:hover {
+    color: #f6cbe6;
+}
+
+:root[data-tema="oscuro"] .formulario-progreso-pasos a[aria-disabled="true"] {
+    opacity: .72;
+}
+
+:root[data-tema="oscuro"] .formulario-progreso-pasos a:not([aria-current="step"]) > span {
+    border-color: var(--line);
+    background: #463840;
+    color: var(--muted);
+}
+
+:root[data-tema="oscuro"] .paso-acciones > span {
+    color: var(--muted);
+}
+
 :root[data-tema="oscuro"] :is(
     .cuenta-sidebar-identidad,
     .formulario-progreso,
