@@ -148,7 +148,31 @@ class PruebasPublicaciones(TestCase):
         self.assertNotContains(response, self.propietario.email)
         self.assertContains(response, "Ana Ejemplo")
         self.assertContains(response, "/media/perfiles/fotos/ana-publicadora.jpg")
+        self.assertContains(response, reverse("perfiles:publico", args=[self.propietario.pk]))
         self.assertContains(response, "Inicia sesión para contactar")
+
+    def test_perfil_publico_muestra_datos_y_publicaciones_del_autor(self):
+        activa = self.crear_publicacion(titulo="Mochila publicada")
+        self.crear_publicacion(
+            titulo="Mochila pausada",
+            estado=Publicacion.Estado.PAUSADA,
+        )
+        Perfil.objects.create(
+            usuario=self.propietario,
+            foto="perfiles/fotos/ana-publicadora.jpg",
+        )
+
+        response = self.client.get(
+            reverse("perfiles:publico", args=[self.propietario.pk])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "perfiles/publico.html")
+        self.assertContains(response, "Ana Ejemplo")
+        self.assertContains(response, "/media/perfiles/fotos/ana-publicadora.jpg")
+        self.assertContains(response, activa.titulo)
+        self.assertNotContains(response, "Mochila pausada")
+        self.assertNotContains(response, self.propietario.email)
 
     def test_propietario_ve_sus_datos_privados_y_estado(self):
         publicacion = self.crear_publicacion()

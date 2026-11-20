@@ -2,18 +2,66 @@ import logging
 from smtplib import SMTPException
 
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.shortcuts import redirect, render
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
 from app.cuentas.correos import ErrorEnvioCorreo, enviar_verificacion
+from app.categorias.models import Categoria
+from app.geografia.models import Departamento
+from app.publicaciones.models import Publicacion
 
 from .forms import FormularioEditarPerfil
 from .models import Perfil
 
 
 logger = logging.getLogger(__name__)
+
+
+def publico(request, pk):
+    usuario = get_object_or_404(
+        get_user_model().objects.select_related("perfil"),
+        pk=pk,
+        is_active=True,
+    )
+    perfil, _ = Perfil.objects.get_or_create(usuario=usuario)
+    publicaciones = (
+        Publicacion.objects.filter(
+            usuario=usuario,
+            estado=Publicacion.Estado.PUBLICADA,
+        )
+        .select_related(
+            "categoria",
+            "ubicacion",
+            "ubicacion__departamento",
+            "ubicacion__municipio",
+        )
+        .prefetch_related("imagenes")
+        .order_by("-creada_en")
+    )
+    pagina = Paginator(publicaciones, 12).get_page(request.GET.get("pagina"))
+    return render(
+        request,
+        "perfiles/publico.html",
+        {
+            "usuario_publico": usuario,
+            "perfil_publico": perfil,
+            "pagina": pagina,
+            "categorias": Categoria.objects.filter(activa=True),
+            "departamentos": Departamento.objects.all(),
+            "filtros": {
+                "q": "",
+                "tipo": "",
+                "categoria": "",
+                "departamento": "",
+                "municipio": "",
+            },
+            "mostrar_sidebar_cuenta": False,
+        },
+    )
 
 
 @login_required

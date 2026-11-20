@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Perfil de {{ usuario_publico.get_full_name|default:usuario_publico.email }} | Lotengo{% endblock %}
+{% block footer %}{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/componentes/marketplace.css' %}">
+    <link rel="stylesheet" href="{% static 'css/perfiles/publico.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="marketplace-page perfil-publico-pagina">
+    {% include "componentes/marketplace_sidebar.html" %}
+
+    <section class="perfil-publico-contenido" aria-labelledby="perfil-publico-titulo">
+        <a class="perfil-publico-volver" href="{% url 'publicaciones:listado' %}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6M9 12h12"/></svg>
+            Volver a publicaciones
+        </a>
+
+        <header class="perfil-publico-encabezado">
+            <span class="perfil-publico-avatar" aria-hidden="true">
+                {% if perfil_publico.foto %}
+                    <img src="{{ perfil_publico.foto.url }}" alt="">
+                {% else %}
+                    {{ usuario_publico.first_name|default:usuario_publico.email|first|upper }}
+                {% endif %}
+            </span>
+            <div>
+                <span class="perfil-publico-kicker">PERFIL PÚBLICO</span>
+                <h1 id="perfil-publico-titulo">{{ usuario_publico.get_full_name|default:usuario_publico.email }}</h1>
+                <p>{{ pagina.paginator.count }} publicación{{ pagina.paginator.count|pluralize:"es" }} activa{{ pagina.paginator.count|pluralize:"s" }}</p>
+            </div>
+        </header>
+
+        {% if pagina.object_list %}
+            <h2 class="perfil-publico-publicaciones-titulo">Publicaciones</h2>
+            <div class="marketplace-grid">
+                {% for publicacion in pagina %}
+                    <article class="marketplace-card">
+                        {% with portada=publicacion.imagenes.first %}
+                            <a class="marketplace-card-image" href="{% url 'publicaciones:detalle' publicacion.pk %}" aria-label="Ver {{ publicacion.titulo }}">
+                                {% if portada %}
+                                    <img src="{{ portada.archivo.url }}" alt="Fotografía de {{ publicacion.titulo }}" loading="lazy">
+                                {% else %}
+                                    <span class="marketplace-image-placeholder" aria-hidden="true">L</span>
+                                {% endif %}
+                                <span class="marketplace-card-badge tipo-{{ publicacion.tipo }}">{{ publicacion.get_tipo_display }}</span>
+                            </a>
+                        {% endwith %}
+                        <div class="marketplace-card-copy">
+                            <span class="marketplace-card-category">{{ publicacion.categoria.nombre }}</span>
+                            <h2><a href="{% url 'publicaciones:detalle' publicacion.pk %}">{{ publicacion.titulo }}</a></h2>
+                            <p>{{ publicacion.ubicacion.municipio.nombre }}, {{ publicacion.ubicacion.departamento.nombre }}</p>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+            {% if pagina.has_other_pages %}
+                <nav class="perfil-publico-paginacion" aria-label="Páginas de publicaciones">
+                    {% if pagina.has_previous %}<a href="?pagina={{ pagina.previous_page_number }}">Anterior</a>{% endif %}
+                    <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+                    {% if pagina.has_next %}<a href="?pagina={{ pagina.next_page_number }}">Siguiente</a>{% endif %}
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="perfil-publico-vacio">
+                <h2>Este usuario aún no tiene publicaciones activas</h2>
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+
+{% block page_js %}
+    <script src="{% static 'js/componentes/marketplace_sidebar.js' %}"></script>
+    <script src="{% static 'js/perfiles/publico.js' %}"></script>
+{% endblock %}

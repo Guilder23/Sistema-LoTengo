@@ -225,6 +225,14 @@
     border-radius: 999px;
     background: var(--surface);
     color: var(--ink);
+    text-decoration: none;
+    transition: border-color .16s ease, background-color .16s ease, transform .16s ease;
+}
+
+.detalle-publicador:hover {
+    border-color: var(--brand-light);
+    background: var(--brand-soft);
+    transform: translateY(-1px);
 }
 
 .detalle-publicador-avatar {
@@ -264,7 +272,10 @@
 }
 
 .detalle-publicador-flecha {
-    display: none;
+    margin-left: 2px;
+    color: var(--brand);
+    font-size: 1.35rem;
+    line-height: 1;
 }
 
 .detalle-descripcion, .detalle-caracteristicas p {

@@ -32,7 +32,7 @@
                 </div>
                 <span class="publicacion-detalle-tipo tipo-{{ publicacion.tipo }}">{{ publicacion.get_tipo_display }}</span>
             </div>
-            <div class="publicacion-detalle-publicador" aria-label="Usuario que publicó">
+            <a class="publicacion-detalle-publicador" href="{% url 'perfiles:publico' publicacion.usuario.pk %}" aria-label="Ver perfil de {{ publicacion.usuario.get_full_name|default:publicacion.usuario.email }}">
                 <span class="publicacion-detalle-publicador-avatar" aria-hidden="true">
                     {% if publicacion.usuario.perfil.foto %}
                         <img src="{{ publicacion.usuario.perfil.foto.url }}" alt="">
@@ -49,7 +49,8 @@
                             {{ publicacion.usuario.email }}
                         {% endif %}
                     </strong>
-                </div>
+                    <span class="publicacion-detalle-publicador-flecha" aria-hidden="true">›</span>
+                </a>
             </div>
         </header>
 
