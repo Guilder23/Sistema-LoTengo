@@ -1,0 +1,7 @@
+.catalogo-pagina[data-seccion="departamentos"] .catalogo-formulario {
+    max-width: 680px;
+}
+
+.catalogo-pagina[data-seccion="departamentos"] .catalogo-ayuda {
+    margin: 0;
+}

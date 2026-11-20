@@ -1,0 +1,7 @@
+.catalogo-pagina[data-seccion="municipios"] .catalogo-formulario {
+    max-width: 680px;
+}
+
+.catalogo-pagina[data-seccion="municipios"] .catalogo-formulario select {
+    cursor: pointer;
+}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ municipio.nombre }} | Municipios | Lotengo{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/administracion/catalogos.css' %}">
+    <link rel="stylesheet" href="{% static 'css/geografia/municipios/crud/detalle.css' %}">
+{% endblock %}
+{% block content %}
+<section class="catalogo-pagina" data-seccion="municipios">
+    <div class="container catalogo-contenedor">
+        <header class="catalogo-encabezado">
+            <span class="catalogo-etiqueta">Administración · Municipios</span>
+            <h1>{{ municipio.nombre }}</h1>
+            <p>Detalle del municipio en el catálogo geográfico.</p>
+        </header>
+        <article class="catalogo-tarjeta-detalle">
+            <dl class="catalogo-detalles">
+                <div><dt>Municipio</dt><dd>{{ municipio.nombre }} <button class="catalogo-copiar" type="button" data-copiar="{{ municipio.nombre }}">Copiar</button><small class="catalogo-ayuda" data-copiar-estado aria-live="polite"></small></dd></div>
+                <div><dt>Departamento</dt><dd>{{ municipio.departamento.nombre }}</dd></div>
+                <div><dt>Ubicaciones guardadas</dt><dd>{{ municipio.ubicaciones.count }}</dd></div>
+            </dl>
+            <div class="catalogo-acciones">
+                <a class="catalogo-boton catalogo-boton-principal" href="{{ url_editar }}">Editar</a>
+                <a class="catalogo-boton catalogo-boton-peligro" href="{{ url_eliminar }}">Eliminar</a>
+                <a class="catalogo-boton catalogo-boton-secundario" href="{{ url_lista }}">Volver al listado</a>
+            </div>
+        </article>
+    </div>
+</section>
+{% endblock %}
+{% block page_js %}
+    <script src="{% static 'js/administracion/catalogos.js' %}"></script>
+    <script src="{% static 'js/geografia/municipios/crud/detalle.js' %}"></script>
+{% endblock %}

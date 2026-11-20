@@ -1,0 +1,7 @@
+.catalogo-pagina[data-seccion="departamentos"] .catalogo-tabla th:first-child {
+    min-width: 190px;
+}
+
+.catalogo-pagina[data-seccion="departamentos"] .catalogo-tabla td:nth-child(2) {
+    white-space: nowrap;
+}

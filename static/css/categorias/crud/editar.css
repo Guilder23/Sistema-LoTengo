@@ -1,0 +1,7 @@
+.catalogo-pagina[data-seccion="categorias"] .catalogo-formulario {
+    max-width: 760px;
+}
+
+.catalogo-pagina[data-seccion="categorias"] .catalogo-formulario input[type="number"] {
+    max-width: 180px;
+}

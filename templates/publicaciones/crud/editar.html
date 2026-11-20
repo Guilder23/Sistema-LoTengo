@@ -85,8 +85,8 @@
                         <span>Departamento <b>*</b></span>
                         <select name="departamento" required>
                             <option value="">Selecciona</option>
-                            {% for codigo, nombre in departamentos %}
-                                <option value="{{ codigo }}" {% if valores.departamento == codigo %}selected{% endif %}>{{ nombre }}</option>
+                            {% for departamento in departamentos %}
+                                <option value="{{ departamento.codigo }}" {% if valores.departamento == departamento.codigo %}selected{% endif %}>{{ departamento.nombre }}</option>
                             {% endfor %}
                         </select>
                         {% for error in errores.departamento %}<small class="campo-error">{{ error }}</small>{% endfor %}

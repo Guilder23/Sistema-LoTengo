@@ -1,40 +1,20 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
-
-class Departamento(models.TextChoices):
-    BENI = "beni", "Beni"
-    CHUQUISACA = "chuquisaca", "Chuquisaca"
-    COCHABAMBA = "cochabamba", "Cochabamba"
-    LA_PAZ = "la_paz", "La Paz"
-    ORURO = "oruro", "Oruro"
-    PANDO = "pando", "Pando"
-    POTOSI = "potosi", "Potosí"
-    SANTA_CRUZ = "santa_cruz", "Santa Cruz"
-    TARIJA = "tarija", "Tarija"
-
-
-class Municipio(models.Model):
-    departamento = models.CharField(max_length=20, choices=Departamento.choices)
-    nombre = models.CharField(max_length=100)
-
-    class Meta:
-        verbose_name = "municipio"
-        verbose_name_plural = "municipios"
-        ordering = ["departamento", "nombre"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["departamento", "nombre"],
-                name="ubicaciones_municipio_departamento_nombre_unicos",
-            )
-        ]
-
-    def __str__(self):
-        return f"{self.nombre}, {self.get_departamento_display()}"
+from app.geografia.models import Departamento, Municipio
 
 
 class Ubicacion(models.Model):
-    departamento = models.CharField(max_length=20, choices=Departamento.choices)
-    municipio = models.CharField(max_length=100)
+    departamento = models.ForeignKey(
+        Departamento,
+        on_delete=models.PROTECT,
+        related_name="ubicaciones",
+    )
+    municipio = models.ForeignKey(
+        Municipio,
+        on_delete=models.PROTECT,
+        related_name="ubicaciones",
+    )
     zona = models.CharField(max_length=120, blank=True)
     conoce_lugar_exacto = models.BooleanField(default=False)
     referencia_privada = models.CharField(max_length=240, blank=True)
@@ -42,10 +22,24 @@ class Ubicacion(models.Model):
     class Meta:
         verbose_name = "ubicación"
         verbose_name_plural = "ubicaciones"
-        ordering = ["departamento", "municipio", "zona"]
+        ordering = ["departamento__nombre", "municipio__nombre", "zona"]
 
     def __str__(self):
-        partes = [self.municipio, self.get_departamento_display()]
+        partes = [self.municipio.nombre, self.departamento.nombre]
         if self.zona:
             partes.insert(1, self.zona)
         return ", ".join(partes)
+
+    def get_departamento_display(self):
+        return self.departamento.nombre
+
+    def clean(self):
+        super().clean()
+        if (
+            self.municipio_id
+            and self.departamento_id
+            and self.municipio.departamento_id != self.departamento_id
+        ):
+            raise ValidationError(
+                {"municipio": "El municipio debe pertenecer al departamento seleccionado."}
+            )

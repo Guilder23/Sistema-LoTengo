@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ titulo }} | Lotengo{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/administracion/catalogos.css' %}">
+    <link rel="stylesheet" href="{% static 'css/geografia/municipios/crud/editar.css' %}">
+{% endblock %}
+{% block content %}
+<section class="catalogo-pagina" data-seccion="municipios">
+    <div class="container catalogo-contenedor catalogo-contenedor-formulario">
+        <header class="catalogo-encabezado">
+            <span class="catalogo-etiqueta">Administración · Municipios</span>
+            <h1>{{ titulo }}</h1>
+            <p>Selecciona el departamento al que pertenece el municipio.</p>
+        </header>
+        <form class="catalogo-formulario" method="post">
+            {% csrf_token %}
+            {% if errores.non_field_errors %}
+                <div class="catalogo-errores" role="alert">
+                    {% for error in errores.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+            {% endif %}
+            <div class="catalogo-campo">
+                <label for="id_departamento">Departamento</label>
+                <select id="id_departamento" name="departamento" required>
+                    <option value="">Selecciona un departamento</option>
+                    {% for departamento in departamentos %}
+                        <option value="{{ departamento.pk }}" {% if datos.departamento == departamento.pk|stringformat:"s" %}selected{% endif %}>{{ departamento.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <small id="departamento-seleccionado" aria-live="polite">Elige el departamento al que pertenece este municipio.</small>
+                {% for error in errores.departamento %}<small class="catalogo-error">{{ error }}</small>{% endfor %}
+            </div>
+            <div class="catalogo-campo">
+                <label for="id_nombre">Nombre del municipio</label>
+                <input id="id_nombre" name="nombre" type="text" value="{{ datos.nombre }}" maxlength="100" required>
+                <small><span id="contador-nombre">{{ datos.nombre|length }}</span>/100 caracteres</small>
+                {% for error in errores.nombre %}<small class="catalogo-error">{{ error }}</small>{% endfor %}
+            </div>
+            <div class="catalogo-acciones">
+                <button class="catalogo-boton catalogo-boton-principal" type="submit">Guardar municipio</button>
+                <a class="catalogo-boton catalogo-boton-secundario" href="{{ url_cancelar }}">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+{% block page_js %}
+    <script src="{% static 'js/administracion/catalogos.js' %}"></script>
+    <script src="{% static 'js/geografia/municipios/crud/editar.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,7 @@
+.catalogo-pagina[data-seccion="municipios"] .catalogo-tabla th:first-child {
+    min-width: 180px;
+}
+
+.catalogo-pagina[data-seccion="municipios"] .catalogo-tabla th:nth-child(2) {
+    min-width: 180px;
+}

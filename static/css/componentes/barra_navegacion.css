@@ -16,8 +16,14 @@
     letter-spacing: -.05em;
 }
 
-.navbar-brand:hover { color: var(--ink); }
-.brand-accent { color: var(--brand); }
+.navbar-brand:hover {
+    color: var(--ink);
+}
+
+.brand-accent {
+    color: var(--brand);
+}
+
 .brand-mark {
     display: grid;
     width: 34px;
@@ -46,15 +52,26 @@
     color: var(--brand-dark);
 }
 
-.app-navbar .nav-link-muted { color: #a39199; }
+.app-navbar .nav-link-muted {
+    color: #a39199;
+}
+
 .navbar-toggler {
     padding: .4rem .55rem;
     border-color: var(--line);
     border-radius: 11px;
 }
 
-.navbar-toggler:focus { box-shadow: 0 0 0 .2rem rgba(201, 50, 112, .18); }
-.app-navbar .btn { min-height: 38px; border-radius: 10px; font-weight: 700; }
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 .2rem rgba(201, 50, 112, .18);
+}
+
+.app-navbar .btn {
+    min-height: 38px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
 .nav-account-mark {
     display: inline-grid;
     width: 28px;
@@ -69,7 +86,10 @@
 }
 
 @media (max-width: 991.98px) {
-    .app-navbar { min-height: 64px; }
+    .app-navbar {
+        min-height: 64px;
+    }
+
     .app-navbar .navbar-collapse {
         margin: 0 -1rem;
         padding: .45rem 1rem 1rem;
@@ -77,8 +97,17 @@
         background: #fff;
     }
 
-    .app-navbar .navbar-nav { align-items: stretch !important; }
+    .app-navbar .navbar-nav {
+        align-items: stretch !important;
+    }
+
     .app-navbar .nav-item > .btn,
-    .app-navbar .nav-item form { display: block; width: 100%; }
-    .app-navbar .nav-item form .btn { margin: .25rem 0 0 !important; }
+    .app-navbar .nav-item form {
+        display: block;
+        width: 100%;
+    }
+
+    .app-navbar .nav-item form .btn {
+        margin: .25rem 0 0 !important;
+    }
 }

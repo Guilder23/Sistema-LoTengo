@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "app.perfiles",
     "app.publicaciones",
     "app.categorias",
+    "app.geografia",
     "app.ubicaciones",
     "app.busqueda",
     "app.coincidencias",

@@ -1,1 +1,3 @@
-.cuenta-tarjeta:has(#id_acepta_terminos) { max-width: 670px; }
+.cuenta-tarjeta:has(#id_acepta_terminos) {
+    max-width: 670px;
+}

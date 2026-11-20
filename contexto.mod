@@ -835,6 +835,7 @@ encontrapp/
 │   ├── profiles/
 │   ├── publications/
 │   ├── categories/
+│   ├── geography/
 │   ├── locations/
 │   ├── search/
 │   ├── matches/
@@ -864,7 +865,8 @@ encontrapp/
 | `profiles`      | Información del perfil                           |
 | `publications`  | Objetos perdidos y encontrados                   |
 | `categories`    | Categorías de objetos                            |
-| `locations`     | Departamentos, municipios y zonas                |
+| `geography`     | Catálogo de departamentos y municipios           |
+| `locations`     | Ubicaciones aproximadas de las publicaciones     |
 | `search`        | Búsqueda y filtros                               |
 | `matches`       | Coincidencias automáticas                        |
 | `conversations` | Chat y mensajes                                  |

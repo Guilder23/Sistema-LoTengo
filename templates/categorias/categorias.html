@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Gestión de categorías | Lotengo{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/administracion/catalogos.css' %}">
+    <link rel="stylesheet" href="{% static 'css/categorias/categorias.css' %}">
+{% endblock %}
+{% block content %}
+<section class="catalogo-pagina" data-seccion="categorias">
+    <div class="container catalogo-contenedor">
+        <header class="catalogo-encabezado">
+            <span class="catalogo-etiqueta">Administración</span>
+            <h1>Gestión de categorías</h1>
+            <p>Administra las categorías disponibles para las publicaciones.</p>
+        </header>
+        <div class="catalogo-barra">
+            <label class="catalogo-busqueda">
+                <span>Buscar categorías</span>
+                <input id="buscar-catalogo" type="search" placeholder="Nombre o slug" autocomplete="off">
+            </label>
+            <a class="catalogo-boton catalogo-boton-principal" href="{{ url_crear }}">Crear categoría</a>
+        </div>
+        <div class="catalogo-tabla-contenedor">
+            <table class="catalogo-tabla">
+                <thead>
+                    <tr><th>Nombre</th><th>Slug</th><th>Estado</th><th>Orden</th><th>Acciones</th></tr>
+                </thead>
+                <tbody id="filas-catalogo">
+                    {% for categoria in categorias %}
+                        <tr data-fila-catalogo data-terminos="{{ categoria.nombre }} {{ categoria.slug }}">
+                            <td data-label="Nombre"><strong>{{ categoria.nombre }}</strong></td>
+                            <td data-label="Slug"><code>{{ categoria.slug }}</code></td>
+                            <td data-label="Estado"><span class="catalogo-estado{% if not categoria.activa %} is-inactivo{% endif %}">{% if categoria.activa %}Activa{% else %}Inactiva{% endif %}</span></td>
+                            <td data-label="Orden">{{ categoria.orden }}</td>
+                            <td data-label="Acciones">
+                                <div class="catalogo-fila-acciones">
+                                    <a class="btn btn-outline-primary btn-sm btn-accion-icono" href="{% url 'categorias:detalle' categoria.pk %}" aria-label="Ver detalle de {{ categoria.nombre }}" title="Ver detalle">
+                                        <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.2-6 9.5-6 9.5 6 9.5 6-3.2 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                                        <span class="visually-hidden">Detalle</span>
+                                    </a>
+                                    <a class="btn btn-light btn-sm btn-accion-icono" href="{% url 'categorias:editar' categoria.pk %}" aria-label="Editar {{ categoria.nombre }}" title="Editar">
+                                        <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l4.4-.9L19 8.5 15.5 5 4.9 15.6 4 20Z"/></svg>
+                                        <span class="visually-hidden">Editar</span>
+                                    </a>
+                                    <a class="btn btn-outline-danger btn-sm btn-accion-icono" href="{% url 'categorias:eliminar' categoria.pk %}" aria-label="Eliminar {{ categoria.nombre }}" title="Eliminar">
+                                        <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16m-10 4v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg>
+                                        <span class="visually-hidden">Eliminar</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td class="catalogo-vacio" colspan="5">Todavía no hay categorías registradas.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p class="catalogo-sin-resultados" id="sin-resultados" hidden>No hay categorías que coincidan con la búsqueda.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block page_js %}
+    <script src="{% static 'js/administracion/catalogos.js' %}"></script>
+    <script src="{% static 'js/categorias/categorias.js' %}"></script>
+{% endblock %}

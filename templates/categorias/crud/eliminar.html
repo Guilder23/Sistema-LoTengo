@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Eliminar categoría | Lotengo{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/administracion/catalogos.css' %}">
+    <link rel="stylesheet" href="{% static 'css/categorias/crud/eliminar.css' %}">
+{% endblock %}
+{% block content %}
+<section class="catalogo-pagina" data-seccion="categorias">
+    <div class="container catalogo-contenedor catalogo-contenedor-confirmacion">
+        <header class="catalogo-encabezado">
+            <span class="catalogo-etiqueta">Administración · Categorías</span>
+            <h1>Eliminar categoría</h1>
+        </header>
+        <div class="catalogo-confirmacion">
+            <p>¿Confirmas que quieres eliminar <strong>{{ categoria.nombre }}</strong>?</p>
+            {% if elementos_relacionados %}
+                <p class="catalogo-alerta">{{ elementos_relacionados }} publicaciones usan esta categoría.</p>
+            {% endif %}
+            {% if bloqueado_por_referencias %}
+                <div class="catalogo-alerta" role="alert">{{ mensaje_bloqueo }}</div>
+                <div class="catalogo-acciones">
+                    <a class="catalogo-boton catalogo-boton-principal" href="{{ url_editar }}">Editar categoría</a>
+                    <a class="catalogo-boton catalogo-boton-secundario" href="{{ url_cancelar }}">Volver</a>
+                </div>
+            {% else %}
+                <form method="post" class="catalogo-acciones" data-confirmacion="¿Eliminar esta categoría?">
+                    {% csrf_token %}
+                    <button class="catalogo-boton catalogo-boton-peligro" type="submit">Confirmar eliminación</button>
+                    <a class="catalogo-boton catalogo-boton-secundario" href="{{ url_cancelar }}">Cancelar</a>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block page_js %}
+    <script src="{% static 'js/administracion/catalogos.js' %}"></script>
+    <script src="{% static 'js/categorias/crud/eliminar.js' %}"></script>
+{% endblock %}

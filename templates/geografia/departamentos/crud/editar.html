@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ titulo }} | Lotengo{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/administracion/catalogos.css' %}">
+    <link rel="stylesheet" href="{% static 'css/geografia/departamentos/crud/editar.css' %}">
+{% endblock %}
+{% block content %}
+<section class="catalogo-pagina" data-seccion="departamentos">
+    <div class="container catalogo-contenedor catalogo-contenedor-formulario">
+        <header class="catalogo-encabezado">
+            <span class="catalogo-etiqueta">Administración · Departamentos</span>
+            <h1>{{ titulo }}</h1>
+            <p>El código interno se genera automáticamente al crear el departamento.</p>
+        </header>
+        <form class="catalogo-formulario" method="post">
+            {% csrf_token %}
+            {% if errores.non_field_errors %}
+                <div class="catalogo-errores" role="alert">
+                    {% for error in errores.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+            {% endif %}
+            <div class="catalogo-campo">
+                <label for="id_nombre">Nombre del departamento</label>
+                <input id="id_nombre" name="nombre" type="text" value="{{ datos.nombre }}" maxlength="80" required>
+                <small><span id="contador-nombre">{{ datos.nombre|length }}</span>/80 caracteres</small>
+                {% for error in errores.nombre %}<small class="catalogo-error">{{ error }}</small>{% endfor %}
+            </div>
+            {% if departamento %}
+                <p class="catalogo-ayuda">Código actual: <code>{{ departamento.codigo }}</code>. El código se conserva para mantener las ubicaciones existentes.</p>
+            {% endif %}
+            <div class="catalogo-acciones">
+                <button class="catalogo-boton catalogo-boton-principal" type="submit">Guardar departamento</button>
+                <a class="catalogo-boton catalogo-boton-secundario" href="{{ url_cancelar }}">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+{% block page_js %}
+    <script src="{% static 'js/administracion/catalogos.js' %}"></script>
+    <script src="{% static 'js/geografia/departamentos/crud/editar.js' %}"></script>
+{% endblock %}

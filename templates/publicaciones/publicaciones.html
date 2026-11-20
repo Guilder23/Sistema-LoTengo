@@ -53,8 +53,8 @@
                     <span>Departamento</span>
                     <select name="departamento">
                         <option value="">Todos</option>
-                        {% for codigo, nombre in departamentos %}
-                            <option value="{{ codigo }}" {% if filtros.departamento == codigo %}selected{% endif %}>{{ nombre }}</option>
+                        {% for departamento in departamentos %}
+                            <option value="{{ departamento.codigo }}" {% if filtros.departamento == departamento.codigo %}selected{% endif %}>{{ departamento.nombre }}</option>
                         {% endfor %}
                     </select>
                 </label>
@@ -109,7 +109,7 @@
                                 </td>
                                 <td><span class="publicacion-tipo tipo-{{ publicacion.tipo }}">{{ publicacion.get_tipo_display }}</span></td>
                                 <td>{{ publicacion.categoria.nombre }}</td>
-                                <td>{{ publicacion.ubicacion.municipio }}, {{ publicacion.ubicacion.get_departamento_display }}</td>
+                                <td>{{ publicacion.ubicacion.municipio.nombre }}, {{ publicacion.ubicacion.get_departamento_display }}</td>
                                 <td><time datetime="{{ publicacion.creada_en|date:'c' }}">{{ publicacion.creada_en|date:"j M Y" }}</time></td>
                                 {% if mostrar_propias %}
                                     <td><span class="estado-publicacion estado-{{ publicacion.estado }}">{{ publicacion.get_estado_display }}</span></td>

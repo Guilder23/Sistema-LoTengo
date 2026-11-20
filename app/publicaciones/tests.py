@@ -11,7 +11,8 @@ from django.utils import timezone
 from PIL import Image
 
 from app.categorias.models import Categoria
-from app.ubicaciones.models import Departamento, Municipio, Ubicacion
+from app.geografia.models import Departamento, Municipio
+from app.ubicaciones.models import Ubicacion
 
 from .imagenes import ErrorImagen, TAMANO_MAXIMO_IMAGEN, preparar_imagen
 from .models import ImagenPublicacion, Publicacion
@@ -38,9 +39,14 @@ class PruebasPublicaciones(TestCase):
             correo_verificado=True,
         )
         cls.categoria = Categoria.objects.get(slug="celulares-dispositivos-electronicos")
+        cls.departamento = Departamento.objects.get(codigo="cochabamba")
+        cls.municipio = Municipio.objects.get(
+            departamento=cls.departamento,
+            nombre="Cochabamba",
+        )
         cls.ubicacion = Ubicacion.objects.create(
-            departamento=Departamento.COCHABAMBA,
-            municipio="Cochabamba",
+            departamento=cls.departamento,
+            municipio=cls.municipio,
             zona="Centro",
             conoce_lugar_exacto=True,
             referencia_privada="En la entrada norte",
@@ -74,7 +80,7 @@ class PruebasPublicaciones(TestCase):
             "caracteristicas_publicas": "",
             "caracteristica_privada": "",
             "fecha_evento": (timezone.localdate() - timedelta(days=1)).isoformat(),
-            "departamento": Departamento.COCHABAMBA,
+            "departamento": self.departamento.codigo,
             "municipio": "Cochabamba",
             "zona": "Centro",
             "conoce_lugar_exacto": "on",
@@ -84,7 +90,7 @@ class PruebasPublicaciones(TestCase):
     def test_municipios_corresponden_al_departamento_seleccionado(self):
         response = self.client.get(
             reverse("publicaciones:municipios_por_departamento"),
-            {"departamento": Departamento.COCHABAMBA},
+            {"departamento": self.departamento.codigo},
         )
 
         self.assertEqual(response.status_code, 200)
@@ -94,7 +100,7 @@ class PruebasPublicaciones(TestCase):
         self.assertNotIn("Trinidad", municipios)
         self.assertTrue(
             Municipio.objects.filter(
-                departamento=Departamento.COCHABAMBA,
+                departamento=self.departamento,
                 nombre="Cochabamba",
             ).exists()
         )

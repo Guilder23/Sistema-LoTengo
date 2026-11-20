@@ -15,7 +15,7 @@
             <p>Vas a retirar <strong>{{ publicacion.titulo }}</strong> de los avisos públicos. El registro se conservará, pero ya no aparecerá en las búsquedas.</p>
             <div class="confirmacion-resumen">
                 <span>{{ publicacion.get_tipo_display }} · {{ publicacion.categoria.nombre }}</span>
-                <span>{{ publicacion.ubicacion.municipio }}, {{ publicacion.ubicacion.get_departamento_display }}</span>
+                <span>{{ publicacion.ubicacion.municipio.nombre }}, {{ publicacion.ubicacion.get_departamento_display }}</span>
             </div>
             <form method="post" class="confirmacion-acciones">
                 {% csrf_token %}

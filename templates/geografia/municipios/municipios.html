@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Gestión de municipios | Lotengo{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/administracion/catalogos.css' %}">
+    <link rel="stylesheet" href="{% static 'css/geografia/municipios/municipios.css' %}">
+{% endblock %}
+{% block content %}
+<section class="catalogo-pagina" data-seccion="municipios">
+    <div class="container catalogo-contenedor">
+        <header class="catalogo-encabezado">
+            <span class="catalogo-etiqueta">Administración</span>
+            <h1>Gestión de municipios</h1>
+            <p>Administra municipios y asígnalos al departamento correspondiente.</p>
+        </header>
+        <div class="catalogo-barra">
+            <label class="catalogo-busqueda">
+                <span>Buscar municipios</span>
+                <input id="buscar-catalogo" type="search" placeholder="Municipio o departamento" autocomplete="off">
+            </label>
+            <a class="catalogo-boton catalogo-boton-principal" href="{{ url_crear }}">Crear municipio</a>
+        </div>
+        <div class="catalogo-tabla-contenedor">
+            <table class="catalogo-tabla">
+                <thead><tr><th>Municipio</th><th>Departamento</th><th>Ubicaciones</th><th>Acciones</th></tr></thead>
+                <tbody id="filas-catalogo">
+                    {% for municipio in municipios %}
+                        <tr data-fila-catalogo data-terminos="{{ municipio.nombre }} {{ municipio.departamento.nombre }}">
+                            <td data-label="Municipio"><strong>{{ municipio.nombre }}</strong></td>
+                            <td data-label="Departamento">{{ municipio.departamento.nombre }}</td>
+                            <td data-label="Ubicaciones">{{ municipio.ubicaciones_count }}</td>
+                            <td data-label="Acciones">
+                                <div class="catalogo-fila-acciones">
+                                    <a class="btn btn-outline-primary btn-sm btn-accion-icono" href="{% url 'geografia:municipio_detalle' municipio.pk %}" aria-label="Ver detalle de {{ municipio.nombre }}" title="Ver detalle">
+                                        <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.2-6 9.5-6 9.5 6 9.5 6-3.2 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                                        <span class="visually-hidden">Detalle</span>
+                                    </a>
+                                    <a class="btn btn-light btn-sm btn-accion-icono" href="{% url 'geografia:municipio_editar' municipio.pk %}" aria-label="Editar {{ municipio.nombre }}" title="Editar">
+                                        <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l4.4-.9L19 8.5 15.5 5 4.9 15.6 4 20Z"/></svg>
+                                        <span class="visually-hidden">Editar</span>
+                                    </a>
+                                    <a class="btn btn-outline-danger btn-sm btn-accion-icono" href="{% url 'geografia:municipio_eliminar' municipio.pk %}" aria-label="Eliminar {{ municipio.nombre }}" title="Eliminar">
+                                        <svg class="icono-accion" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16m-10 4v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg>
+                                        <span class="visually-hidden">Eliminar</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td class="catalogo-vacio" colspan="4">Todavía no hay municipios registrados.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p class="catalogo-sin-resultados" id="sin-resultados" hidden>No hay municipios que coincidan con la búsqueda.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block page_js %}
+    <script src="{% static 'js/administracion/catalogos.js' %}"></script>
+    <script src="{% static 'js/geografia/municipios/municipios.js' %}"></script>
+{% endblock %}

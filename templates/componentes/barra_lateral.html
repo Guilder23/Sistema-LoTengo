@@ -36,6 +36,30 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
             <span class="sidebar-label">Mi perfil</span>
         </a>
+        {% if user.is_staff %}
+            <span class="cuenta-sidebar-seccion">Administración</span>
+            <a class="sidebar-link{% if request.resolver_match.view_name == 'categorias:lista' or request.resolver_match.view_name == 'categorias:crear' or request.resolver_match.view_name == 'categorias:detalle' or request.resolver_match.view_name == 'categorias:editar' or request.resolver_match.view_name == 'categorias:eliminar' %} is-active{% endif %}" href="{% url 'categorias:lista' %}" aria-label="Gestión de categorías" title="Gestión de categorías" data-tooltip="Categorías">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
+                <span class="sidebar-label">Categorías</span>
+            </a>
+            <details class="sidebar-accordion"{% if 'geografia:departamento' in request.resolver_match.view_name or 'geografia:municipio' in request.resolver_match.view_name %} open{% endif %}>
+                <summary class="sidebar-link sidebar-accordion-summary{% if 'geografia:departamento' in request.resolver_match.view_name or 'geografia:municipio' in request.resolver_match.view_name %} is-active{% endif %}" aria-label="Geografía" title="Geografía" data-tooltip="Geografía">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+                    <span class="sidebar-label">Geografía</span>
+                    <svg class="sidebar-accordion-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+                </summary>
+                <div class="sidebar-accordion-enlaces">
+                    <a class="sidebar-link{% if 'geografia:departamento' in request.resolver_match.view_name %} is-active{% endif %}" href="{% url 'geografia:departamentos' %}" aria-label="Gestión de departamentos" title="Gestión de departamentos" data-tooltip="Departamentos"{% if 'geografia:departamento' in request.resolver_match.view_name %} aria-current="page"{% endif %}>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M5 20V8l7-4 7 4v12M9 20v-6h6v6"/></svg>
+                        <span class="sidebar-label">Departamentos</span>
+                    </a>
+                    <a class="sidebar-link{% if 'geografia:municipio' in request.resolver_match.view_name %} is-active{% endif %}" href="{% url 'geografia:municipios' %}" aria-label="Gestión de municipios" title="Gestión de municipios" data-tooltip="Municipios"{% if 'geografia:municipio' in request.resolver_match.view_name %} aria-current="page"{% endif %}>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                        <span class="sidebar-label">Municipios</span>
+                    </a>
+                </div>
+            </details>
+        {% endif %}
     </nav>
 
     <div class="cuenta-sidebar-pie">

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ categoria.nombre }} | Categorías | Lotengo{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/administracion/catalogos.css' %}">
+    <link rel="stylesheet" href="{% static 'css/categorias/crud/detalle.css' %}">
+{% endblock %}
+{% block content %}
+<section class="catalogo-pagina" data-seccion="categorias">
+    <div class="container catalogo-contenedor">
+        <header class="catalogo-encabezado">
+            <span class="catalogo-etiqueta">Administración · Categorías</span>
+            <h1>{{ categoria.nombre }}</h1>
+            <p>Detalle y acciones de esta categoría.</p>
+        </header>
+        <article class="catalogo-tarjeta-detalle">
+            <dl class="catalogo-detalles">
+                <div><dt>Nombre</dt><dd>{{ categoria.nombre }}</dd></div>
+                <div><dt>Slug</dt><dd><code>{{ categoria.slug }}</code> <button class="catalogo-copiar" type="button" data-copiar="{{ categoria.slug }}">Copiar</button><small class="catalogo-ayuda" data-copiar-estado aria-live="polite"></small></dd></div>
+                <div><dt>Estado</dt><dd><span class="catalogo-estado{% if not categoria.activa %} is-inactivo{% endif %}">{% if categoria.activa %}Activa{% else %}Inactiva{% endif %}</span></dd></div>
+                <div><dt>Orden</dt><dd>{{ categoria.orden }}</dd></div>
+                <div><dt>Publicaciones relacionadas</dt><dd>{{ publicaciones_relacionadas }}</dd></div>
+            </dl>
+            <div class="catalogo-acciones">
+                <a class="catalogo-boton catalogo-boton-principal" href="{{ url_editar }}">Editar</a>
+                <a class="catalogo-boton catalogo-boton-peligro" href="{{ url_eliminar }}">Eliminar</a>
+                <a class="catalogo-boton catalogo-boton-secundario" href="{{ url_lista }}">Volver al listado</a>
+            </div>
+        </article>
+    </div>
+</section>
+{% endblock %}
+{% block page_js %}
+    <script src="{% static 'js/administracion/catalogos.js' %}"></script>
+    <script src="{% static 'js/categorias/crud/detalle.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Eliminar municipio | Lotengo{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/administracion/catalogos.css' %}">
+    <link rel="stylesheet" href="{% static 'css/geografia/municipios/crud/eliminar.css' %}">
+{% endblock %}
+{% block content %}
+<section class="catalogo-pagina" data-seccion="municipios">
+    <div class="container catalogo-contenedor catalogo-contenedor-confirmacion">
+        <header class="catalogo-encabezado">
+            <span class="catalogo-etiqueta">Administración · Municipios</span>
+            <h1>Eliminar municipio</h1>
+        </header>
+        <div class="catalogo-confirmacion">
+            <p>¿Confirmas que quieres eliminar <strong>{{ municipio.nombre }}, {{ municipio.departamento.nombre }}</strong>?</p>
+            {% if elementos_relacionados %}<p class="catalogo-alerta">{{ elementos_relacionados }} ubicaciones guardadas utilizan este municipio.</p>{% endif %}
+            {% if bloqueado_por_referencias %}
+                <div class="catalogo-alerta" role="alert">{{ mensaje_bloqueo }}</div>
+                <div class="catalogo-acciones">
+                    <a class="catalogo-boton catalogo-boton-principal" href="{{ url_editar }}">Editar municipio</a>
+                    <a class="catalogo-boton catalogo-boton-secundario" href="{{ url_cancelar }}">Volver</a>
+                </div>
+            {% else %}
+                <form method="post" class="catalogo-acciones" data-confirmacion="¿Eliminar este municipio?">
+                    {% csrf_token %}
+                    <button class="catalogo-boton catalogo-boton-peligro" type="submit">Confirmar eliminación</button>
+                    <a class="catalogo-boton catalogo-boton-secundario" href="{{ url_cancelar }}">Cancelar</a>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% block page_js %}
+    <script src="{% static 'js/administracion/catalogos.js' %}"></script>
+    <script src="{% static 'js/geografia/municipios/crud/eliminar.js' %}"></script>
+{% endblock %}

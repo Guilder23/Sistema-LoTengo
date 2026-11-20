@@ -11,7 +11,8 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
 from app.categorias.models import Categoria
-from app.ubicaciones.models import Departamento, Municipio, Ubicacion
+from app.geografia.models import Departamento, Municipio
+from app.ubicaciones.models import Ubicacion
 
 from .imagenes import ErrorImagen, preparar_imagen
 from .models import ImagenPublicacion, Publicacion
@@ -23,7 +24,13 @@ MAXIMO_IMAGENES = 5
 def _publicaciones_activas():
     return (
         Publicacion.objects.filter(estado=Publicacion.Estado.PUBLICADA)
-        .select_related("categoria", "ubicacion", "usuario")
+        .select_related(
+            "categoria",
+            "ubicacion",
+            "ubicacion__departamento",
+            "ubicacion__municipio",
+            "usuario",
+        )
         .prefetch_related("imagenes")
     )
 
@@ -57,13 +64,13 @@ def listado(request):
             categoria_id=filtros["categoria"],
             categoria__activa=True,
         )
-    if filtros["departamento"] in Departamento.values:
+    if Departamento.objects.filter(codigo=filtros["departamento"]).exists():
         publicaciones = publicaciones.filter(
-            ubicacion__departamento=filtros["departamento"]
+            ubicacion__departamento__codigo=filtros["departamento"]
         )
     if filtros["municipio"]:
         publicaciones = publicaciones.filter(
-            ubicacion__municipio__icontains=filtros["municipio"]
+            ubicacion__municipio__nombre__icontains=filtros["municipio"]
         )
 
     pagina = Paginator(publicaciones, 12).get_page(request.GET.get("pagina"))
@@ -73,7 +80,7 @@ def listado(request):
         {
             "pagina": pagina,
             "categorias": Categoria.objects.filter(activa=True),
-            "departamentos": Departamento.choices,
+            "departamentos": Departamento.objects.all(),
             "filtros": filtros,
             "mostrar_propias": False,
         },
@@ -84,6 +91,8 @@ def detalle(request, pk):
     publicaciones = Publicacion.objects.select_related(
         "categoria",
         "ubicacion",
+        "ubicacion__departamento",
+        "ubicacion__municipio",
         "usuario",
     ).prefetch_related("imagenes")
     if request.user.is_authenticated:
@@ -167,18 +176,27 @@ def _validar_datos_publicacion(request, publicacion=None):
             "La fecha del objeto no puede estar en el futuro."
         )
 
-    departamento = datos.get("departamento", "").strip()
-    if departamento not in Departamento.values:
+    departamento_codigo = datos.get("departamento", "").strip()
+    departamento = Departamento.objects.filter(codigo=departamento_codigo).first()
+    if departamento is None:
         errores.setdefault("departamento", []).append("Selecciona un departamento válido.")
-    municipio = _texto(datos, "municipio", "municipio", 100, errores, obligatorio=True)
-    if (
-        municipio
-        and departamento in Departamento.values
-        and not Municipio.objects.filter(
+    municipio_nombre = _texto(
+        datos,
+        "municipio",
+        "municipio",
+        100,
+        errores,
+        obligatorio=True,
+    )
+    municipio = (
+        Municipio.objects.filter(
             departamento=departamento,
-            nombre=municipio,
-        ).exists()
-    ):
+            nombre=municipio_nombre,
+        ).first()
+        if departamento and municipio_nombre
+        else None
+    )
+    if municipio_nombre and departamento and municipio is None:
         errores.setdefault("municipio", []).append(
             "Selecciona un municipio que pertenezca al departamento elegido."
         )
@@ -286,15 +304,24 @@ def _guardar_publicacion(request, valores, imagenes, ids_eliminar, publicacion=N
 
 def _contexto_formulario(publicacion=None, valores=None, errores=None):
     departamento = (valores or {}).get("departamento", "")
-    municipios = Municipio.objects.filter(
-        departamento=departamento
-    ).values_list("nombre", flat=True) if departamento in Departamento.values else []
+    codigo_departamento = (
+        departamento.codigo
+        if isinstance(departamento, Departamento)
+        else departamento
+    )
+    municipios = (
+        Municipio.objects.filter(departamento__codigo=codigo_departamento)
+        .order_by("nombre")
+        .values_list("nombre", flat=True)
+        if Departamento.objects.filter(codigo=codigo_departamento).exists()
+        else []
+    )
     return {
         "publicacion": publicacion,
         "valores": valores or {},
         "errores": errores or {},
         "categorias": Categoria.objects.filter(activa=True),
-        "departamentos": Departamento.choices,
+        "departamentos": Departamento.objects.all(),
         "municipios": municipios,
         "maximo_imagenes": MAXIMO_IMAGENES,
         "today": timezone.localdate(),
@@ -357,7 +384,12 @@ def editar(request, pk):
     if redireccion:
         return redireccion
     publicacion = get_object_or_404(
-        Publicacion.objects.select_related("ubicacion", "categoria").prefetch_related("imagenes"),
+        Publicacion.objects.select_related(
+            "ubicacion",
+            "ubicacion__departamento",
+            "ubicacion__municipio",
+            "categoria",
+        ).prefetch_related("imagenes"),
         pk=pk,
         usuario=request.user,
     )
@@ -399,8 +431,8 @@ def editar(request, pk):
         "caracteristicas_publicas": publicacion.caracteristicas_publicas,
         "caracteristica_privada": publicacion.caracteristica_privada,
         "fecha_evento": publicacion.fecha_evento.isoformat(),
-        "departamento": publicacion.ubicacion.departamento,
-        "municipio": publicacion.ubicacion.municipio,
+        "departamento": publicacion.ubicacion.departamento.codigo,
+        "municipio": publicacion.ubicacion.municipio.nombre,
         "zona": publicacion.ubicacion.zona,
         "conoce_lugar_exacto": publicacion.ubicacion.conoce_lugar_exacto,
         "referencia_privada": publicacion.ubicacion.referencia_privada,
@@ -415,10 +447,10 @@ def editar(request, pk):
 @require_GET
 def municipios_por_departamento(request):
     departamento = request.GET.get("departamento", "").strip()
-    if departamento not in Departamento.values:
+    if not Departamento.objects.filter(codigo=departamento).exists():
         return JsonResponse({"municipios": []})
     municipios = list(
-        Municipio.objects.filter(departamento=departamento)
+        Municipio.objects.filter(departamento__codigo=departamento)
         .order_by("nombre")
         .values_list("nombre", flat=True)
     )
@@ -430,7 +462,12 @@ def mis_publicaciones(request):
     publicaciones = (
         Publicacion.objects.filter(usuario=request.user)
         .exclude(estado=Publicacion.Estado.ELIMINADA)
-        .select_related("categoria", "ubicacion")
+        .select_related(
+            "categoria",
+            "ubicacion",
+            "ubicacion__departamento",
+            "ubicacion__municipio",
+        )
         .prefetch_related("imagenes")
     )
     pagina = Paginator(publicaciones, 20).get_page(request.GET.get("pagina"))
@@ -441,7 +478,7 @@ def mis_publicaciones(request):
             "pagina": pagina,
             "mostrar_propias": True,
             "categorias": Categoria.objects.filter(activa=True),
-            "departamentos": Departamento.choices,
+            "departamentos": Departamento.objects.all(),
             "filtros": {},
             "mostrar_sidebar_cuenta": True,
         },
