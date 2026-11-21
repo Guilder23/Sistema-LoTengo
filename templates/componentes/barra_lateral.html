@@ -31,12 +31,20 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 4zM8 10h8m-8 4h5"/></svg>
             <span class="sidebar-label">Conversaciones</span>
         </a>
+        <a class="sidebar-link{% if 'denuncias:' in request.resolver_match.view_name %} is-active{% endif %}" href="{% url 'denuncias:mis_denuncias' %}" aria-label="Mis denuncias" title="Mis denuncias" data-tooltip="Mis denuncias">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2.8 20h18.4L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg>
+            <span class="sidebar-label">Mis denuncias</span>
+        </a>
         <a class="sidebar-link{% if request.resolver_match.view_name == 'perfiles:editar' %} is-active{% endif %}" href="{% url 'perfiles:editar' %}" aria-label="Mi perfil" title="Mi perfil" data-tooltip="Mi perfil"{% if request.resolver_match.view_name == 'perfiles:editar' %} aria-current="page"{% endif %}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
             <span class="sidebar-label">Mi perfil</span>
         </a>
         {% if user.is_staff %}
             <span class="cuenta-sidebar-seccion">Administración</span>
+            <a class="sidebar-link{% if 'moderacion:' in request.resolver_match.view_name %} is-active{% endif %}" href="{% url 'moderacion:bandeja' %}" aria-label="Moderación" title="Moderación" data-tooltip="Moderación">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v5c0 5 3.4 8.3 8 10 4.6-1.7 8-5 8-10V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+                <span class="sidebar-label">Moderación</span>
+            </a>
             <a class="sidebar-link{% if request.resolver_match.view_name == 'categorias:lista' or request.resolver_match.view_name == 'categorias:crear' or request.resolver_match.view_name == 'categorias:detalle' or request.resolver_match.view_name == 'categorias:editar' or request.resolver_match.view_name == 'categorias:eliminar' %} is-active{% endif %}" href="{% url 'categorias:lista' %}" aria-label="Gestión de categorías" title="Gestión de categorías" data-tooltip="Categorías">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
                 <span class="sidebar-label">Categorías</span>

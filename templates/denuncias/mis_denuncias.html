@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mis denuncias | Lotengo{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/denuncias/mis_denuncias.css' %}">{% endblock %}
+{% block content %}
+<main class="mis-denuncias-pagina">
+    <header class="mis-denuncias-hero">
+        <span class="mis-denuncias-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 3 2.8 20h18.4L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg>
+        </span>
+        <div>
+            <span class="mis-denuncias-kicker">CENTRO DE AYUDA</span>
+            <h1>Mis denuncias</h1>
+            <p>Consulta el avance de tus reportes y las respuestas del equipo Lotengo.</p>
+        </div>
+    </header>
+
+    <nav class="mis-denuncias-filtros" aria-label="Filtrar mis denuncias por estado">
+        {% for estado in estados %}
+            <a class="{% if estado_seleccionado == estado.valor %}is-activo{% endif %}"
+               href="?{% if estado.valor %}estado={{ estado.valor }}{% endif %}"
+               {% if estado_seleccionado == estado.valor %}aria-current="page"{% endif %}>
+                {{ estado.etiqueta }} <span>{{ estado.cantidad }}</span>
+            </a>
+        {% endfor %}
+    </nav>
+
+    <div class="mis-denuncias-resultados">
+        <h2>{% if estado_seleccionado %}{{ pagina.object_list.0.get_estado_display|default:"Tus denuncias" }}{% else %}Historial de reportes{% endif %}</h2>
+        <span>{{ pagina.paginator.count }} caso{{ pagina.paginator.count|pluralize }}</span>
+    </div>
+
+    <div class="mis-denuncias-lista">
+        {% for denuncia in pagina %}
+            <article class="mis-denuncia">
+                <div class="mis-denuncia-linea-estado">
+                    <span class="mis-denuncia-punto estado-{{ denuncia.estado }}" aria-hidden="true"></span>
+                    <span class="mis-denuncia-estado estado-{{ denuncia.estado }}">{{ denuncia.get_estado_display }}</span>
+                    <time datetime="{{ denuncia.creada_en|date:'c' }}">{{ denuncia.creada_en|date:"j M Y · H:i" }}</time>
+                </div>
+
+                <div class="mis-denuncia-cabecera">
+                    <div>
+                        <span class="mis-denuncia-numero">REPORTE #{{ denuncia.pk }}</span>
+                        <h3>{{ denuncia.get_motivo_display }}</h3>
+                    </div>
+                    {% if denuncia.publicacion %}
+                        <span class="mis-denuncia-tipo-objetivo">Publicación</span>
+                    {% elif denuncia.mensaje %}
+                        <span class="mis-denuncia-tipo-objetivo">Mensaje</span>
+                    {% else %}
+                        <span class="mis-denuncia-tipo-objetivo">Cuenta</span>
+                    {% endif %}
+                </div>
+
+                {% if denuncia.publicacion %}
+                    <div class="mis-denuncia-objetivo">
+                        <span aria-hidden="true">◇</span>
+                        <div><small>PUBLICACIÓN REPORTADA</small><strong>{{ denuncia.publicacion.titulo }}</strong></div>
+                    </div>
+                {% elif denuncia.denunciado %}
+                    <div class="mis-denuncia-objetivo">
+                        <span aria-hidden="true">◉</span>
+                        <div><small>CUENTA REPORTADA</small><strong>{{ denuncia.denunciado.get_full_name|default:denuncia.denunciado.email }}</strong></div>
+                    </div>
+                {% endif %}
+
+                <p class="mis-denuncia-descripcion">{{ denuncia.descripcion|linebreaksbr }}</p>
+
+                <div class="mis-denuncia-pie">
+                    {% if denuncia.evidencia %}
+                        <a href="{% url 'denuncias:evidencia' denuncia.pk %}">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></svg>
+                            Ver mi evidencia
+                        </a>
+                    {% else %}
+                        <span class="mis-denuncia-sin-evidencia">Sin evidencia adjunta</span>
+                    {% endif %}
+                </div>
+
+                {% if denuncia.respuesta %}
+                    <section class="mis-denuncia-respuesta" aria-label="Respuesta del equipo de moderación">
+                        <span class="mis-denuncia-respuesta-icono" aria-hidden="true">L</span>
+                        <div><strong>Respuesta del equipo</strong><p>{{ denuncia.respuesta|linebreaksbr }}</p></div>
+                    </section>
+                {% elif denuncia.estado == "pendiente" or denuncia.estado == "en_revision" %}
+                    <p class="mis-denuncia-en-espera">El equipo está revisando tu reporte. Te mostraremos aquí cualquier actualización.</p>
+                {% endif %}
+            </article>
+        {% empty %}
+            <section class="mis-denuncias-vacio">
+                <span aria-hidden="true">✓</span>
+                <h2>{% if estado_seleccionado %}No tienes denuncias con este estado{% else %}Aún no has enviado denuncias{% endif %}</h2>
+                <p>Cuando reportes una publicación, mensaje o cuenta, podrás seguir su estado desde aquí.</p>
+                {% if estado_seleccionado %}<a href="{% url 'denuncias:mis_denuncias' %}">Ver todas mis denuncias</a>{% endif %}
+            </section>
+        {% endfor %}
+    </div>
+
+    {% if pagina.has_other_pages %}
+        <nav class="mis-denuncias-paginacion" aria-label="Páginas de mis denuncias">
+            {% if pagina.has_previous %}
+                <a href="?{% if estado_seleccionado %}estado={{ estado_seleccionado }}&amp;{% endif %}pagina={{ pagina.previous_page_number }}">← Anterior</a>
+            {% else %}<span></span>{% endif %}
+            <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+            {% if pagina.has_next %}
+                <a href="?{% if estado_seleccionado %}estado={{ estado_seleccionado }}&amp;{% endif %}pagina={{ pagina.next_page_number }}">Siguiente →</a>
+            {% endif %}
+        </nav>
+    {% endif %}
+</main>
+{% endblock %}

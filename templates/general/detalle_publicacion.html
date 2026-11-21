@@ -132,7 +132,7 @@
                         <form method="post" action="{% url 'conversaciones:iniciar' publicacion.pk %}">
                             {% csrf_token %}
                             <button class="publicacion-detalle-boton" type="submit">
-                                Enviar un mensaje
+                                Contactar por mensaje
                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
                             </button>
                         </form>
@@ -151,6 +151,16 @@
                         <p>No compartas claves, códigos ni datos bancarios. Coordina la entrega en un lugar público.</p>
                     </div>
                 </section>
+                {% if user.is_authenticated and user.pk != publicacion.usuario_id %}
+                    <div class="d-grid gap-2 mt-3">
+                        <a class="btn btn-outline-danger" href="{% url 'denuncias:crear' %}?publicacion={{ publicacion.pk }}">Reportar esta publicación</a>
+                        <form method="post" action="{% url 'denuncias:bloquear' publicacion.usuario_id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button class="btn btn-outline-secondary w-100" type="submit">{% if contacto_bloqueado %}Desbloquear a esta persona{% else %}Bloquear a esta persona{% endif %}</button>
+                        </form>
+                    </div>
+                {% endif %}
             </aside>
         </div>
 

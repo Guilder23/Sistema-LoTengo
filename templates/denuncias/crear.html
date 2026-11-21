@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Enviar denuncia | Lotengo{% endblock %}
+{% block content %}
+<section class="container py-5" style="max-width: 760px">
+    <h1>Enviar una denuncia</h1>
+    <p>La información se enviará de forma privada al equipo de moderación.</p>
+    {% if publicacion %}<p><strong>Publicación:</strong> {{ publicacion.titulo }}</p>{% endif %}
+    {% if mensaje %}<p><strong>Mensaje reportado:</strong> {{ mensaje.contenido|truncatechars:180 }}</p>{% endif %}
+    {% if denunciado %}<p><strong>Cuenta reportada:</strong> {{ denunciado.get_full_name|default:denunciado.email }}</p>{% endif %}
+    <form method="post" enctype="multipart/form-data" class="card card-body gap-3">
+        {% csrf_token %}
+        {% if publicacion %}<input type="hidden" name="publicacion" value="{{ publicacion.pk }}">{% endif %}
+        {% if mensaje %}<input type="hidden" name="mensaje" value="{{ mensaje.pk }}">{% endif %}
+        {% if denunciado %}<input type="hidden" name="usuario" value="{{ denunciado.pk }}">{% endif %}
+        <div>
+            <label class="form-label" for="motivo">Motivo</label>
+            <select class="form-select" id="motivo" name="motivo" required>
+                <option value="">Selecciona un motivo</option>
+                {% for valor, etiqueta in motivos %}
+                    <option value="{{ valor }}" {% if valor_motivo == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                {% endfor %}
+            </select>
+            {% if errores.motivo %}<div class="text-danger">{{ errores.motivo }}</div>{% endif %}
+        </div>
+        <div>
+            <label class="form-label" for="descripcion">Describe lo ocurrido</label>
+            <textarea class="form-control" id="descripcion" name="descripcion" rows="5" minlength="10" maxlength="2000" required>{{ valor_descripcion }}</textarea>
+            {% if errores.descripcion %}<div class="text-danger">{{ errores.descripcion }}</div>{% endif %}
+        </div>
+        <div>
+            <label class="form-label" for="evidencia">Evidencia (opcional)</label>
+            <input class="form-control" id="evidencia" name="evidencia" type="file" accept="image/jpeg,image/png,image/webp">
+            {% if errores.evidencia %}<div class="text-danger">{{ errores.evidencia }}</div>{% endif %}
+        </div>
+        <p class="form-text">Puedes adjuntar una imagen JPG, PNG o WEBP de hasta 5 MB.</p>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" type="submit">Enviar denuncia</button>
+            <a class="btn btn-outline-secondary" href="{% url 'denuncias:mis_denuncias' %}">Cancelar</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

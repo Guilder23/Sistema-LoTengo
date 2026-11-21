@@ -5,14 +5,17 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.db.models import Q
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
 from app.cuentas.correos import ErrorEnvioCorreo, enviar_verificacion
 from app.categorias.models import Categoria
 from app.geografia.models import Departamento
 from app.publicaciones.models import Publicacion
+from app.denuncias.models import BloqueoUsuario
 
 from .forms import FormularioEditarPerfil
 from .models import Perfil
@@ -32,6 +35,11 @@ def publico(request, pk):
         Publicacion.objects.filter(
             usuario=usuario,
             estado=Publicacion.Estado.PUBLICADA,
+            oculta_por_moderacion=False,
+        )
+        .filter(
+            Q(usuario__suspendido_hasta__isnull=True)
+            | Q(usuario__suspendido_hasta__lte=timezone.now())
         )
         .select_related(
             "categoria",
@@ -60,6 +68,13 @@ def publico(request, pk):
                 "municipio": "",
             },
             "mostrar_sidebar_cuenta": False,
+            "contacto_bloqueado": (
+                request.user.is_authenticated
+                and BloqueoUsuario.objects.filter(
+                    bloqueador=request.user,
+                    bloqueado=usuario,
+                ).exists()
+            ),
         },
     )
 

@@ -33,6 +33,11 @@ class Usuario(AbstractUser):
     email = models.EmailField("correo electrónico", unique=True)
     telefono = models.CharField("teléfono", max_length=30)
     correo_verificado = models.BooleanField("correo verificado", default=False)
+    suspendido_hasta = models.DateTimeField(
+        "suspendido hasta",
+        null=True,
+        blank=True,
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "telefono"]

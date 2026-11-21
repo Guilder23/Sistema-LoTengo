@@ -77,6 +77,19 @@ static/js/publicaciones/crud/crear.js
 
 CSS y JavaScript mantienen la misma estructura y nombres que sus plantillas.
 
+## Denuncias y moderación
+
+Las cuentas autenticadas pueden reportar publicaciones, perfiles y mensajes desde sus
+respectivas pantallas, adjuntar una imagen como evidencia y consultar el estado y la
+respuesta desde `/denuncias/`. Las imágenes se validan y se guardan sin metadatos; su
+descarga requiere ser quien denunció o pertenecer al personal.
+
+El personal revisa los casos desde `/administracion/moderacion/`. Cada respuesta o medida
+queda registrada con moderador y fecha. Las medidas incluyen ocultar/restaurar publicaciones,
+suspender una cuenta por hasta 365 días o bloquearla definitivamente. Las personas usuarias
+también pueden bloquear a otra cuenta y silenciar notificaciones de una conversación. Ejecuta
+`python manage.py migrate` para crear las tablas del módulo.
+
 ## Conversaciones en tiempo real
 
 El chat usa Django Channels sobre ASGI. Los mensajes de texto se transmiten al instante;

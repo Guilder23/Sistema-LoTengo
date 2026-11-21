@@ -4,6 +4,7 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.db.models import Q
 
+from app.denuncias.models import BloqueoUsuario
 from .models import Conversacion
 from .presencia import (
     actualizar_latido_presencia,
@@ -19,8 +20,19 @@ logger = logging.getLogger(__name__)
 
 @database_sync_to_async
 def _es_participante(conversacion_id, usuario_id):
-    return Conversacion.objects.filter(pk=conversacion_id).filter(
+    conversacion = Conversacion.objects.filter(pk=conversacion_id).filter(
         Q(interesado_id=usuario_id) | Q(publicacion__usuario_id=usuario_id)
+    ).values("interesado_id", "publicacion__usuario_id").first()
+    if conversacion is None:
+        return False
+    contacto_id = (
+        conversacion["publicacion__usuario_id"]
+        if conversacion["interesado_id"] == usuario_id
+        else conversacion["interesado_id"]
+    )
+    return not BloqueoUsuario.objects.filter(
+        Q(bloqueador_id=usuario_id, bloqueado_id=contacto_id)
+        | Q(bloqueador_id=contacto_id, bloqueado_id=usuario_id)
     ).exists()
 
 

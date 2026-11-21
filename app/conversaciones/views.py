@@ -9,8 +9,10 @@ from django.db.models.functions import Coalesce
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
+from app.denuncias.models import BloqueoUsuario, ConversacionSilenciada
 from app.publicaciones.models import Publicacion
 
 from .models import Conversacion, Mensaje
@@ -29,12 +31,24 @@ logger = logging.getLogger(__name__)
 
 
 def _listar_conversaciones(usuario):
+    usuarios_bloqueados = BloqueoUsuario.objects.filter(
+        Q(bloqueador=usuario) | Q(bloqueado=usuario)
+    ).values_list("bloqueador_id", "bloqueado_id")
+    ids_bloqueados = set()
+    for bloqueador_id, bloqueado_id in usuarios_bloqueados:
+        ids_bloqueados.add(
+            bloqueado_id if bloqueador_id == usuario.pk else bloqueador_id
+        )
     ultimo_mensaje = Mensaje.objects.filter(
         conversacion_id=OuterRef("pk")
     ).order_by("-enviada_en", "-pk")
     conversaciones = list(
         Conversacion.objects.filter(
             Q(interesado=usuario) | Q(publicacion__usuario=usuario)
+        )
+        .exclude(
+            Q(interesado_id__in=ids_bloqueados)
+            | Q(publicacion__usuario_id__in=ids_bloqueados)
         )
         .select_related("publicacion", "publicacion__usuario", "interesado")
         .select_related(
@@ -116,9 +130,22 @@ def iniciar(request, publicacion_id):
         Publicacion.objects.select_related("usuario"),
         pk=publicacion_id,
         estado=Publicacion.Estado.PUBLICADA,
+        oculta_por_moderacion=False,
+        usuario__is_active=True,
     )
+    if (
+        publicacion.usuario.suspendido_hasta
+        and publicacion.usuario.suspendido_hasta > timezone.now()
+    ):
+        raise Http404
     if publicacion.usuario_id == request.user.pk:
         messages.error(request, "No puedes iniciar una conversación contigo mismo.")
+        return redirect("publicaciones:detalle", pk=publicacion.pk)
+    if BloqueoUsuario.objects.filter(
+        Q(bloqueador=request.user, bloqueado=publicacion.usuario)
+        | Q(bloqueador=publicacion.usuario, bloqueado=request.user)
+    ).exists():
+        messages.error(request, "No puedes iniciar una conversación con esta persona.")
         return redirect("publicaciones:detalle", pk=publicacion.pk)
 
     conversacion, _ = Conversacion.objects.get_or_create(
@@ -146,6 +173,16 @@ def detalle(request, pk):
         conversacion.publicacion.usuario_id,
     }
     if request.user.pk not in participantes:
+        raise Http404
+    contacto_id = (
+        conversacion.publicacion.usuario_id
+        if conversacion.interesado_id == request.user.pk
+        else conversacion.interesado_id
+    )
+    if BloqueoUsuario.objects.filter(
+        Q(bloqueador_id=request.user.pk, bloqueado_id=contacto_id)
+        | Q(bloqueador_id=contacto_id, bloqueado_id=request.user.pk)
+    ).exists():
         raise Http404
 
     if request.method == "POST":
@@ -200,7 +237,11 @@ def detalle(request, pk):
             "hay_mensajes_anteriores": hay_mensajes_anteriores,
             "persona_contacto": persona_contacto,
             "puede_ver_publicacion": (
-                conversacion.publicacion.estado == Publicacion.Estado.PUBLICADA
+                (
+                    conversacion.publicacion.estado == Publicacion.Estado.PUBLICADA
+                    and not conversacion.publicacion.oculta_por_moderacion
+                    and conversacion.publicacion.usuario.is_active
+                )
                 or conversacion.publicacion.usuario_id == request.user.pk
             ),
             "maximo_caracteres_mensaje": MAXIMO_CARACTERES_MENSAJE,
@@ -210,6 +251,62 @@ def detalle(request, pk):
                 "conversaciones:mensajes_anteriores",
                 args=(conversacion.pk,),
             ),
+        },
+    )
+
+
+@login_required
+@require_GET
+def ajustes(request, pk):
+    conversacion = get_object_or_404(
+        Conversacion.objects.select_related(
+            "publicacion",
+            "publicacion__usuario",
+            "publicacion__usuario__perfil",
+            "publicacion__categoria",
+            "interesado",
+            "interesado__perfil",
+        ),
+        pk=pk,
+    )
+    if not _es_participante(conversacion, request.user):
+        raise Http404
+
+    persona_contacto = (
+        conversacion.publicacion.usuario
+        if conversacion.interesado_id == request.user.pk
+        else conversacion.interesado
+    )
+    bloqueado_por_mi = BloqueoUsuario.objects.filter(
+        bloqueador=request.user,
+        bloqueado=persona_contacto,
+    ).exists()
+    bloqueado_por_contacto = BloqueoUsuario.objects.filter(
+        bloqueador=persona_contacto,
+        bloqueado=request.user,
+    ).exists()
+    return render(
+        request,
+        "conversaciones/ajustes.html",
+        {
+            "conversacion": conversacion,
+            "persona_contacto": persona_contacto,
+            "bloqueado_por_mi": bloqueado_por_mi,
+            "puede_volver_al_chat": not bloqueado_por_mi and not bloqueado_por_contacto,
+            "conversacion_silenciada": ConversacionSilenciada.objects.filter(
+                usuario=request.user,
+                conversacion=conversacion,
+            ).exists(),
+            "mensajes_reportables": (
+                conversacion.mensajes.exclude(remitente=request.user)
+                .order_by("-enviada_en", "-pk")[:10]
+            ),
+            "puede_ver_publicacion": (
+                conversacion.publicacion.estado == Publicacion.Estado.PUBLICADA
+                and not conversacion.publicacion.oculta_por_moderacion
+                and conversacion.publicacion.usuario.is_active
+            ),
+            "mostrar_sidebar_cuenta": True,
         },
     )
 

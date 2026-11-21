@@ -3,10 +3,12 @@ from zoneinfo import ZoneInfo
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
 from app.notificaciones.realtime import publicar_actualizacion_contadores
+from app.denuncias.models import BloqueoUsuario
 from app.notificaciones.services import (
     marcar_notificaciones_conversacion_leidas,
     notificar_mensaje_recibido,
@@ -114,6 +116,20 @@ def crear_mensaje(conversacion_id, remitente, contenido="", archivo=None):
     }
     if remitente.pk not in participantes:
         raise PermissionError("No participas en esta conversación.")
+    if not remitente.is_active or (
+        remitente.suspendido_hasta and remitente.suspendido_hasta > timezone.now()
+    ):
+        raise ErrorMensaje("Tu cuenta no puede enviar mensajes en este momento.")
+    contacto_id = (
+        conversacion.publicacion.usuario_id
+        if conversacion.interesado_id == remitente.pk
+        else conversacion.interesado_id
+    )
+    if BloqueoUsuario.objects.filter(
+        Q(bloqueador_id=remitente.pk, bloqueado_id=contacto_id)
+        | Q(bloqueador_id=contacto_id, bloqueado_id=remitente.pk)
+    ).exists():
+        raise ErrorMensaje("No puedes enviar mensajes a esta persona.")
 
     if not isinstance(contenido, str):
         raise ErrorMensaje("El mensaje debe ser texto.")

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Bandeja de moderación | Lotengo{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/moderacion/bandeja.css' %}">{% endblock %}
+{% block content %}
+<main class="moderacion-pagina">
+    <header class="moderacion-hero">
+        <div>
+            <span class="moderacion-kicker">CENTRO DE CONFIANZA</span>
+            <h1>Bandeja de moderación</h1>
+            <p>Revisa cada caso, comunícate con quien lo reportó y deja constancia de tus decisiones.</p>
+        </div>
+        <div class="moderacion-hero-resumen">
+            <span class="moderacion-resumen-icono" aria-hidden="true">✓</span>
+            <span><strong>{{ estados.0.cantidad }}</strong><small>casos registrados</small></span>
+        </div>
+    </header>
+
+    <nav class="moderacion-filtros" aria-label="Filtrar denuncias por estado">
+        {% for estado in estados %}
+            <a class="{% if estado_seleccionado == estado.valor %}is-activo{% endif %}"
+               href="?{% if estado.valor %}estado={{ estado.valor }}{% endif %}"
+               {% if estado_seleccionado == estado.valor %}aria-current="page"{% endif %}>
+                {{ estado.etiqueta }} <span>{{ estado.cantidad }}</span>
+            </a>
+        {% endfor %}
+    </nav>
+
+    <div class="moderacion-lista-encabezado">
+        <div>
+            <h2>{% if estado_seleccionado %}{{ pagina.object_list.0.get_estado_display|default:"Casos" }}{% else %}Todos los casos{% endif %}</h2>
+            <p>{{ pagina.paginator.count }} denuncia{{ pagina.paginator.count|pluralize }} para revisar</p>
+        </div>
+        {% if pagina.paginator.count %}
+            <span class="moderacion-pagina-indicador">Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+        {% endif %}
+    </div>
+
+    <div class="moderacion-casos">
+        {% for denuncia in pagina %}
+            <article class="moderacion-caso">
+                <header class="moderacion-caso-cabecera">
+                    <div class="moderacion-caso-titulo">
+                        <span class="moderacion-caso-numero">CASO #{{ denuncia.pk }} · {{ denuncia.creada_en|date:"j M Y, H:i" }}</span>
+                        <h2>{{ denuncia.get_motivo_display }}</h2>
+                    </div>
+                    <span class="moderacion-estado estado-{{ denuncia.estado }}">{{ denuncia.get_estado_display }}</span>
+                </header>
+
+                <div class="moderacion-caso-contenido">
+                    <section class="moderacion-reporte">
+                        <div class="moderacion-personas">
+                            <div>
+                                <span>REPORTADO POR</span>
+                                <strong>{{ denuncia.denunciante.get_full_name|default:denuncia.denunciante.email }}</strong>
+                            </div>
+                            {% if denuncia.denunciado %}
+                                <div>
+                                    <span>CUENTA REPORTADA</span>
+                                    <strong>{{ denuncia.denunciado.get_full_name|default:denuncia.denunciado.email }}</strong>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% if denuncia.publicacion %}
+                            <a class="moderacion-objetivo" href="{% url 'publicaciones:detalle' denuncia.publicacion.pk %}">
+                                <span class="moderacion-objetivo-icono" aria-hidden="true">◇</span>
+                                <span><small>PUBLICACIÓN</small><strong>{{ denuncia.publicacion.titulo }}</strong></span>
+                                <span class="moderacion-flecha" aria-hidden="true">↗</span>
+                            </a>
+                        {% endif %}
+                        {% if denuncia.mensaje %}
+                            <div class="moderacion-mensaje-reportado">
+                                <span>MENSAJE REPORTADO</span>
+                                <p>{{ denuncia.mensaje.contenido|default:"El mensaje incluye un archivo adjunto."|truncatechars:240 }}</p>
+                            </div>
+                        {% endif %}
+
+                        <div class="moderacion-descripcion">
+                            <span>DETALLE DEL REPORTE</span>
+                            <p>{{ denuncia.descripcion|linebreaksbr }}</p>
+                        </div>
+
+                        {% if denuncia.evidencia %}
+                            <a class="moderacion-evidencia" href="{% url 'denuncias:evidencia' denuncia.pk %}">
+                                <span aria-hidden="true">↧</span> Descargar evidencia adjunta
+                            </a>
+                        {% endif %}
+
+                        {% if denuncia.respuesta %}
+                            <div class="moderacion-respuesta">
+                                <span>RESPUESTA REGISTRADA</span>
+                                <p>{{ denuncia.respuesta|linebreaksbr }}</p>
+                            </div>
+                        {% endif %}
+                    </section>
+
+                    <section class="moderacion-gestion" aria-label="Registrar decisión">
+                        <div class="moderacion-gestion-titulo">
+                            <span class="moderacion-gestion-icono" aria-hidden="true">✦</span>
+                            <div><h3>Revisión del caso</h3><p>La nota se compartirá con quien envió el reporte.</p></div>
+                        </div>
+                        <form method="post" action="{% url 'moderacion:decidir' denuncia.pk %}">
+                            {% csrf_token %}
+                            <label for="accion-{{ denuncia.pk }}">Acción a realizar</label>
+                            <select id="accion-{{ denuncia.pk }}" name="accion" required>
+                                {% for valor, etiqueta in acciones %}<option value="{{ valor }}">{{ etiqueta }}</option>{% endfor %}
+                            </select>
+
+                            <label for="nota-{{ denuncia.pk }}">Respuesta o nota de moderación</label>
+                            <textarea id="nota-{{ denuncia.pk }}" name="nota" maxlength="2000" minlength="5" rows="3" placeholder="Explica la revisión o la medida tomada…" required></textarea>
+                            <small class="moderacion-ayuda">Mínimo 5 caracteres. Se guardará en el historial del caso.</small>
+
+                            <label for="dias-{{ denuncia.pk }}">Duración si seleccionas una suspensión</label>
+                            <div class="moderacion-duracion">
+                                <input id="dias-{{ denuncia.pk }}" type="number" name="dias" min="1" max="365" value="7">
+                                <span>días</span>
+                            </div>
+                            <button type="submit">Guardar decisión <span aria-hidden="true">→</span></button>
+                        </form>
+
+                        {% if denuncia.decisiones.all %}
+                            <details class="moderacion-historial">
+                                <summary>Ver historial <span>{{ denuncia.decisiones.all|length }}</span></summary>
+                                <ol>
+                                    {% for decision in denuncia.decisiones.all %}
+                                        <li>
+                                            <strong>{{ decision.get_accion_display }}{% if decision.duracion_dias %} · {{ decision.duracion_dias }} días{% endif %}</strong>
+                                            <span>{{ decision.moderador }} · {{ decision.creada_en|date:"j M Y, H:i" }}</span>
+                                            <p>{{ decision.nota }}</p>
+                                        </li>
+                                    {% endfor %}
+                                </ol>
+                            </details>
+                        {% endif %}
+                    </section>
+                </div>
+            </article>
+        {% empty %}
+            <section class="moderacion-vacio">
+                <span aria-hidden="true">✓</span>
+                <h2>No hay denuncias en esta vista</h2>
+                <p>Prueba otro filtro o vuelve cuando haya nuevos casos por revisar.</p>
+            </section>
+        {% endfor %}
+    </div>
+
+    {% if pagina.has_other_pages %}
+        <nav class="moderacion-paginacion" aria-label="Páginas de denuncias">
+            {% if pagina.has_previous %}
+                <a href="?{% if estado_seleccionado %}estado={{ estado_seleccionado }}&amp;{% endif %}pagina={{ pagina.previous_page_number }}">← Anterior</a>
+            {% else %}<span></span>{% endif %}
+            <span>{{ pagina.number }} / {{ pagina.paginator.num_pages }}</span>
+            {% if pagina.has_next %}
+                <a href="?{% if estado_seleccionado %}estado={{ estado_seleccionado }}&amp;{% endif %}pagina={{ pagina.next_page_number }}">Siguiente →</a>
+            {% endif %}
+        </nav>
+    {% endif %}
+</main>
+{% endblock %}

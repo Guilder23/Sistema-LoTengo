@@ -51,6 +51,7 @@ class Publicacion(models.Model):
         default=Estado.PUBLICADA,
     )
     eliminada_en = models.DateTimeField(null=True, blank=True)
+    oculta_por_moderacion = models.BooleanField(default=False)
     creada_en = models.DateTimeField(auto_now_add=True)
     actualizada_en = models.DateTimeField(auto_now=True)
 

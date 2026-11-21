@@ -99,6 +99,9 @@
                     <span class="messenger-producto-etiqueta">SOBRE ESTA PUBLICACIÓN</span>
                     <strong>{{ conversacion.publicacion.titulo }}</strong>
                 {% if puede_ver_publicacion %}</a>{% else %}</span>{% endif %}
+                <a class="messenger-ajustes-enlace" href="{% url 'conversaciones:ajustes' conversacion.pk %}" aria-label="Ajustes de la conversación" title="Ajustes de la conversación">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                </a>
             </header>
 
             <div class="messenger-contexto">

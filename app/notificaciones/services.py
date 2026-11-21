@@ -7,6 +7,8 @@ from django.conf import settings
 from django.db import transaction
 from django.urls import reverse
 from django.utils import timezone
+
+from app.denuncias.models import ConversacionSilenciada
 from pywebpush import WebPushException, webpush
 
 from .models import Notificacion, PreferenciaNotificaciones, SuscripcionPush
@@ -127,6 +129,11 @@ def notificar_mensaje_recibido(conversacion, remitente):
         destinatario = conversacion.publicacion.usuario
     else:
         destinatario = conversacion.interesado
+    if ConversacionSilenciada.objects.filter(
+        usuario=destinatario,
+        conversacion=conversacion,
+    ).exists():
+        return None
 
     nombre = remitente.get_full_name().strip() or "Alguien"
     return crear_notificacion(

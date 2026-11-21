@@ -13,6 +13,7 @@ from django.views.decorators.http import require_GET, require_POST, require_http
 from app.categorias.models import Categoria
 from app.geografia.models import Departamento, Municipio
 from app.notificaciones.services import notificar_nueva_publicacion
+from app.denuncias.models import BloqueoUsuario
 from app.ubicaciones.models import Ubicacion
 
 from .imagenes import ErrorImagen, TAMANO_MAXIMO_IMAGEN, preparar_imagen
@@ -24,7 +25,15 @@ MAXIMO_IMAGENES = 5
 
 def _publicaciones_activas():
     return (
-        Publicacion.objects.filter(estado=Publicacion.Estado.PUBLICADA)
+        Publicacion.objects.filter(
+            estado=Publicacion.Estado.PUBLICADA,
+            oculta_por_moderacion=False,
+            usuario__is_active=True,
+        )
+        .filter(
+            Q(usuario__suspendido_hasta__isnull=True)
+            | Q(usuario__suspendido_hasta__lte=timezone.now())
+        )
         .select_related(
             "categoria",
             "ubicacion",
@@ -100,10 +109,28 @@ def detalle(request, pk):
     ).prefetch_related("imagenes")
     if request.user.is_authenticated:
         publicaciones = publicaciones.filter(
-            Q(estado=Publicacion.Estado.PUBLICADA) | Q(usuario=request.user)
+            (
+                Q(
+                    estado=Publicacion.Estado.PUBLICADA,
+                    oculta_por_moderacion=False,
+                    usuario__is_active=True,
+                )
+                & (
+                    Q(usuario__suspendido_hasta__isnull=True)
+                    | Q(usuario__suspendido_hasta__lte=timezone.now())
+                )
+            )
+            | Q(usuario=request.user)
         )
     else:
-        publicaciones = publicaciones.filter(estado=Publicacion.Estado.PUBLICADA)
+        publicaciones = publicaciones.filter(
+            estado=Publicacion.Estado.PUBLICADA,
+            oculta_por_moderacion=False,
+            usuario__is_active=True,
+        ).filter(
+            Q(usuario__suspendido_hasta__isnull=True)
+            | Q(usuario__suspendido_hasta__lte=timezone.now())
+        )
     publicacion = get_object_or_404(publicaciones, pk=pk)
     es_propietario = request.user.is_authenticated and publicacion.usuario_id == request.user.pk
     if es_propietario:
@@ -130,6 +157,17 @@ def detalle(request, pk):
             "publicacion": publicacion,
             "es_propietario": False,
             "mostrar_sidebar_cuenta": False,
+            "puede_reportar": (
+                request.user.is_authenticated
+                and publicacion.usuario_id != request.user.pk
+            ),
+            "contacto_bloqueado": (
+                request.user.is_authenticated
+                and BloqueoUsuario.objects.filter(
+                    bloqueador=request.user,
+                    bloqueado=publicacion.usuario,
+                ).exists()
+            ),
             "categorias": Categoria.objects.filter(activa=True),
             "departamentos": Departamento.objects.all(),
             "filtros": {

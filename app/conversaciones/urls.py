@@ -17,6 +17,7 @@ urlpatterns = [
         views.mensajes_anteriores,
         name="mensajes_anteriores",
     ),
+    path("<int:pk>/ajustes/", views.ajustes, name="ajustes"),
     path(
         "<int:pk>/adjuntos/<int:mensaje_id>/",
         views.adjunto,

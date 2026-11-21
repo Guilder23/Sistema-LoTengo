@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Ajustes del chat con {{ persona_contacto.get_full_name|default:"persona usuaria" }} | Lotengo{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/conversaciones/lista.css' %}">
+    <link rel="stylesheet" href="{% static 'css/conversaciones/ajustes.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="chat-ajustes">
+    <header class="chat-ajustes-encabezado">
+        {% if puede_volver_al_chat %}
+            <a class="chat-ajustes-volver" href="{% url 'conversaciones:detalle' conversacion.pk %}">← Volver al chat</a>
+        {% endif %}
+        <span class="chat-ajustes-etiqueta">CONVERSACIÓN</span>
+        <h1>Ajustes del chat</h1>
+    </header>
+
+    <article class="chat-ajustes-persona">
+        <span class="messenger-avatar messenger-avatar-grande" aria-hidden="true">
+            {% if persona_contacto.perfil.foto %}
+                <img src="{{ persona_contacto.perfil.foto.url }}" alt="">
+            {% else %}
+                {{ persona_contacto.first_name|default:"L"|first|upper }}
+            {% endif %}
+        </span>
+        <div class="chat-ajustes-identidad">
+            <h2>{{ persona_contacto.get_full_name|default:"Persona usuaria" }}</h2>
+            <a href="{% url 'perfiles:publico' persona_contacto.pk %}">Ver perfil</a>
+        </div>
+    </article>
+
+    <section class="chat-ajustes-seccion" aria-labelledby="chat-ajustes-publicacion">
+        <h2 id="chat-ajustes-publicacion">Publicación de la conversación</h2>
+        <div class="chat-ajustes-publicacion">
+            <span class="publicacion-tipo tipo-{{ conversacion.publicacion.tipo }}">{{ conversacion.publicacion.get_tipo_display }}</span>
+            <div>
+                <strong>{{ conversacion.publicacion.titulo }}</strong>
+                <span>{{ conversacion.publicacion.categoria.nombre }}</span>
+            </div>
+            {% if puede_ver_publicacion %}
+                <a href="{% url 'publicaciones:detalle' conversacion.publicacion.pk %}">Ver publicación</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="chat-ajustes-seccion" aria-labelledby="chat-ajustes-seguridad">
+        <h2 id="chat-ajustes-seguridad">Privacidad y seguridad</h2>
+        <div class="chat-ajustes-acciones">
+            <form method="post" action="{% url 'denuncias:silenciar' conversacion.pk %}">
+                {% csrf_token %}
+                <div>
+                    <strong>{% if conversacion_silenciada %}Notificaciones silenciadas{% else %}Notificaciones del chat{% endif %}</strong>
+                    <span>{% if conversacion_silenciada %}No recibirás avisos de mensajes nuevos.{% else %}Recibe avisos cuando llegue un mensaje.{% endif %}</span>
+                </div>
+                <button class="chat-ajustes-boton" type="submit">{% if conversacion_silenciada %}Activar{% else %}Silenciar{% endif %}</button>
+            </form>
+
+            <form method="post" action="{% url 'denuncias:bloquear' persona_contacto.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <div>
+                    <strong>{% if bloqueado_por_mi %}Usuario bloqueado{% else %}Bloquear usuario{% endif %}</strong>
+                    <span>{% if bloqueado_por_mi %}No podrá iniciar ni continuar conversaciones contigo.{% else %}Evita que esta persona pueda enviarte mensajes.{% endif %}</span>
+                </div>
+                <button class="chat-ajustes-boton{% if not bloqueado_por_mi %} es-peligro{% endif %}" type="submit">{% if bloqueado_por_mi %}Desbloquear{% else %}Bloquear{% endif %}</button>
+            </form>
+
+            <a class="chat-ajustes-accion chat-ajustes-accion-peligro" href="{% url 'denuncias:crear' %}?usuario={{ persona_contacto.pk }}">
+                <span><strong>Reportar cuenta</strong><small>Informa al equipo sobre esta persona.</small></span>
+                <span aria-hidden="true">›</span>
+            </a>
+            <a class="chat-ajustes-accion chat-ajustes-accion-peligro" href="{% url 'denuncias:crear' %}?publicacion={{ conversacion.publicacion.pk }}">
+                <span><strong>Reportar publicación</strong><small>Informa sobre el aviso asociado al chat.</small></span>
+                <span aria-hidden="true">›</span>
+            </a>
+        </div>
+    </section>
+
+    {% if mensajes_reportables %}
+        <section class="chat-ajustes-seccion" aria-labelledby="chat-ajustes-mensajes">
+            <h2 id="chat-ajustes-mensajes">Reportar un mensaje</h2>
+            <p class="chat-ajustes-ayuda">Elige uno de los mensajes recientes recibidos en esta conversación.</p>
+            <div class="chat-ajustes-mensajes">
+                {% for mensaje in mensajes_reportables %}
+                    <article>
+                        <div>
+                            <span>{{ mensaje.enviada_en|date:"j M Y, H:i" }}</span>
+                            <p>
+                                {% if mensaje.contenido %}{{ mensaje.contenido|truncatechars:100 }}
+                                {% elif mensaje.tipo_adjunto == "imagen" %}Imagen adjunta
+                                {% elif mensaje.tipo_adjunto == "audio" %}Audio adjunto
+                                {% else %}Mensaje{% endif %}
+                            </p>
+                        </div>
+                        <a href="{% url 'denuncias:crear' %}?mensaje={{ mensaje.pk }}">Reportar</a>
+                    </article>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+</section>
+{% endblock %}

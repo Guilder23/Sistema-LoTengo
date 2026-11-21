@@ -12,6 +12,8 @@ urlpatterns = [
     path("perfil/", include("app.perfiles.urls")),
     path("publicaciones/", include("app.publicaciones.urls")),
     path("conversaciones/", include("app.conversaciones.urls")),
+    path("denuncias/", include("app.denuncias.urls")),
+    path("administracion/moderacion/", include("app.moderacion.urls")),
     path(
         "notificaciones/",
         include("app.notificaciones.urls"),

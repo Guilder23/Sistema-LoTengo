@@ -120,6 +120,48 @@ class PruebasConversaciones(DatosConversaciones, TestCase):
             3,
         )
 
+    def test_ajustes_del_chat_muestra_contacto_y_reune_acciones(self):
+        conversacion = Conversacion.objects.create(
+            publicacion=self.publicacion,
+            interesado=self.interesado,
+        )
+        Perfil.objects.create(
+            usuario=self.publicador,
+            foto="perfiles/fotos/perfil.jpg",
+        )
+        self.client.force_login(self.interesado)
+
+        respuesta = self.client.get(
+            reverse("conversaciones:ajustes", args=(conversacion.pk,))
+        )
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, "Ajustes del chat")
+        self.assertContains(respuesta, "Ana Publicadora")
+        self.assertContains(respuesta, "media/perfiles/fotos/perfil.jpg")
+        self.assertContains(respuesta, "Silenciar")
+        self.assertContains(respuesta, "Reportar cuenta")
+        self.assertContains(respuesta, "Bloquear")
+
+    def test_chat_muestra_menu_de_ajustes_sin_enlaces_repetidos_de_denuncia(self):
+        conversacion = Conversacion.objects.create(
+            publicacion=self.publicacion,
+            interesado=self.interesado,
+        )
+        Mensaje.objects.create(
+            conversacion=conversacion,
+            remitente=self.publicador,
+            contenido="Mensaje de prueba",
+        )
+        self.client.force_login(self.interesado)
+
+        respuesta = self.client.get(self.detalle_url(conversacion))
+
+        self.assertContains(respuesta, "Ajustes de la conversación")
+        self.assertNotContains(respuesta, "Reportar mensaje")
+        self.assertNotContains(respuesta, "Silenciar conversación")
+        self.assertNotContains(respuesta, "Bloquear persona")
+
     def test_lista_ordena_chats_por_el_mensaje_mas_reciente(self):
         conversacion_antigua = Conversacion.objects.create(
             publicacion=self.publicacion,
